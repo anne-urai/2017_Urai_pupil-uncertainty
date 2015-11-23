@@ -196,6 +196,8 @@ for sj = unique(subjects),
     out = rocAnalysis(data.decision_pupil(data.correct==1), ...
         data.decision_pupil(data.correct==0), 0, 10000);
     
+    [X,Y,T,AUC] = perfcurve(labels,scores,posclass);
+    
     grandavg.roc(sj)    = out.i;
     grandavg.pval(sj)   = out.p;
 end
