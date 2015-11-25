@@ -1,4 +1,5 @@
 % add paths and fieldtrip
+clear all; close all; clc;
 addpath(genpath('~/code/pupilUncertainty'));
 addpath(genpath('~/code/Tools'));
 addpath('~/Documents/fieldtrip/');
@@ -66,10 +67,10 @@ for sj = unique(subjects),
                 asc = read_eyelink_ascNK_AU(ascfile.name);
                 
                 % create events and data structure, parse asc
-                [data, event, blinksmp, saccsmp] = asc2dat(asc);
+                [data, event, blinksmp] = asc2dat(asc);
                 
                 % save
-                savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
+                savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp');
                 % else
                 %     load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
                 % end
@@ -81,8 +82,7 @@ for sj = unique(subjects),
                 [newpupil, newblinksmp] = blink_interpolate(asc, data, blinksmp, 1);
                 data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
                 suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
-
-                waitforbuttonpress;
+                disp('waiting for buttonpress');
                 print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_s%d_b%d_preproc.pdf', sj, session, block));
                 close;
                 
