@@ -1,14 +1,14 @@
 % add paths and fieldtrip
 addpath(genpath('~/code/pupilUncertainty'));
 addpath(genpath('~/code/Tools'));
-addpath('~/Documents/fieldtrip/'); 
+addpath('~/Documents/fieldtrip/');
 ft_defaults;
 subjects = 1:27; close all;
 
 for sj = unique(subjects),
     clearvars -except sj subjects;
     
-    cd(sprintf('~/Data/UvA_pupil/P%02d/', sj));
+    cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
     
     clear sessions;
     % check which sessions to use
@@ -18,7 +18,7 @@ for sj = unique(subjects),
     
     for session = unique(sessions),
         
-        cd([sprintf('~/Data/UvA_pupil/P%02d/', sj) 'S' num2str(session)]);
+        cd([sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj) 'S' num2str(session)]);
         
         % ==================================================================
         % LOAD IN SUBJECT SPECIFICS AND READ DATA
@@ -43,36 +43,36 @@ for sj = unique(subjects),
             edffile   = dir(sprintf('P%d_s%d_b%d_*.edf', sj, session, block));
             ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
             
-            if ~exist(sprintf('~/Data/UvA_pupil/P%02d/P%02d_s%d_b%02d_eyeclean.mat', sj, sj, session, block), 'file'),
-                if ~exist(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'file'),
+            if ~exist(sprintf('~/Data/HD1/UvA_pupil/P%02d/P%02d_s%d_b%02d_eyeclean2.mat', sj, sj, session, block), 'file'),
+                % if ~exist(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'file'),
+                
+                % specify the filename
+                if ~exist(ascfile.name, 'file'),
                     
-                    % specify the filename
-                    if ~exist(ascfile.name, 'file'),
-                        
-                        % CONVERT TO ASC
-                        if exist('~/code/Tools/eye/edf2asc-linux', 'file'),
-                            system(sprintf('%s %s -input', '~/code/Tools/eye/edf2asc-linux', edffile.name));
-                        else
-                            system(sprintf('%s %s -input', '~/Dropbox/code/Tools/eye/edf2asc-mac', edffile.name));
-                        end
-                        ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
+                    % CONVERT TO ASC
+                    if exist('~/code/Tools/eye/edf2asc-linux', 'file'),
+                        system(sprintf('%s %s -input', '~/code/Tools/eye/edf2asc-linux', edffile.name));
+                    else
+                        system(sprintf('%s %s -input', '~/Dropbox/code/Tools/eye/edf2asc-mac', edffile.name));
                     end
-                    
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    % making a FieldTrip structure out of EyeLink data
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    
-                    % read in the asc EyeLink file
-                    asc = read_eyelink_ascNK_AU(ascfile.name);
-                    
-                    % create events and data structure, parse asc
-                    [data, event, blinksmp, saccsmp] = asc2dat(asc);
-                    
-                    % save
-                    savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
-                else
-                    load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
+                    ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
                 end
+                
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % making a FieldTrip structure out of EyeLink data
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                % read in the asc EyeLink file
+                asc = read_eyelink_ascNK_AU(ascfile.name);
+                
+                % create events and data structure, parse asc
+                [data, event, blinksmp, saccsmp] = asc2dat(asc);
+                
+                % save
+                savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
+                % else
+                %     load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
+                % end
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % blink interpolation
@@ -80,6 +80,11 @@ for sj = unique(subjects),
                 
                 [newpupil, newblinksmp] = blink_interpolate(asc, data, blinksmp, 1);
                 data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
+                suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
+
+                waitforbuttonpress;
+                print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_s%d_b%d_preproc.pdf', sj, session, block));
+                close;
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % regress out pupil response to blinks and saccades
@@ -96,7 +101,7 @@ for sj = unique(subjects),
                 cfg.lpfreq          = 10; % lowpass at 10 to get rid of fast noise
                 datafilt            = ft_preprocessing(cfg, data);
                 pupilchan           = find(strcmp(datafilt.label, 'EyePupil')==1);
-
+                
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % compute percent signal change rather than zscore
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,7 +112,7 @@ for sj = unique(subjects),
                 % normalize
                 pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
                 datafilt.trial{1}(pupilchan,:) = pupiltimecourse; % put back in
-
+                
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % define trials
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,9 +155,9 @@ for sj = unique(subjects),
                 data = ft_resampledata(cfg, data);
                 
                 cd ..
-                disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block)]);
+                disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean2.mat', sj, session, block)]);
                 % save these datafiles before appending
-                savefast(sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block), 'data');
+                savefast(sprintf('P%02d_s%d_b%02d_eyeclean2.mat', sj, session, block), 'data');
                 cd(['S' num2str(session)]);
                 
             end
@@ -164,7 +169,7 @@ for sj = unique(subjects),
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % check if the full dataset is not there yet
-    cd(sprintf('~/Data/UvA_pupil/P%02d/', sj));
+    cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
     eyelinkfiles = dir(sprintf('P%02d*_eyeclean.mat', sj));
     
     % make sure these are in the right order!
@@ -179,7 +184,7 @@ for sj = unique(subjects),
     
     cfg = [];
     cfg.inputfile = {eyelinkfiles.name};
-    cfg.outputfile = sprintf('~/Data/UvA_pupil/P%02d_alleye.mat', sj);
+    cfg.outputfile = sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj);
     ft_appenddata(cfg);
     
 end
