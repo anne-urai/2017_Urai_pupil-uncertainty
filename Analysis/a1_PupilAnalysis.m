@@ -1,5 +1,5 @@
 % add paths and fieldtrip
-addpath(genpath('~/code/Pupil_Learning'));
+addpath(genpath('~/code/pupilUncertainty'));
 addpath(genpath('~/code/Tools'));
 addpath('~/Documents/fieldtrip/'); 
 ft_defaults;
@@ -65,25 +65,27 @@ for sj = unique(subjects),
                     % read in the asc EyeLink file
                     asc = read_eyelink_ascNK_AU(ascfile.name);
                     
-                    % create events and data structure
-                    [data, event] = asc2dat(asc);
+                    % create events and data structure, parse asc
+                    [data, event, blinksmp, saccsmp] = asc2dat(asc);
                     
                     % save
-                    savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event');
+                    savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
                 else
                     load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
                 end
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % linear blink interpolation
+                % blink interpolation
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
-                close all;
+                [newpupil, newblinksmp] = blink_interpolate(asc, data, blinksmp, 1);
+                data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
                 
-                pupilchan    = find(strcmp(data.label, 'EyePupil')==1);
-                pupildat     = data.trial{1}(pupilchan,:);
-                [blinksmp, newpupildat] = blinkinterpolate_gui(pupildat, data.fsample);
-                data.trial{1}(pupilchan, :) = newpupildat;
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % regress out pupil response to blinks and saccades
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                % [data] = blink_regressout(asc, data, newblinksmp, saccsmp, 1);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % lowpass filter
@@ -93,8 +95,7 @@ for sj = unique(subjects),
                 cfg.lpfilter        = 'yes';
                 cfg.lpfreq          = 10; % lowpass at 10 to get rid of fast noise
                 datafilt            = ft_preprocessing(cfg, data);
-                
-                pupilchan   = find(strcmp(datafilt.label, 'EyePupil')==1);
+                pupilchan           = find(strcmp(datafilt.label, 'EyePupil')==1);
 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % compute percent signal change rather than zscore
