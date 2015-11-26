@@ -1,14 +1,19 @@
 function a1_PupilAnalysis(sj)
-
+sj = 1;
 if ischar(sj), sj = str2double(sj); end
 
 % add paths and fieldtrip
 close all; clc;
 addpath(genpath('~/code/pupilUncertainty'));
 addpath(genpath('~/code/Tools'));
+addpath(genpath('~/Dropbox/code/pupilUncertainty'));
+addpath(genpath('~/Dropbox/code/Tools'));
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
-cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
+
+pathname = '~/Data/UvA_pupil';
+%pathname = '~/Data/HD1/UvA_pupil';
+cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
 % check which sessions to use
@@ -18,7 +23,7 @@ for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
 for session = unique(sessions),
     
-    cd([sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj) 'S' num2str(session)]);
+    cd([sprintf('%s/P%02d/', pathname, sj) 'S' num2str(session)]);
     
     % ==================================================================
     % LOAD IN SUBJECT SPECIFICS AND READ DATA
@@ -38,7 +43,7 @@ for session = unique(sessions),
     end
     
     for block = unique(blocks),
-        clearvars -except sj session block subjects sessions blocks
+        clearvars -except sj session block subjects sessions blocks pathname
         
         disp(['Analysing subject ' num2str(sj) ', session ' num2str(session) ', block ' num2str(block)]);
         
@@ -78,10 +83,6 @@ for session = unique(sessions),
             savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp');
         end
         
-        % else
-        %     load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
-        % end
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % blink interpolation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,39 +90,25 @@ for session = unique(sessions),
         [newpupil, newblinksmp] = blink_interpolate(asc, data, blinksmp, 1);
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
         suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
+        print(gcf, '-dpdf', sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', pathname, sj, session, block));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % regress out pupil response to blinks and saccades
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % [data] = blink_regressout(asc, data, newblinksmp, saccsmp, 1);
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % lowpass filter
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        cfg                 = [];
-        cfg.lpfilter        = 'yes';
-        cfg.lpfreq          = 4; % can lowpass at 4hz to get a smoother signal
-        datafilt            = ft_preprocessing(cfg, data);
-        
-        subplot(515);
-        pupilchan = find(strcmp(datafilt.label, 'EyePupil')==1);
-        plot(datafilt.time{1}, datafilt.trial{1}(pupilchan, :));
-        axis tight; box off; set(gca, 'tickdir', 'out');
-        ylabel('Filtered'); xlabel('Time (s)');
-        print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_s%d_b%d_preproc.pdf', sj, session, block));
+        [newdata] = blink_regressout(asc, data, newblinksmp, saccsmp, 1);
+        print(gcf, '-dpdf', sprintf('%s/Figures/P%02d_s%d_b%d_regressout.pdf', pathname, sj, session, block));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % compute percent signal change rather than zscore
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        pupildat    = datafilt.trial{1}(pupilchan,:);
+        pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
         medianpupil = median(pupildat);
         
         % normalize
         pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
-        datafilt.trial{1}(pupilchan,:) = pupiltimecourse; % put back in
+        data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupiltimecourse; % put back in
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % define trials
@@ -138,7 +125,7 @@ for session = unique(sessions),
         cfg.session                 = session;
         [cfg]                       = ft_definetrial(cfg);
         
-        data                        = ft_redefinetrial(cfg, datafilt); %make trials
+        data                        = ft_redefinetrial(cfg, data); %make trials
         data.trialinfo              = cfg.trl(:,4:end);
         
         % in sj 3 and 5, recode the block nrs
@@ -178,7 +165,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % check if the full dataset is not there yet
-cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
+cd(sprintf('%s/P%02d/', pathname, sj));
 eyelinkfiles = dir(sprintf('P%02d*_eyeclean2.mat', sj));
 
 % make sure these are in the right order!
@@ -193,7 +180,7 @@ eyelinkfiles        = eyelinkfiles(sortidx);
 
 cfg = [];
 cfg.inputfile = {eyelinkfiles.name};
-cfg.outputfile = sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj);
+cfg.outputfile = sprintf('%s/P%02d_alleye2.mat', pathname, sj);
 ft_appenddata(cfg);
 
 end

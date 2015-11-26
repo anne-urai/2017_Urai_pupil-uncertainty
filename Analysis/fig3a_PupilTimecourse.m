@@ -1,4 +1,4 @@
-function [] = f3ab_PupilTimecourse()
+function [] = fig3a_PupilTimecourse()
 % show 1. the overall timecourse of the pupil
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty
@@ -14,8 +14,6 @@ subjects = 1:27;
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
-    thistable = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
-    
     pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(1).lock.label, 'EyePupil')==1);
     
     % get all timelock
@@ -49,7 +47,6 @@ print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig2a_pupil.pdf');
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tabledat = readtable('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
@@ -57,7 +54,7 @@ load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage.mat');
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
-    thistable = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    thistable = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
     
     cors = [0 1];
     cnt  = 0;

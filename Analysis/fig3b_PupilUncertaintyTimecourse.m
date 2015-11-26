@@ -1,4 +1,4 @@
-function [] = f3c_PupilUncertaintyTimecourse()
+function [] = fig3b_PupilUncertaintyTimecourse()
 % show 1. the overall timecourse of the pupil
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty
@@ -9,11 +9,14 @@ close all; clear; clc;
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
-doStats             = false; % permutation statistics across the group
+doStats             = true; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 
+addpath('~/Documents/fieldtrip');
+ft_defaults;
+
 subjects = 1:27;
-load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage.mat');
+load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage2.mat');
 tabledat = readtable('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
@@ -176,11 +179,11 @@ for whichbeta = 1:size(designM2, 2),
     % also a shaded area to indicate which part we will use for the
     % statistical comparison
     if 0,
-    xticks = get(gca, 'xtick');
-    a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
-        min(get(gca, 'ylim')));
-    a.FaceColor = [0.4 0.4 0.4];
-    a.EdgeColor = 'none';
+        xticks = get(gca, 'xtick');
+        a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
+            min(get(gca, 'ylim')));
+        a.FaceColor = [0.4 0.4 0.4];
+        a.EdgeColor = 'none';
     end
     set(gca, 'xticklabel', []);
     
@@ -233,7 +236,7 @@ if 0,
    % title('Canonical pupil IRF');
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/learning/Fig2b_pupiltimecourse.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig2b_pupiltimecourse.pdf'));
 disp('SAVED');
 end
 

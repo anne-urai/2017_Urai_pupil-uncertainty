@@ -1,4 +1,4 @@
-function [] = f2c_PupilUncertaintyCorrelation()
+function [] = fig3c_PupilUncertaintyCorrelation()
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
@@ -81,7 +81,6 @@ for f = 1:length(fields),
                     end
                 else
                     tmpdata = data;
-                    
                 end
             else
                 tmpdata = data;
