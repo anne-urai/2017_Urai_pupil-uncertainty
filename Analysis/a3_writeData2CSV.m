@@ -8,7 +8,7 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-for sj = fliplr(subjects),
+for sj = (subjects),
     
     clearvars -except sj subjects alldat pupilgrandavg;
     if ~exist(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj), 'file'),
@@ -122,9 +122,7 @@ for sj = fliplr(subjects),
     % use subfunction to get all the pupil info we're interested in
     data.fsample          = 100;
     [pupildat, timelock] = s2b_GetIndividualData(data, sj, 1);
-    suplabel(sprintf('P%02d', sj), 't');
-    print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_timecourse.pdf', sj));
-    
+   
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
     RT             = (newtrl(:, 9) - newtrl(:,6)) / data.fsample;
@@ -192,7 +190,26 @@ end
 
 function [trialinfo, timelock] = s2b_GetIndividualData(data, sj, plotme)
 
-if plotme, clf; end
+if plotme, 
+    clf; 
+    pupilchan       = find(strcmp(data.label, 'EyePupil')==1);    
+    cnt = 1;
+    for session = 1:6,
+        for block = 1:10,
+            subplot(10, 6, cnt);
+            try
+                trls = find(data.trialinfo(:, 14) == session & data.trialinfo(:, 13)==block);
+                trldat = cat(2, data.trial{trls});
+                
+                plot(trldat(pupilchan, :));
+            end
+            axis tight; axis off;
+            cnt = cnt + 1;
+        end
+    end
+    print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_alldata.pdf', sj));
+end
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PRE-STIMULUS BASELINE
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,7 +217,6 @@ if plotme, clf; end
 disp('baseline correcting...');
 bl = nan(length(data.trial), 1);
 data_blcorr = data;
-pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
 for t = 1:length(data_blcorr.trial),
     
@@ -276,6 +292,8 @@ trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
 assert(~any(isnan(trialinfo(:))));
 
 if plotme,
+    clf;
+    
     alltimelock = cat(2, squeeze(timelock(1).lock.trial(:, pupilchan, :)), ...
         squeeze(timelock(2).lock.trial(:, pupilchan, :)), ...
         squeeze(timelock(3).lock.trial(:, pupilchan, :)), ...
@@ -331,7 +349,8 @@ if plotme,
     ph = boundedline(1:size(fulltimelock.mn, 2), fulltimelock.mn', ...
         permute(fulltimelock.std, [2 3 1]) ./ 4, 'cmap', cols, 'alpha');
     hold on;
-   
+    print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_timecourse.pdf', sj));
+    
 end
 end
 
