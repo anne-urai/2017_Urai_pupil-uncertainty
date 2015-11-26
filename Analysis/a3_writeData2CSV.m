@@ -7,7 +7,7 @@ dbstop if error;
 addpath('~/Documents/fieldtrip');
 ft_defaults;
 
-subjects = 1;
+subjects = 1:27;
 for sj = fliplr(subjects),
     
     clearvars -except sj subjects alldat pupilgrandavg;
