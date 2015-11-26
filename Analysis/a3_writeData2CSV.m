@@ -2,23 +2,23 @@ function [] = a3_writeData2CSV()
 % WRITE BEHAVIOURAL DATA AND SINGLE-TRIAL PUPIL MEASURES
 
 clear all; close all; clc;
-addpath('~/code/pupil_learning'); % for some curve fitting
+addpath('~/code/pupilUncertainty/Analysis');
 dbstop if error;
 addpath('~/Documents/fieldtrip');
 ft_defaults;
 
-subjects = 1:27;
+subjects = 1;
 for sj = fliplr(subjects),
     
     clearvars -except sj subjects alldat pupilgrandavg;
-    if ~exist(sprintf('~/Data/UvA_pupil/P%02d_alleye.mat', sj), 'file'),
-        copyfile(sprintf('~/Data/UvA_pupil/P%02d/P%02d_alleye.mat', sj, sj), ...
-            sprintf('~/Data/UvA_pupil/P%02d_alleye.mat', sj));
+    if ~exist(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj), 'file'),
+        copyfile(sprintf('~/Data/HD1/UvA_pupil/P%02d/P%02d_alleye2.mat', sj, sj), ...
+            sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj));
     end
-    load(sprintf('~/Data/UvA_pupil/P%02d_alleye.mat', sj));
+    load(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj));
     
     % check which sessions to use
-    cd(sprintf('~/Data/UvA_pupil/P%02d/', sj));
+    cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
     clear sessions;
     s = dir('S*');
     s = {s(:).name};
@@ -27,7 +27,7 @@ for sj = fliplr(subjects),
     % GET ALL THE FILTERED MOTIONENERGY FOR THIS SUBJECT
     clear mdats mdat
     for session = sessions,
-        load(sprintf('~/Data/UvA_pupil/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session));
+        load(sprintf('~/Data/HD1/UvA_pupil/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session));
         
         % transform into table
         mdat = structfun(@transpose, mdat, 'uniformoutput', 0);
@@ -62,10 +62,6 @@ for sj = fliplr(subjects),
             % check that this makes sense
             assert(~isempty(thist));
             assert(trl(t,3) .* trl(t,4) - mdats.stim(thist) < 0.001);
-            
-            % assert(trl(t,7) == mdats.response(thist));
-            % assert(trl(t,8) == mdats.correct(thist));
-            
             % then add to the trlinfo
             trl(t,15) = mdats.strength(thist);
         catch
@@ -125,7 +121,9 @@ for sj = fliplr(subjects),
     
     % use subfunction to get all the pupil info we're interested in
     data.fsample          = 100;
-    [pupildat, timelock] = s2b_GetIndividualData(data, sj);
+    [pupildat, timelock] = s2b_GetIndividualData(data, sj, 1);
+    suplabel(sprintf('P%02d', sj), 't');
+    print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_timecourse.pdf', sj));
     
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
@@ -155,7 +153,7 @@ for sj = fliplr(subjects),
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
     
     disp(['finished sj ' num2str(sj)]);
     alldat{find(sj==subjects)} = newtrl;
@@ -178,12 +176,12 @@ if length(subjects) > 5,
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv'));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data_allsj.csv'));
     
     % write a grand average file with all the timelocked data
     disp('saving timelock...');
     tic;
-    savefast('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage.mat', 'pupilgrandavg');
+    savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage2.mat', 'pupilgrandavg');
     toc;
     
     fprintf('\n\nout of %d trials (all sj), %d trials not matched \n\n', length(t.motionstrength), ...
@@ -192,8 +190,9 @@ end
 
 end
 
-function [trialinfo, timelock] = s2b_GetIndividualData(data, sj)
+function [trialinfo, timelock] = s2b_GetIndividualData(data, sj, plotme)
 
+if plotme, clf; end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PRE-STIMULUS BASELINE
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -275,5 +274,64 @@ feedbackscalars = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, find(time
 trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
 
 assert(~any(isnan(trialinfo(:))));
+
+if plotme,
+    alltimelock = cat(2, squeeze(timelock(1).lock.trial(:, pupilchan, :)), ...
+        squeeze(timelock(2).lock.trial(:, pupilchan, :)), ...
+        squeeze(timelock(3).lock.trial(:, pupilchan, :)), ...
+        squeeze(timelock(4).lock.trial(:, pupilchan, :)));
+    
+    % plot mean
+    subplot(221);
+    ph = boundedline(1:size(alltimelock, 2), squeeze(nanmean(alltimelock)), ...
+        squeeze(nanstd(alltimelock)));
+    
+    % split by error/correct and difficulty
+    thistable.correct = timelock(1).lock.trialinfo(:, 8);
+    thistable.motionstrength = timelock(1).lock.trialinfo(:, 15);
+    cnt = 0;
+    cors = [0 1];
+    for c = 1:2,
+        trls = find(thistable.correct == cors(c));
+        motionstrengthquantiles = quantile(abs(thistable.motionstrength(trls)), 2);
+        
+        for d = 1:3, % divide into 3 bins of absolute motionstrength
+            
+            % find those trials
+            switch d
+                case 1
+                    trls = find(thistable.correct == cors(c) & abs(thistable.motionstrength) < motionstrengthquantiles(1));
+                case 2
+                    trls = find(thistable.correct == cors(c) & ...
+                        abs(thistable.motionstrength) < motionstrengthquantiles(2) ...
+                        &    abs(thistable.motionstrength) > motionstrengthquantiles(1) );
+                case 3
+                    trls = find(thistable.correct == cors(c) & ...
+                        abs(thistable.motionstrength) > motionstrengthquantiles(2) );
+            end
+            
+            cnt = cnt + 1;
+            % get all timelock
+            fulltimelock.mn(cnt, :) = cat(1, squeeze(nanmean(timelock(1).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanmean(timelock(2).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanmean(timelock(3).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanmean(timelock(4).lock.trial(trls, pupilchan, :))));
+            
+            fulltimelock.std(cnt, :) = cat(1, squeeze(nanstd(timelock(1).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanstd(timelock(2).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanstd(timelock(3).lock.trial(trls, pupilchan, :))), ...
+                squeeze(nanstd(timelock(4).lock.trial(trls, pupilchan, :))));
+        end
+    end
+    
+    subplot(222);
+    cols = cbrewer('div', 'RdYlGn', 10);
+    cols = cols([1:3 end-2:end], :);
+    
+    ph = boundedline(1:size(fulltimelock.mn, 2), fulltimelock.mn', ...
+        permute(fulltimelock.std, [2 3 1]) ./ 4, 'cmap', cols, 'alpha');
+    hold on;
+   
+end
 end
 
