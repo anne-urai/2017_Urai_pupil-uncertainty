@@ -1,5 +1,5 @@
 function a1_PupilAnalysis(sj)
-sj = 1;
+
 if ischar(sj), sj = str2double(sj); end
 
 % add paths and fieldtrip
@@ -12,7 +12,8 @@ addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
 pathname = '~/Data/UvA_pupil';
-%pathname = '~/Data/HD1/UvA_pupil';
+pathname = '~/Data/HD1/UvA_pupil';
+
 cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
@@ -69,36 +70,36 @@ for session = unique(sessions),
         % making a FieldTrip structure out of EyeLink data
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        clear blinksmp
+        clear blinksmp saccsmp
         load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
         
-        if ~exist('blinksmp', 'var'),
+        if ~exist('blinksmp', 'var') || ~exist('saccsmp', 'var'),
             % read in the asc EyeLink file
-            asc = read_eyelink_ascNK_AU(ascfile.name);
-            
-            % create events and data structure, parse asc
-            [data, event, blinksmp] = asc2dat(asc);
-            
-            % save
-            savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp');
+            % asc = read_eyelink_ascNK_AU(ascfile.name);
         end
+        
+        % create events and data structure, parse asc
+        [data, event, blinksmp, saccsmp] = asc2dat(asc);
+        
+        % save
+        savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % blink interpolation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        [newpupil, newblinksmp] = blink_interpolate(asc, data, blinksmp, 1);
+        [newpupil, newblinksmp] = blink_interpolate(data, blinksmp, 1);
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
         suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
-        print(gcf, '-dpdf', sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', pathname, sj, session, block));
+        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', pathname, sj, session, block), 'pdf');
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % regress out pupil response to blinks and saccades
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        [newdata] = blink_regressout(asc, data, newblinksmp, saccsmp, 1);
-        print(gcf, '-dpdf', sprintf('%s/Figures/P%02d_s%d_b%d_regressout.pdf', pathname, sj, session, block));
-        
+        data = blink_regressout(data, newblinksmp, saccsmp, 1);
+        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % compute percent signal change rather than zscore
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
