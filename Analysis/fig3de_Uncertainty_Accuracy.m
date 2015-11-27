@@ -1,4 +1,4 @@
-function [] = f4bc_Uncertainty_Accuracy(nbins)
+function [] = fig3de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 if ~exist('nbins', 'var'), nbins = 100; end
@@ -9,7 +9,7 @@ fitIndividual = false;
 
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
     
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -83,7 +83,7 @@ if 0,
     set(gca, 'xcolor', 'k', 'ycolor', 'k')
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Pupil_accuracy.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3d_pupil_accuracy.pdf'));
 
 %% fit logistic slope on high vs low pupil bins
 subjects = 1:27;
@@ -158,7 +158,20 @@ for sj = unique(subjects),
     end
 end
 
+clf;
 % make sure I actually plot the bar graph here to reproduce figure 3!
+subplot(4,5,3);
+h = ploterr(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))), [], ...
+    squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), 'k.', 'hhxy', 0.00001);
+set(h(1), 'marker', 'none');
+
+hold on;
+bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
+bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
+[~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 1), grandavg.betas(:, 1, 2));
+s1 = sigstar({[1 2]}, pval(3), 0);
+ylim([0.4 1.5]); xlim([0.5 2.5]); box off;
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
 
 savefast('~/Data/UvA_pupil/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'allcohs', 'subjects', 'cols');
 
@@ -166,23 +179,23 @@ savefast('~/Data/UvA_pupil/GrandAverage/grandavg_logistic_bypupil.mat', 'grandav
 % !!! rather than doing a permutation test on the logistic slope
 % coefficients, run a proper mixed effects logistic regression
 % fixed effects: slope
-
-clear; clc;
-data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv'));
-
-% normalize the pupil response for each subject
-% this way, we can interpret the coefficient of the pupil fixed effect in
-% units of standard deviation
-for sj = unique(data.subjnr)',
-    data.decision_pupil(sj==data.subjnr) = zscore(data.decision_pupil(sj==data.subjnr));
+if 0,
+    clear; clc;
+    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv'));
+    
+    % normalize the pupil response for each subject
+    % this way, we can interpret the coefficient of the pupil fixed effect in
+    % units of standard deviation
+    for sj = unique(data.subjnr)',
+        data.decision_pupil(sj==data.subjnr) = zscore(data.decision_pupil(sj==data.subjnr));
+    end
+    
+    data.absmotion = abs(data.motionstrength);
+    
+    mdl = fitglme(data, 'correct ~ 1 + decision_pupil + absmotion + (1|subjnr) + (1|sessionnr) ', ...
+        'Distribution', 'Binomial', 'Link', 'Logit');
+    disp(mdl);
 end
-
-data.absmotion = abs(data.motionstrength);
-
-mdl = fitglme(data, 'correct ~ 1 + decision_pupil + absmotion + (1|subjnr) + (1|sessionnr) ', ...
-    'Distribution', 'Binomial', 'Link', 'Logit');
-disp(mdl);
-
 
 %% compute ROC AUC based on pupil
 clear all; clc; close all;
@@ -194,7 +207,7 @@ for sj = unique(subjects),
     data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
     
     out = rocAnalysis(data.decision_pupil(data.correct==1), ...
-        data.decision_pupil(data.correct==0), 0, 10000);
+        data.decision_pupil(data.correct==0), 0, 1);
     
     [X,Y,T,AUC] = perfcurve(labels,scores,posclass);
     

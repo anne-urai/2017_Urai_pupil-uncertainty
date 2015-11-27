@@ -151,6 +151,7 @@ for f = 1:length(fields),
     ylabel({fieldnames{f}; fieldunits{f}});
   %  offsetAxes(gca, 0.1, 0);
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
+    axis tight; axis square;
 
     % make a barplot
     % subplot(length(fields),length(fields), length(fields)*(f-1)+2);

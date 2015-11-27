@@ -44,13 +44,13 @@ for sj = unique(subjects),
     gazex = cat(2, ...
         squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, xchan, :)), ...
         squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, xchan, :)));
-    gazex = gazex - nanmedian(gazex(:)); % normalize
+    gazex = gazex - nanmean(gazex(:)); % normalize
     
     ychan    = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyeV')==1);
     gazey = cat(2, ...
         squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, ychan, :)), ...
         squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, ychan, :)));
-    gazey = gazey - nanmedian(gazey(:)); % normalize
+    gazey = gazey - nanmean(gazey(:)); % normalize
     
     % run a separate glm for correct and error
     cors = [0 1];
@@ -144,7 +144,7 @@ for whichbeta = 1:size(designM2, 2),
     plotLines_respFb(pupilgrandavg.timelock{1}(3).lock, [0 1], ...
         pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
     
-    if doStats && whichbeta > 1, % skip stats for the intercept
+    if doStats && whichbeta == 2, % skip stats for the intercept
         % on this, do cluster based permutation testing over the time
         % dimension - because the samples are not temporally independent...
         
@@ -158,22 +158,23 @@ for whichbeta = 1:size(designM2, 2),
             % compare against null
             grandavg_zero = grandavg_thiscorr(c);
             grandavg_zero.individual = zeros(size(grandavg_thiscorr(c).individual));
-            stat = clusterStat(grandavg_thiscorr(c), grandavg_zero, length(subjects));
+            stat{c} = clusterStat(grandavg_thiscorr(c), grandavg_zero, length(subjects));
             
             % plot on top
-            p(c) = plot(find(stat.mask==1), yval*ones(1, length(find(stat.mask==1))), '.', 'color', cols(c, :), 'markersize', 4);
+            p(c) = plot(find(stat{c}.mask==1), yval*ones(1, length(find(stat{c}.mask==1))), '.', 'color', cols(c, :), 'markersize', 4);
             yval = yval - 0.08*range(get(thisax, 'ylim'));
             
             % output when this starts to become significant
-            signific  = find(stat.mask==1);
+            signific  = find(stat{c}.mask==1);
             alltiming = [pupilgrandavg.timelock{1}(3).lock.time pupilgrandavg.timelock{1}(4).lock.time];
             disp([alltiming(signific(1)) alltiming(signific(end))]);
         end
         
         % also test their difference
         % tail 1: gr1 > gr2
-        stat = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
-        p(3) = plot(find(stat.mask==1), yval*ones(1, length(find(stat.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
+        stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
+        p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
+        ylim([-1 0.5]);
     end
     
     % also a shaded area to indicate which part we will use for the
@@ -215,6 +216,9 @@ for whichbeta = 1:size(designM2, 2),
         set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
     end
 end
+
+save('~/Data/UvA_pupil/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
+
 
 % ==================================================================
 % show the canonical pupil IRF as well
@@ -361,7 +365,7 @@ if 1,
     cfgstats.tail             = 0; % two-tailed!
     cfgstats.clustertail      = 0; % two-tailed!
     cfgstats.alpha            = 0.025;
-    cfgstats.numrandomization = 1000; % make sure this is large enough
+    cfgstats.numrandomization = 5000; % make sure this is large enough
     cfgstats.randomseed       = 1; % make the stats reproducible!
     
     % use only our preselected sensors for the time being
