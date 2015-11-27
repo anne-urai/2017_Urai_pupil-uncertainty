@@ -361,7 +361,7 @@ if 1,
     cfgstats.tail             = 0; % two-tailed!
     cfgstats.clustertail      = 0; % two-tailed!
     cfgstats.alpha            = 0.025;
-    cfgstats.numrandomization = 10000; % make sure this is large enough
+    cfgstats.numrandomization = 1000; % make sure this is large enough
     cfgstats.randomseed       = 1; % make the stats reproducible!
     
     % use only our preselected sensors for the time being
