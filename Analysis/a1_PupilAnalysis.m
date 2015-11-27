@@ -14,6 +14,12 @@ ft_defaults;
 pathname = '~/Data/UvA_pupil';
 pathname = '~/Data/HD1/UvA_pupil';
 
+% check if this file doesnt exist yet
+if exist(sprintf('%s/P%02d_alleye2.mat', pathname, sj), 'file');
+    disp('skipping');
+    return
+end
+
 cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
