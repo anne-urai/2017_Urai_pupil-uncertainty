@@ -11,13 +11,18 @@ addpath(genpath('~/Dropbox/code/Tools'));
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
-pathname = '~/Data/UvA_pupil';
-%pathname = '~/Data/HD1/UvA_pupil';
+try
+    pathname = '~/Data/UvA_pupil';
+    cd(pathname);
+catch % on the cluster
+    pathname = '~/Data/HD1/UvA_pupil';
+    cd(pathname);
+end
 
 % check if this file doesnt exist yet
 if exist(sprintf('%s/P%02d_alleye2.mat', pathname, sj), 'file');
-    disp('skipping');
-    return
+ %   disp('skipping');
+ %   return
 end
 
 cd(sprintf('%s/P%02d/', pathname, sj));
@@ -81,21 +86,22 @@ for session = unique(sessions),
         
         if ~exist('blinksmp', 'var') || ~exist('saccsmp', 'var'),
             % read in the asc EyeLink file
-            % asc = read_eyelink_ascNK_AU(ascfile.name);
+            asc = read_eyelink_ascNK_AU(ascfile.name);
+            
+            % create events and data structure, parse asc
+            [data, event, blinksmp, saccsmp] = asc2dat(asc);
+            
+            % save
+            savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
         end
-        
-        % create events and data structure, parse asc
-        [data, event, blinksmp, saccsmp] = asc2dat(asc);
-        
-        % save
-        savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % blink interpolation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        [newpupil, newblinksmp] = blink_interpolate(data, blinksmp, 1);
+        newpupil = blink_interpolate(data, blinksmp, 1);
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
+        
         suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', pathname, sj, session, block), 'pdf');
         
@@ -103,7 +109,8 @@ for session = unique(sessions),
         % regress out pupil response to blinks and saccades
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        data = blink_regressout(data, newblinksmp, saccsmp, 1);
+        % for this, use only EL-defined blinksamples
+        data = blink_regressout(data, blinksmp, saccsmp, 1);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

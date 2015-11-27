@@ -121,7 +121,7 @@ for sj = (subjects),
     
     % use subfunction to get all the pupil info we're interested in
     data.fsample          = 100;
-    [pupildat, timelock] = s2b_GetIndividualData(data, sj, 1);
+    [pupildat, timelock] = s2b_GetIndividualData(data, sj, 0);
    
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
@@ -190,9 +190,10 @@ end
 
 function [trialinfo, timelock] = s2b_GetIndividualData(data, sj, plotme)
 
-if plotme, 
-    clf; 
-    pupilchan       = find(strcmp(data.label, 'EyePupil')==1);    
+pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
+
+if plotme,
+    clf;
     cnt = 1;
     for session = 1:6,
         for block = 1:10,
@@ -279,11 +280,10 @@ end
 
 pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
-% scalar 2, the reward anticipation period, is the baseline of the feedback interval
-% 230 ms before feedback onset is where both error and correct are
-% significant at the group level
+% THIS SCALAR IS DEFINED BASED ON THE FINAL CLUSTER BASED PERMUTATION TEST
+% with new regression method, significant window = 470 ms before feedback
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
-    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.23) ), 3));
+    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.470) ), 3));
 
 % for the third scalar (feedback), project out the effect of the decision interval
 feedbackscalars = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, find(timelock(4).lock.time > 0) ), 3));
