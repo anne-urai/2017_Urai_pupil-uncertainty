@@ -1,5 +1,13 @@
 function a1_PupilAnalysis(sj)
+% pupil preprocessing and analysis pipeline. For the participant specified,
+% all edf/asc EyeLink files will be read in, blink and saccade responses
+% will be removed, and data will be epoched and put into a FieldTrip-like
+% structure with a trialinfo matrix that will later be used to create csv
+% files.
+%
+% Anne Urai, 2015
 
+% if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
 
 % add paths and fieldtrip
@@ -25,6 +33,8 @@ if exist(sprintf('%s/P%02d_alleye2.mat', pathname, sj), 'file');
  %   return
 end
 
+% subject specific folder call P01, with one session S1-S6 containing all
+% the pupil files
 cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
@@ -61,14 +71,11 @@ for session = unique(sessions),
         
         edffile   = dir(sprintf('P%d_s%d_b%d_*.edf', sj, session, block));
         ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
-        
-        % if ~exist(sprintf('~/Data/HD1/UvA_pupil/P%02d/P%02d_s%d_b%02d_eyeclean2.mat', sj, sj, session, block), 'file'),
-        % if ~exist(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'file'),
-        
+
         % specify the filename
         if ~exist(ascfile.name, 'file'),
             
-            % CONVERT TO ASC
+            % IF NECESSARY, CONVERT TO ASC
             if exist('~/code/Tools/eye/edf2asc-linux', 'file'),
                 system(sprintf('%s %s -input', '~/code/Tools/eye/edf2asc-linux', edffile.name));
             else
@@ -77,9 +84,9 @@ for session = unique(sessions),
             ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
         end
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % making a FieldTrip structure out of EyeLink data
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         
         clear blinksmp saccsmp
         load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
@@ -95,9 +102,9 @@ for session = unique(sessions),
             savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
         end
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % blink interpolation
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         
         newpupil = blink_interpolate(data, blinksmp, 1);
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
@@ -105,17 +112,18 @@ for session = unique(sessions),
         suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', pathname, sj, session, block), 'pdf');
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % regress out pupil response to blinks and saccades
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         
         % for this, use only EL-defined blinksamples
         data = blink_regressout(data, blinksmp, saccsmp, 1);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % compute percent signal change rather than zscore
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % median is less sensitive to outliers
+        % ==================================================================
         
         pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
         medianpupil = median(pupildat);
@@ -124,9 +132,9 @@ for session = unique(sessions),
         pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupiltimecourse; % put back in
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % define trials
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         
         cfg                         = [];
         cfg.trialfun                = 'trialfun_EL_UvA';
@@ -149,9 +157,9 @@ for session = unique(sessions),
             data.trialinfo(:,13) = block;
         end
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         % downsample before saving
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ==================================================================
         
         cfg             = [];
         cfg.resamplefs  = 100;
@@ -174,9 +182,9 @@ for session = unique(sessions),
     end
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ==================================================================
 % now append all the eyelink files together
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ==================================================================
 
 % check if the full dataset is not there yet
 cd(sprintf('%s/P%02d/', pathname, sj));
