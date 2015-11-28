@@ -15,13 +15,10 @@ ft_defaults;
 
 subjects = 1:27;
 for sj = (subjects),
+    tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
-    if ~exist(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj), 'file'),
-        copyfile(sprintf('~/Data/HD1/UvA_pupil/P%02d/P%02d_alleye2.mat', sj, sj), ...
-            sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj));
-    end
-    load(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj));
+    load(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye3.mat', sj));
     
     % check which sessions to use
     cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
@@ -174,7 +171,7 @@ for sj = (subjects),
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data3_sj%02d.csv', sj));
     
     disp(['finished sj ' num2str(sj)]);
     alldat{find(sj==subjects)} = newtrl;
@@ -182,7 +179,7 @@ for sj = (subjects),
     % also save the mat file
     for i = 1:4, timelock(i).lock = rmfield(timelock(i).lock, 'cfg'); end
     pupilgrandavg.timelock{find(sj==subjects)} = timelock;
-    
+    toc;
 end
 
 if length(subjects) > 5,
@@ -197,7 +194,7 @@ if length(subjects) > 5,
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data_allsj.csv'));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data3_allsj.csv'));
     
     % ==================================================================
     % write a grand average file with all the timelocked data
@@ -205,7 +202,7 @@ if length(subjects) > 5,
     
     disp('saving timelock...');
     tic;
-    savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage2.mat', 'pupilgrandavg');
+    savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage3.mat', 'pupilgrandavg');
     toc;
     
     fprintf('\n\nout of %d trials (all sj), %d trials not matched \n\n', length(t.motionstrength), ...
