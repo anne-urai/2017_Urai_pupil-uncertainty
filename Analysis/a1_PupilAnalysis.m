@@ -20,11 +20,13 @@ catch % on the cluster
 end
 
 % check if this file doesnt exist yet
-if exist(sprintf('%s/P%02d_alleye2.mat', pathname, sj), 'file');
+if exist(sprintf('%s/P%02d_alleye3.mat', pathname, sj), 'file');
  %   disp('skipping');
  %   return
 end
 
+% try without regressing stuff out
+regressout = false
 cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
@@ -55,7 +57,7 @@ for session = unique(sessions),
     end
     
     for block = unique(blocks),
-        clearvars -except sj session block subjects sessions blocks pathname
+        clearvars -except sj session block subjects sessions blocks pathname regressout
         
         disp(['Analysing subject ' num2str(sj) ', session ' num2str(session) ', block ' num2str(block)]);
         
@@ -109,10 +111,17 @@ for session = unique(sessions),
         % regress out pupil response to blinks and saccades
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % for this, use only EL-defined blinksamples
-        data = blink_regressout(data, blinksmp, saccsmp, 1);
-        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
-
+        if regressout,
+            % for this, use only EL-defined blinksamples
+            data = blink_regressout(data, blinksmp, saccsmp, 1);
+            saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
+        else
+            % only get rid of fast instrument noise
+            [b,a] = butter(2, 4 / data.fsample, 'low'); % 2nd order, 4 hz
+            pupilchan = find(strcmp(data.label, 'EyePupil')==1);
+            data.trial{1}(pupilchan, :) = filtfilt(b,a, data.trial{1}(pupilchan, :));
+        end
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % compute percent signal change rather than zscore
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,9 +174,9 @@ for session = unique(sessions),
         data = ft_resampledata(cfg, data);
         
         cd ..
-        disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean2.mat', sj, session, block)]);
+        disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean3.mat', sj, session, block)]);
         % save these datafiles before appending
-        savefast(sprintf('P%02d_s%d_b%02d_eyeclean2.mat', sj, session, block), 'data');
+        savefast(sprintf('P%02d_s%d_b%02d_eyeclean3.mat', sj, session, block), 'data');
         cd(['S' num2str(session)]);
         
         %  end
@@ -180,7 +189,7 @@ end
 
 % check if the full dataset is not there yet
 cd(sprintf('%s/P%02d/', pathname, sj));
-eyelinkfiles = dir(sprintf('P%02d*_eyeclean2.mat', sj));
+eyelinkfiles = dir(sprintf('P%02d*_eyeclean3.mat', sj));
 
 % make sure these are in the right order!
 % otherwise, indexing of trials will go awry
@@ -194,7 +203,7 @@ eyelinkfiles        = eyelinkfiles(sortidx);
 
 cfg = [];
 cfg.inputfile = {eyelinkfiles.name};
-cfg.outputfile = sprintf('%s/P%02d_alleye2.mat', pathname, sj);
+cfg.outputfile = sprintf('%s/P%02d_alleye3.mat', pathname, sj);
 ft_appenddata(cfg);
 
 end

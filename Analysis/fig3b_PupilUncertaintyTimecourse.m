@@ -1,7 +1,4 @@
 function [] = fig3b_PupilUncertaintyTimecourse()
-% show 1. the overall timecourse of the pupil
-% 2. pupil timecourse, split by correct and error into bins of stimulus
-% difficulty
 % 3. timecourse of regression betas, separately for correct and error
 
 close all; clear; clc;
