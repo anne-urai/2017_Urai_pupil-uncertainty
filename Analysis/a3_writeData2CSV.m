@@ -1,5 +1,11 @@
 function [] = a3_writeData2CSV()
-% WRITE BEHAVIOURAL DATA AND SINGLE-TRIAL PUPIL MEASURES
+% from the pupil file and the motionenergy overview, make one csv file to
+% quickly do behavioural analyses per subject
+% the pupil data will be segmented here, and a single-trial scalar for the
+% pupil response is defined based on the significant time window obtained
+% in fig3b.
+%
+% Anne Urai, 2015
 
 clear all; close all; clc;
 addpath('~/code/pupilUncertainty/Analysis');
@@ -21,7 +27,10 @@ for sj = (subjects),
     s = {s(:).name};
     for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
     
+    % ==================================================================
     % GET ALL THE FILTERED MOTIONENERGY FOR THIS SUBJECT
+    % ==================================================================
+    
     clear mdats mdat
     for session = sessions,
         load(sprintf('~/Data/HD1/UvA_pupil/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session));
@@ -48,7 +57,10 @@ for sj = (subjects),
         trl(find(abs(trl(:, 4) - 0.01) < 0.00001), 4) = 0.0125;
     end
     
+    % ==================================================================
     % match the single-trial motionenergy to the trl matrix
+    % ==================================================================
+    
     for t = 1:length(trl),
         
         % find the matching idx
@@ -67,7 +79,9 @@ for sj = (subjects),
         end
     end
     
+    % for some subjects, the dot coordinates were lost...
     if sj == 12 || sj == 4 || sj == 3 || sj == 8,
+        
         % replace those missing values with the means from other trials
         wrongtrials = find(trl(:, 15) == 0);
         if sj == 3,
@@ -111,15 +125,21 @@ for sj = (subjects),
     % put back into fieldtrip struct
     data.trialinfo = [trl newcorrect];
     
+    % ==================================================================
     % REMOVE ANY NO-RESP TRIALS
+    % ==================================================================
+    
     cfg         = [];
     cfg.trials  = find(~isnan(data.trialinfo(:,7)));
     data        = ft_selectdata(cfg, data);
     
+    % ==================================================================
     % use subfunction to get all the pupil info we're interested in
+    % ==================================================================
+    
     data.fsample          = 100;
     [pupildat, timelock] = s2b_GetIndividualData(data, sj, 0);
-   
+    
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
     RT             = (newtrl(:, 9) - newtrl(:,6)) / data.fsample;
@@ -140,7 +160,10 @@ for sj = (subjects),
     
     newtrl = [newtrl sj*ones(size(timing)) timing pupildat];
     
+    % ==================================================================
     % write to csv for each individual
+    % ==================================================================
+    
     t = array2table(newtrl, 'VariableNames', ...
         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
         'resp', 'rt', 'correct', 'correctM', ...
@@ -173,7 +196,10 @@ if length(subjects) > 5,
     
     writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data3_allsj.csv'));
     
+    % ==================================================================
     % write a grand average file with all the timelocked data
+    % ==================================================================
+    
     disp('saving timelock...');
     tic;
     savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage3.mat', 'pupilgrandavg');
@@ -186,6 +212,7 @@ end
 end
 
 function [trialinfo, timelock] = s2b_GetIndividualData(data, sj, plotme)
+% in this function, the actual single-trial pupil values will be computed
 
 pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
@@ -208,9 +235,9 @@ if plotme,
     print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_alldata.pdf', sj));
 end
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ==================================================================
 % PRE-STIMULUS BASELINE
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ==================================================================
 
 disp('baseline correcting...');
 bl = nan(length(data.trial), 1);
@@ -243,9 +270,9 @@ if length(cohs) == 4,
     data_blcorr.trialinfo(find(data_blcorr.trialinfo(:,5)==5), 5) = 4; % change 5 to 3
 end
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TIMELOCK ALL THE 4 LOCKINGS
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ==================================================================
+% TIMELOCK ALL THE 4 EPOCHS
+    % ==================================================================
 
 whichlock   = {'ref', 'stim', 'resp', 'fb'};
 
@@ -277,16 +304,13 @@ end
 
 pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
+% ==================================================================
 % THIS SCALAR IS DEFINED BASED ON THE FINAL CLUSTER BASED PERMUTATION TEST
-% with new regression method, significant window = 470 ms before feedback
+% significant window = 470 ms before feedback
+% ==================================================================
+
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
     find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.470) ), 3));
-
-% for the third scalar (feedback), project out the effect of the decision interval
-feedbackscalars = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, find(timelock(4).lock.time > 0) ), 3));
-trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
-
-assert(~any(isnan(trialinfo(:))));
 
 if plotme,
     clf;
@@ -349,5 +373,15 @@ if plotme,
     print(gcf, '-dpdf', sprintf('~/Data/HD1/UvA_pupil/Figures/P%02d_timecourse.pdf', sj));
     
 end
+
+% ==================================================================
+% for the third scalar (feedback), project out the effect of the decision interval
+% ==================================================================
+
+feedbackscalars = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, find(timelock(4).lock.time > 0) ), 3));
+trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
+
+assert(~any(isnan(trialinfo(:))));
+
 end
 

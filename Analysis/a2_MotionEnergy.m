@@ -1,5 +1,11 @@
 function [] =  a2_MotionEnergy()
-% run the motion energy filtering
+% for (almost) all subjects, the coordinates of each trial's dot were saved
+% in the behavioural files. Using the method described by Adelson & Bergen
+% and Kiani et al, these stimulus movies are filtered to compute
+% single-trial timecourses of fluctuations in motion energy
+%
+% Anne Urai, 2015
+
 
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
@@ -23,7 +29,10 @@ for session = sessions,
         mdat.response = single(nan(10, 50));
         mdat.correct  = single(nan(10, 50));
         
+        % ==================================================================
         % some subjects didnt do all blocks, manually correct
+        % ==================================================================
+
         if sj == 2 && session == 1,
             blocks = 4:9;
         elseif sj == 4 && session == 1,
@@ -55,6 +64,10 @@ for session = sessions,
         for b = 1:length(blocks),
             iblock = blocks(b);
             blockcnt = blockcnt + 1;
+            
+            % ==================================================================
+            % get the files we need
+            % ==================================================================
             
             clearvars -except subjects sj sessions session blocks iblock blockidx blockcnt mdat
             begin = tic;
@@ -96,6 +109,11 @@ for session = sessions,
             
             fprintf('starting P%02d_s%d_b%d \n', sj, session, iblock);
             
+            % ==================================================================
+            % change the window structure into display, window is a
+            % matlab function
+            % ==================================================================
+            
             % to avoid window UI bugs
             display.dist        = window.dist;
             display.res         = window.res;
@@ -107,9 +125,9 @@ for session = sessions,
             % run this once to find optimal fft algorithm
             fftw('planner', 'exhaustive');
             
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % compute some general things for this file
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
+            % compute features of the filters based on this file
+            % ==================================================================
             
             cfg.ppd             = deg2pix(display, 1);  % pixel per degree
             cfg.srange          = [-0.7 0.7];           % predetermine size the filter  space will have
@@ -132,18 +150,18 @@ for session = sessions,
             cfg.nextpow2        = 2.^nextpow2(cfg.n_convolution);
             cfg.validsize       = cfg.stimsize - cfg.filtsize + 1;  % 'valid' size of convolution
             
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % generate filters
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
+            % find directions in which to filter
+            % ==================================================================
             
             direc                 = dots.direction;
             counterdir            = dots.direction+90;
             if counterdir > 360, counterdir = counterdir - 360; end
             theta                 = [direc counterdir]; % only those two directions
             
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
             % 1. CREATE SPATIAL AND TEMPORAL FILTERS
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
             
             % all parameters from Kiani et al., http://www.jneurosci.org/content/28/12/3017.full
             
@@ -177,9 +195,9 @@ for session = sessions,
             g1(1,1,:) = (k*t).^nslow .* exp(-k*t) .* (1/factorial(nslow) - ((k*t).^2) / factorial(nslow + 2));
             g2(1,1,:) = (k*t).^nfast .* exp(-k*t) .* (1/factorial(nfast) - ((k*t).^2) / factorial(nfast + 2));
             
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
             % make a separate filter for each direction
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
             
             for thistheta = theta,
                 
@@ -204,9 +222,9 @@ for session = sessions,
                 
                 if 0,
                     
-                    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    % plot info about the filters
-                    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    % ==================================================================
+                    % can plot an overview of what the filters look like
+                    % ==================================================================
                     
                     figure; colormap bone;
                     subplot(441); imagesc(x, y, f1rot); xlabel('x'); ylabel('y'); title('f1');
@@ -248,14 +266,19 @@ for session = sessions,
             
             fprintf('preparing filters took %.2f seconds \n', toc(begin));
             
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % load stimuli and run convolution operation
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ==================================================================
+            % convert stim coordinates into movie matrix
+            % ==================================================================
             
             for trial = 1:setup.ntrials,
                 motionenergy = nan(2, length(theta), cfg.validsize(3));
                 
-                for int = 1:2,
+                for int = 1:2, % loop over reference and test interval
+                    
+                    % ==================================================================
+                    % get the coordinates that we need, this is quite messy because the format
+                    % is different for different subjects
+                    % ==================================================================
                     
                     % for those subjects where there is no refstim
                     % coords saved, continue
@@ -301,6 +324,10 @@ for session = sessions,
                     yres    = display.res.height;
                     nfr     = setup.nframes;
                     
+                    % ==================================================================
+                    % generate a frame-by-frame image movie of the stim
+                    % ==================================================================
+                    
                     % preallocate
                     stimrep = zeros(xres, yres, nfr);
                     
@@ -339,7 +366,10 @@ for session = sessions,
                             cfg.n_convolution(s) - (cfg.stimsize(s)-cfg.validsize(s)) ];
                     end
                     
-                    %% 2. FILTER AT EACH THETA
+                    % ==================================================================
+                    % RUN FILTER AT EACH THETA
+                    % ==================================================================
+                    
                     for thistheta = theta,
                         
                         % run multiplication in the frequency domain
@@ -363,10 +393,14 @@ for session = sessions,
                     
                 end
                 
+                % ==================================================================
+                % TRANSFORM FILTER TIMECOURSES INTO SINGLE-TRIAL SCALARS
+                % ==================================================================
+                
                 if (sj == 5 && session == 1),
                     % take the difference between the two intervals for this trial
                     motiondiffRef                 = squeeze(motionenergy(1, 1, :) - motionenergy(1, 2, :));
-                    mdat.int1(blockcnt, trial)      = mean(motiondiffRef);
+                    mdat.int1(blockcnt, trial)     = mean(motiondiffRef);
                     if isnan(mdat.int1(blockcnt, trial)),
                         % if there were no coordinates, use the mean...
                         mdat.int1(blockcnt, trial)  = 6.8;
@@ -397,6 +431,11 @@ for session = sessions,
                     
                 end
             end % trial
+            
+            % ==================================================================
+            % save some additional behavioural data to match this to pupil-derived
+            % datafiles later
+            % ==================================================================
             
             if sj == 15 && session == 6,
                 % add extra info that will make it easier to match with pupil files
