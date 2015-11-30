@@ -7,7 +7,7 @@ RTstratification    = true; % include RT in the model, do stratification on bins
 RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
 % get all data
-data = readtable('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv');
+data = readtable('~/Data/UvA_pupil/CSV/2ifc_data3_allsj.csv');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 subjects = 1:27; % for this analysis, use all SJ!
 

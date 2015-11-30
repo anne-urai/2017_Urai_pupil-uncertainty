@@ -9,7 +9,7 @@ fitIndividual = false;
 
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data3_sj%02d.csv', sj));
     
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -209,7 +209,7 @@ for sj = unique(subjects),
     out = rocAnalysis(data.decision_pupil(data.correct==1), ...
         data.decision_pupil(data.correct==0), 0, 1);
     
-    [X,Y,T,AUC] = perfcurve(labels,scores,posclass);
+  %  [X,Y,T,AUC] = perfcurve(labels,scores,posclass);
     
     grandavg.roc(sj)    = out.i;
     grandavg.pval(sj)   = out.p;

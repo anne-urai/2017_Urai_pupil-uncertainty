@@ -9,7 +9,7 @@ close all; clear; clc;
 % PLOT THE PUPIL GRAND AVERAGE
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage.mat');
+load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage3.mat');
 subjects = 1:27;
 
 % append all the mean timecourses per condition
@@ -50,11 +50,11 @@ print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig2a_pupil.pdf');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
-load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage.mat');
+load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage3.mat');
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
-    thistable = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
+    thistable = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data3_sj%02d.csv', sj));
     
     cors = [0 1];
     cnt  = 0;

@@ -13,8 +13,8 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage2.mat');
-tabledat = readtable('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv');
+load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage3.mat');
+tabledat = readtable('~/Data/UvA_pupil/CSV/2ifc_data3_allsj.csv');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
