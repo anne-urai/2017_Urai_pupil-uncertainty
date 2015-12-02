@@ -18,7 +18,8 @@ for sj = (subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
-    load(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye3.mat', sj));
+    % choose between 2 and 3
+    load(sprintf('~/Data/HD1/UvA_pupil/P%02d_alleye2.mat', sj));
     
     % check which sessions to use
     cd(sprintf('~/Data/HD1/UvA_pupil/P%02d/', sj));
@@ -171,7 +172,7 @@ for sj = (subjects),
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data3_sj%02d.csv', sj));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
     
     disp(['finished sj ' num2str(sj)]);
     alldat{find(sj==subjects)} = newtrl;
@@ -194,7 +195,7 @@ if length(subjects) > 5,
         'latency', ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data3_allsj.csv'));
+    writetable(t, sprintf('~/Data/HD1/UvA_pupil/CSV/2ifc_data2_allsj.csv'));
     
     % ==================================================================
     % write a grand average file with all the timelocked data
@@ -202,7 +203,7 @@ if length(subjects) > 5,
     
     disp('saving timelock...');
     tic;
-    savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage3.mat', 'pupilgrandavg');
+    savefast('~/Data/HD1/UvA_pupil/GrandAverage/pupilgrandaverage2.mat', 'pupilgrandavg');
     toc;
     
     fprintf('\n\nout of %d trials (all sj), %d trials not matched \n\n', length(t.motionstrength), ...
