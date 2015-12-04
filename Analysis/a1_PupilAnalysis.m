@@ -11,7 +11,7 @@ function a1_PupilAnalysis(sj)
 if ischar(sj), sj = str2double(sj); end
 
 % add paths and fieldtrip
-close all; clc;
+clf; clc;
 addpath(genpath('~/code/pupilUncertainty'));
 addpath(genpath('~/code/Tools'));
 addpath(genpath('~/Dropbox/code/pupilUncertainty'));
@@ -19,19 +19,8 @@ addpath(genpath('~/Dropbox/code/Tools'));
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
-try
-    pathname = '~/Data/pupilUncertainty';
-    cd(pathname);
-catch % on the cluster
-    pathname = '~/Data/pupilUncertainty';
-    cd(pathname);
-end
-
-% check if this file doesnt exist yet
-if exist(sprintf('%s/P%02d_alleye3.mat', pathname, sj), 'file');
- %   disp('skipping');
- %   return
-end
+pathname = '~/Data/pupilUncertainty';
+cd(pathname);
 
 % do we want to regressout blinks and saccades?
 regressout = true;
@@ -40,7 +29,9 @@ regressout = true;
 % the pupil files
 
 cd(sprintf('%s/P%02d/', pathname, sj));
-
+delete *eyeclean*.mat
+delete *.log
+delete *.png
 clear sessions;
 % check which sessions to use
 s = dir('S*');
@@ -50,6 +41,7 @@ for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 for session = unique(sessions),
     
     cd([sprintf('%s/P%02d/', pathname, sj) 'S' num2str(session)]);
+    delete *.png
     
     % ==================================================================
     % LOAD IN SUBJECT SPECIFICS AND READ DATA
@@ -75,7 +67,7 @@ for session = unique(sessions),
         
         edffile   = dir(sprintf('P%d_s%d_b%d_*.edf', sj, session, block));
         ascfile   = dir(sprintf('P%d_s%d_b%d_*.asc', sj, session, block));
-
+        
         % specify the filename
         if ~exist(ascfile.name, 'file'),
             
@@ -123,20 +115,7 @@ for session = unique(sessions),
         % for this, use only EL-defined blinksamples
         data = blink_regressout(data, blinksmp, saccsmp, 1);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
-
-        % ==================================================================
         
-        if regressout,
-            % for this, use only EL-defined blinksamples
-            data = blink_regressout(data, blinksmp, saccsmp, 1);
-            saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
-        else
-            % only get rid of fast instrument noise
-            [b,a] = butter(2, 4 / data.fsample, 'low'); % 2nd order, 4 hz
-            pupilchan = find(strcmp(data.label, 'EyePupil')==1);
-            data.trial{1}(pupilchan, :) = filtfilt(b,a, data.trial{1}(pupilchan, :));
-        end
-
         % ==================================================================
         % compute percent signal change rather than zscore
         % median is less sensitive to outliers
@@ -190,9 +169,9 @@ for session = unique(sessions),
         data = ft_resampledata(cfg, data);
         
         cd ..
-        disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean3.mat', sj, session, block)]);
+        disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block)]);
         % save these datafiles before appending
-        savefast(sprintf('P%02d_s%d_b%02d_eyeclean3.mat', sj, session, block), 'data');
+        savefast(sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block), 'data');
         cd(['S' num2str(session)]);
         
         %  end
@@ -205,7 +184,7 @@ end
 
 % check if the full dataset is not there yet
 cd(sprintf('%s/P%02d/', pathname, sj));
-eyelinkfiles = dir(sprintf('P%02d*_eyeclean3.mat', sj));
+eyelinkfiles = dir(sprintf('P%02d*_eyeclean.mat', sj));
 
 % make sure these are in the right order!
 % otherwise, indexing of trials will go awry
@@ -219,7 +198,7 @@ eyelinkfiles        = eyelinkfiles(sortidx);
 
 cfg = [];
 cfg.inputfile = {eyelinkfiles.name};
-cfg.outputfile = sprintf('%s/P%02d_alleye3.mat', pathname, sj);
+cfg.outputfile = sprintf('%s/P%02d_alleye.mat', pathname, sj);
 ft_appenddata(cfg);
 
 end
