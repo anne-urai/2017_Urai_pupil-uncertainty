@@ -20,10 +20,10 @@ addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
 try
-    pathname = '~/Data/UvA_pupil';
+    pathname = '~/Data/pupilUncertainty';
     cd(pathname);
 catch % on the cluster
-    pathname = '~/Data/HD1/UvA_pupil';
+    pathname = '~/Data/pupilUncertainty';
     cd(pathname);
 end
 
@@ -33,22 +33,12 @@ if exist(sprintf('%s/P%02d_alleye3.mat', pathname, sj), 'file');
  %   return
 end
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+% do we want to regressout blinks and saccades?
+regressout = true;
+
 % subject specific folder call P01, with one session S1-S6 containing all
 % the pupil files
-=======
-% try without regressing stuff out
-regressout = false
->>>>>>> e42be65b41aab5d1d22253f77eea08fc20e76ade
-=======
-% try without regressing stuff out
-regressout = false
-=======
-% subject specific folder call P01, with one session S1-S6 containing all
-% the pupil files
->>>>>>> 7aa79e783b9ab9b7c87bd9ca05cbcdf1d74c42ea
->>>>>>> fcacd0fff0ae8d8ad8e8a94716bcc59b681f0bec
+
 cd(sprintf('%s/P%02d/', pathname, sj));
 
 clear sessions;
@@ -130,16 +120,12 @@ for session = unique(sessions),
         % regress out pupil response to blinks and saccades
         % ==================================================================
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         % for this, use only EL-defined blinksamples
         data = blink_regressout(data, blinksmp, saccsmp, 1);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
 
         % ==================================================================
-=======
-=======
->>>>>>> fcacd0fff0ae8d8ad8e8a94716bcc59b681f0bec
+        
         if regressout,
             % for this, use only EL-defined blinksamples
             data = blink_regressout(data, blinksmp, saccsmp, 1);
@@ -150,19 +136,8 @@ for session = unique(sessions),
             pupilchan = find(strcmp(data.label, 'EyePupil')==1);
             data.trial{1}(pupilchan, :) = filtfilt(b,a, data.trial{1}(pupilchan, :));
         end
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<<<<<< HEAD
->>>>>>> e42be65b41aab5d1d22253f77eea08fc20e76ade
-=======
-=======
-        % for this, use only EL-defined blinksamples
-        data = blink_regressout(data, blinksmp, saccsmp, 1);
-        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
 
         % ==================================================================
->>>>>>> 7aa79e783b9ab9b7c87bd9ca05cbcdf1d74c42ea
->>>>>>> fcacd0fff0ae8d8ad8e8a94716bcc59b681f0bec
         % compute percent signal change rather than zscore
         % median is less sensitive to outliers
         % ==================================================================
@@ -179,7 +154,7 @@ for session = unique(sessions),
         % ==================================================================
         
         cfg                         = [];
-        cfg.trialfun                = 'trialfun_EL_UvA';
+        cfg.trialfun                = 'trialfun_pupil';
         cfg.trialdef.pre            = 0;
         cfg.trialdef.post           = 4;
         cfg.event                   = event;

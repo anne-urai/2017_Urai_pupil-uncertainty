@@ -32,7 +32,7 @@ for whichpup = 1,
         % PREPARE
         % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
         
         subplot(7,7,find(sj==subjects));
         plot(data.(xlab), data.(ylab), '.');
@@ -54,7 +54,7 @@ for whichpup = 1,
     suplabel('Baseline pupil (% signal change)', 'x');
     suplabel('Decision pupil (% signal change from baseline', 'y');
     set(gcf, 'PaperPositionMode', 'auto');
-    print(gcf, '-dpdf', '-painters', sprintf('~/Data/UvA_pupil/Figures/pupilBaselineVDilation_%d.pdf', whichpup));
+    print(gcf, '-dpdf', '-painters', sprintf('~/Data/pupilUncertainty/Figures/pupilBaselineVDilation_%d.pdf', whichpup));
     
     % see if the correlation is different from zero
     disp(whichpup)

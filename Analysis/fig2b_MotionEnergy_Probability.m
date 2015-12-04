@@ -1,12 +1,13 @@
-function [] = f1b_plotMotionEnergy()
+function [] = fig2b_MotionEnergy_Probability()
 % after filtering motionenergy for all subjects, show the distribution of
 % values we get (as a function of nominal coherence level)
 close all;
+figpath = '~/Dropbox/Figures/uncertainty';
 
 if 0,
     % for each sj, check if this worked
     for sj = 1:27,
-        t = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+        t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
         subplot(5,6,sj);
         plot(t.stim .* t.coherence, t.motionstrength, '.');
         ylim([-1 1]); xlim([-0.35 0.35]);
@@ -16,7 +17,7 @@ if 0,
 end
 
 %% group level results
-t = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv'));
+t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
 
 stim = t.coherence;
 stim = round((stim) * 100000)/100000;
@@ -42,19 +43,7 @@ end
 % check
 assert(isequal(length(unique(stim)), length(find(nansum(n, 2) > 0))), 'spacing not quite right');
 
-% for i = 1:length(edges) - 1,
-%     newedge(i) = log(abs(mean([edges(i), edges(i+1)])) * 1000);
-% end
-% newedge(1:48) = -newedge(1:48);
-%
-% for i = 1:length(stimlevels),
-%     newstim(i) = log(abs(stimlevels(i) * 1000));
-% end
-% newstim([1:7]) = -newstim([1:7]);
-
 subplot(441);
-%cmap = cbrewer('seq', 'Blues', 12);
-%colormap(cmap);
 colormap hot;
 imagesc(stimlevels, edges, n');
 set(gca, 'ydir', 'normal');
@@ -84,7 +73,7 @@ axis square
 % put a string on top of the colorbar
 c.Label.String = 'Probability';
 c.TickDirection = 'out';
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig1b_motionenergyResult.pdf'));
+print(gcf, '-dpdf', sprintf('%s/Fig1b_motionenergyResult.pdf', figpath));
 
 end
 

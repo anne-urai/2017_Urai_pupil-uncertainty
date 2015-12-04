@@ -3,7 +3,7 @@
 
 clear all; clc; close all;
 
-data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_allsj.csv'));
+data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data2_allsj.csv'));
 
 % create a unique id for each sj/session combination
 newsession = nan(size(data.subjnr));
@@ -86,10 +86,10 @@ if 0,
         
     end
     
-    save('~/Data/UvA_pupil/GrandAverage/glmm_everything.mat');
+    save('~/Data/pupilUncertainty/GrandAverage/glmm_everything.mat');
     
     %%
-    load('~/Data/UvA_pupil/GrandAverage/glmm_everything.mat');
+    load('~/Data/pupilUncertainty/GrandAverage/glmm_everything.mat');
     
     clc
     for session = 1:3,

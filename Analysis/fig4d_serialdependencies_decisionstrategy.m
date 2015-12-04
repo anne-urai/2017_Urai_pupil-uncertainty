@@ -5,7 +5,7 @@
 
 clear; clc;
 whichmodulator = 'pupil';
-load(sprintf('~/Data/UvA_pupil/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % how do we want to group the lags?
 lagGroups = {[1], [2:3], [4:7]};

@@ -13,8 +13,8 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-load('~/Data/UvA_pupil/GrandAverage/pupilgrandaverage3.mat');
-tabledat = readtable('~/Data/UvA_pupil/CSV/2ifc_data3_allsj.csv');
+load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage3.mat');
+tabledat = readtable('~/Data/pupilUncertainty/CSV/2ifc_data3_allsj.csv');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
@@ -101,7 +101,7 @@ for sj = unique(subjects),
 end
 
 % save to disk to later do the correlation with learning
-save('~/Data/UvA_pupil/GrandAverage/pupilRegressionBetas.mat', 'grandavg');
+save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionBetas.mat', 'grandavg');
 
 if plotIndividual,
     % subfunction to put lines and xlabels at the right spots
@@ -214,7 +214,7 @@ for whichbeta = 1:size(designM2, 2),
     end
 end
 
-save('~/Data/UvA_pupil/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
+save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
 
 
 % ==================================================================

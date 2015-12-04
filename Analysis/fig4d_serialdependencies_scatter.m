@@ -4,7 +4,7 @@
 % group lags 4-7
 
 whichmodulator = 'pupilR';
-load(sprintf('~/Data/UvA_pupil/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 colors = linspecer(8);
 
 names = fieldnames(dat);

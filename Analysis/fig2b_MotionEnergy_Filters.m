@@ -1,7 +1,11 @@
-function [] =  f1b_MotionEnergy_Schematic()
-% run the motion energy filtering
+function [] =  fig2b_MotionEnergy_Filters()
+% show two motionenergy filters to describe the filtering process
+% Anne Urai, 2015
 
-load('~/Data/UvA_pupil/P17/Behav/P17_s1_2015-02-02_17-47-08.mat');
+figpath = '~/Dropbox/Figures/uncertainty';
+
+% get a random dataset
+load('~/Data/pupilUncertainty/P17/Behav/P17_s1_2015-02-02_17-47-08.mat');
 close all
 % to avoid window UI bugs
 display.dist        = window.dist;
@@ -182,7 +186,7 @@ for thistheta = theta,
     cnt = cnt + 1;
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/learning/fig1b_MotionEnergySchematic.pdf'));
+print(gcf, '-dpdf', sprintf('~%s/fig1b_MotionEnergySchematic.pdf', figpath));
 close all;
 
 end% function end

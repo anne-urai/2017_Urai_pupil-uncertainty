@@ -3,7 +3,7 @@ function [pvalS, pvalR] = fig4d_serialdependencies_group
 clear all; close all; clc;
 
 whichmodulator = 'rt';
-load(sprintf('~/Data/UvA_pupil/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % ============================================ %
 % grand average history kernels

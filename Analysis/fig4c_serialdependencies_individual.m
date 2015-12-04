@@ -215,5 +215,5 @@ for sj = subjects,
 end
 
 % save for group plots
-savefast(sprintf('~/Data/UvA_pupil/GrandAverage/historyweights_%s.mat', whichmodulator), 'dat');
+savefast(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator), 'dat');
 close all;

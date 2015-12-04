@@ -7,7 +7,7 @@ RTstratification    = true; % include RT in the model, do stratification on bins
 RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
 % get all data
-data = readtable('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv');
+data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 subjects = 1:27; % for this analysis, use all SJ!
 
@@ -177,8 +177,8 @@ for f = 1:length(fields),
     
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/learning/Fig3a_scalarPupilFeedback.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3a_scalarPupilFeedback.pdf'));
 
-savefast('~/Data/UvA_pupil/GrandAverage/grandavg_pupil_uncertainty_feedback.mat', 'grandavg');
+savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_pupil_uncertainty_feedback.mat', 'grandavg');
 
 end

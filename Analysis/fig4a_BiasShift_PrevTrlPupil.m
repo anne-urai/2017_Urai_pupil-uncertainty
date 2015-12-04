@@ -13,7 +13,7 @@ for whichLag = 1,
     
     for sj = unique(subjects),
         
-        data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data2_sj%02d.csv', sj));
+        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data2_sj%02d.csv', sj));
         
         switch whichMod
             case 'rt'

@@ -1,9 +1,12 @@
-function f1b_MotionStrength_SimulateOneTrial()
-% get the full timecourse (fix, s1, delay, s2, resp) of one trial
+function fig2b_MotionEnergy_Timecourse()
+% get the full timecourse (fix, s1, delay, s2, resp) of one trial to show
+% fluctuations 
 
-if ~exist('~/Data/UvA_pupil/motionTimecourse.mat', 'file'),
+figpath = '~/Dropbox/Figures/uncertainty';
+
+if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
     
-    load('~/Data/UvA_pupil/P20/Behav/Dots_P20_s1_b1_2015-02-05_12-33-12.mat');
+    load('~/Data/pupilUncertainty/P20/Behav/Dots_P20_s1_b1_2015-02-05_12-33-12.mat');
     
     % general experimental design
     setup.baselinecoh       = .7; %70% baseline coherence, great for MEG
@@ -55,9 +58,9 @@ if ~exist('~/Data/UvA_pupil/motionTimecourse.mat', 'file'),
         end
     end
     
-    save('~/Data/UvA_pupil/motionStrength_timecourse.mat', 'window', 'coord', 'setup', 'dots');
+    save('~/Data/pupilUncertainty/motionStrength_timecourse.mat', 'window', 'coord', 'setup', 'dots');
     clear all; close all; clc;
-    load('~/Data/UvA_pupil/motionStrength_timecourse.mat');
+    load('~/Data/pupilUncertainty/motionStrength_timecourse.mat');
     
     %% RUN THE ACTUAL MOTION ENERGY FILTER ON THIS
     
@@ -252,18 +255,18 @@ if ~exist('~/Data/UvA_pupil/motionTimecourse.mat', 'file'),
     end
     
     motionstrength = squeeze(motionenergy(1, :) - motionenergy(2,:));
-    save('~/Data/UvA_pupil/motionTimecourse.mat', 'motionstrength');
+    save('~/Data/pupilUncertainty/motionTimecourse.mat', 'motionstrength');
     
 else
     % get the file we already have
-    load('~/Data/UvA_pupil/motionTimecourse.mat');
+    load('~/Data/pupilUncertainty/motionTimecourse.mat');
     window.frameDur = 1/60;
     
     timeaxis = 0:window.frameDur:length(motionstrength)*window.frameDur;
     subplot(441); plot(timeaxis(1:end-1),motionstrength, 'k');
     axis tight; xlabel('Time (s)'); ylabel('Motion strength'); box off;
     offsetAxes; ylim([-1 11]);
-    print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/learning/fig1b_MotionEnergyTimecourse.pdf'));
+    print(gcf, '-dpdf', sprintf('%s/fig1b_MotionEnergyTimecourse.pdf', figpath));
 
 end
 

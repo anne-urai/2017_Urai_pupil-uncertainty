@@ -3,6 +3,8 @@ function [] = fig1ab_Model
 %
 % Anne Urai, 2015
 
+figpath = '~/Dropbox/Figures/uncertainty';
+
 %%
 clf;
 % use nice shades of red and green
@@ -47,9 +49,7 @@ text(0.75, 3, 'Intensity');
 offsetAxes(gca, 0.1, 1);
 set(gca, 'xtick', [0 0.3], 'xticklabel', {'b', 'dv_i'}, ...
     'box', 'off', 'tickdir', 'out', 'ytick', [], 'yticklabel', []);
-%print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig1b_schematic.pdf'));
 
-%clf;
 % ==================================================================
 % 2. choice
 % ==================================================================
@@ -228,7 +228,7 @@ ylabel('Uncertainty');
 ylim([0.8 1]); set(gca, 'ytick', [0.8 1]);
 offsetAxes(gca, 0.15); set(gca, 'xtick', stimpts, 'xticklabel', {'hard', 'easy'});
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig1_UncertaintyModel.pdf'));
+print(gcf, '-dpdf', sprintf('%s/figure1_UncertaintyModel.pdf', figpath));
 
 end
 

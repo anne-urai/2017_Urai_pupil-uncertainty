@@ -9,7 +9,7 @@ fitIndividual = false;
 
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data3_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data3_sj%02d.csv', sj));
     
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -99,7 +99,7 @@ for sj = unique(subjects),
     
     disp(sj);
     % get all the data
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     % divide into low and high pupil bins
     puptrls{1} = find(data.decision_pupil < quantile(data.decision_pupil, 0.5));
@@ -173,7 +173,7 @@ s1 = sigstar({[1 2]}, pval(3), 0);
 ylim([0.4 1.5]); xlim([0.5 2.5]); box off;
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
 
-savefast('~/Data/UvA_pupil/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'allcohs', 'subjects', 'cols');
+savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'allcohs', 'subjects', 'cols');
 
 %%
 % !!! rather than doing a permutation test on the logistic slope
@@ -181,7 +181,7 @@ savefast('~/Data/UvA_pupil/GrandAverage/grandavg_logistic_bypupil.mat', 'grandav
 % fixed effects: slope
 if 0,
     clear; clc;
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_allsj.csv'));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
     
     % normalize the pupil response for each subject
     % this way, we can interpret the coefficient of the pupil fixed effect in
@@ -204,7 +204,7 @@ subjects = 1:27;
 for sj = unique(subjects),
     
     % get all the data
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     out = rocAnalysis(data.decision_pupil(data.correct==1), ...
         data.decision_pupil(data.correct==0), 0, 1);
@@ -214,9 +214,9 @@ for sj = unique(subjects),
     grandavg.roc(sj)    = out.i;
     grandavg.pval(sj)   = out.p;
 end
-savefast('~/Data/UvA_pupil/GrandAverage/pupilCorrectnessROC.mat', 'grandavg');
+savefast('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat', 'grandavg');
 
-load('~/Data/UvA_pupil/GrandAverage/pupilCorrectnessROC.mat');
+load('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat');
 % test across the group, roc auc values are normally distributed
 [h, pval ci, stats] = ttest(grandavg.roc, 0.5, 'tail', 'both')
 

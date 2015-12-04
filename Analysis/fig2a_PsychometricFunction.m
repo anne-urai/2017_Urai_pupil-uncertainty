@@ -1,5 +1,8 @@
 % plot a logistic psychometric function for all subjects
+% Anne Urai, 2015
+
 clear; clc; close all;
+figpath = '~/Dropbox/Figures/uncertainty';
 
 subjects = 1:27;
 % all the coherence level
@@ -17,7 +20,7 @@ for sj = unique(subjects),
     
     disp(sj);
     % get all the data
-    data = readtable(sprintf('~/Data/UvA_pupil/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     % make it such that we can plot the GA of datapoints
     LogisticFit = Psychometric_Logistic(data, 0, 0);
@@ -77,5 +80,5 @@ box off; axis tight; set(gca, 'ytick', [0 0.5 1], 'xtick', [-30 -15 0 15 30]);
 axis square;
 xlabel('delta motion coherence'); ylabel('% response ''stronger''');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig1a_psychometricFunc.pdf'));
+print(gcf, '-dpdf', sprintf('%s/fig1a_psychometricFunc.pdf', figpath));
 
