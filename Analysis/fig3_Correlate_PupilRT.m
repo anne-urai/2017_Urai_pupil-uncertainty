@@ -1,5 +1,5 @@
-%function [] = fig3_check_rtpupilcorr()
-% plots uncertainty by accuracy both for the modelfits and the pupil
+% check to what extend the single-trial values of RT and pupil responses
+% are correlated 
 
 subjects = 1:27; clc
 for sj = unique(subjects),
@@ -20,6 +20,3 @@ length(find(grandavg.pearsonpval < 0.05))
 length(find(grandavg.spearmanpval < 0.05))
 
 
-pvalgroup = randtest1d(grandavg.pearson)
-%subplot(441);
-histogram(grandavg.spearman);

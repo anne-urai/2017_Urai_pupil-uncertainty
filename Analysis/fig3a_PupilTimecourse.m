@@ -9,7 +9,7 @@ close all; clear; clc;
 % PLOT THE PUPIL GRAND AVERAGE
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage3.mat');
+load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 subjects = 1:27;
 
 % append all the mean timecourses per condition
@@ -41,7 +41,7 @@ plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
 xlabel('Time (ms)');
 offsetAxes(gca, 0.12, 0);
-print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig2a_pupil.pdf');
+print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
@@ -50,11 +50,11 @@ print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig2a_pupil.pdf');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage3.mat');
+load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
-    thistable = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data3_sj%02d.csv', sj));
+    thistable = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     cors = [0 1];
     cnt  = 0;
@@ -121,7 +121,7 @@ plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
 xlabel('Time (ms)');
 offsetAxes(gca, 0.12, 0);
-print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/sfig_pupilsplit.pdf');
+print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig3a_pupilTimecourse.pdf');
 
 end
 

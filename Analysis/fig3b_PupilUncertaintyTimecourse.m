@@ -13,8 +13,8 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage3.mat');
-tabledat = readtable('~/Data/pupilUncertainty/CSV/2ifc_data3_allsj.csv');
+load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
+tabledat = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
@@ -176,11 +176,11 @@ for whichbeta = 1:size(designM2, 2),
     
     % also a shaded area to indicate which part we will use for the
     % statistical comparison
-    if 0,
+    if 1,
         xticks = get(gca, 'xtick');
         a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
             min(get(gca, 'ylim')));
-        a.FaceColor = [0.4 0.4 0.4];
+        a.FaceColor = [0.8 0.8 0.8];
         a.EdgeColor = 'none';
     end
     set(gca, 'xticklabel', []);
@@ -237,7 +237,7 @@ if 0,
    % title('Canonical pupil IRF');
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig2b_pupiltimecourse.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig2c_pupilRegressionTimecourse.pdf'));
 disp('SAVED');
 end
 

@@ -9,9 +9,8 @@ figpath = '~/Dropbox/Figures/uncertainty';
 data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 
 nbins               = 6; % bin in 5 to have comparable plots to the difficulty version?
-cohs                = 1:nbins;
 data.xval           = abs(data.motionstrength);
-data.rpebin         = nan(size(data.xval));
+data.rpebin         = nan(size(data.xval)); % preallocate
 
 % can try this also with all subjects
 subjects = 1:27;
@@ -89,44 +88,41 @@ for co = 1:2,
 end
 
 % set(gca, 'box', 'off', 'tickdir', 'out', 'xtick', cohs);
-xlabel('Stimulus difficulty');
+xlabel('Task difficulty');
 ylabel('Reaction time (s)');
-ylim([0.8 1.2]); set(gca, 'ytick', [0.8 1 1.2]);
-xlim([-4 4]); set(gca, 'xtick', 0:4, 'xticklabel', {'c_1', 'c_2', 'c_3', 'c_4', 'c_5'});
+ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
+xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel', {'hard', 'medium', 'easy' });
 offsetAxes(gca, 0.1, 0);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
 
-if 0,
-    subplot(length(fields),length(fields),length(fields)*(f-1)+2);
-    
-    % slopes
-    slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
-    [~, pvalE_interc, ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
-    bf10 = t1smpbf(stat.tstat,27)
-    [~, pvalC_interc, ~, stat] = ttest(slopes(:, 2), 0, 'tail', 'both');
-    bf10 = t1smpbf(stat.tstat,27)
-    [~, pvalD_interc, ~, stat] = ttest(slopes(:,1), slopes(:,2));
-    bf10 = t1smpbf(stat.tstat,27)
-    
-    % slopes
-    hold on;
-    bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
-    bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
-    errorbar(1:2, mean(slopes), std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 'none', 'LineStyle', 'none');
-    xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
-        [] , 'ydir', 'normal', 'xticklabelrotation', 0);
-    
-    if f == length(fields), set(gca, 'xticklabel', {'Error', 'Correct'}); end
-    ylabel('\beta');
-    sigstar({[1 2]}, pvalD_interc);
-    sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
-    ylims = get(gca, 'ylim');  ylim([-max(abs(ylims)) max(abs(ylims))]);
-end
+subplot(4,5,3);
 
+% slopes
+slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
+[~, pvalE_interc, ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
+bf10 = t1smpbf(stat.tstat,27);
+[~, pvalC_interc, ~, stat] = ttest(slopes(:, 2), 0, 'tail', 'both');
+bf10 = t1smpbf(stat.tstat,27);
+[~, pvalD_interc, ~, stat] = ttest(slopes(:,1), slopes(:,2));
+bf10 = t1smpbf(stat.tstat,27);
 
+% slopes
+hold on;
+bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
+bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
+errorbar(1:2, mean(slopes), std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 'none', 'LineStyle', 'none');
+xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
+    [] , 'ydir', 'normal', 'xticklabelrotation', 0);
+
+axis tight; axis square;
+set(gca, 'xticklabel', {'Error', 'Correct'}); 
+ylabel('Beta task difficulty');
+sigstar({[1 2]}, pvalD_interc);
+sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
+%ylims = get(gca, 'ylim');  ylim([-max(abs(ylims)) max(abs(ylims))]);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 print(gcf, '-dpdf', sprintf('%s/Fig1e_RTuncertainty.pdf', figpath));

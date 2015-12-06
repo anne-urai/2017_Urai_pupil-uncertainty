@@ -19,14 +19,12 @@ for sj = (subjects),
     
     clearvars -except sj subjects alldat pupilgrandavg;
     % choose between 2 and 3
-    load(sprintf('~/Data/pupilUncertainty/P%02d_alleye2.mat', sj));
+    load(sprintf('~/Data/pupilUncertainty/P%02d_alleye.mat', sj));
     
     % check which sessions to use
-    cd(sprintf('~/Data/pupilUncertainty/P%02d/', sj));
-    clear sessions;
-    s = dir('S*');
-    s = {s(:).name};
-    for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
+    if sj == 15, sessions = 1:7;
+    else sessions = 1:6;
+    end
     
     % ==================================================================
     % GET ALL THE FILTERED MOTIONENERGY FOR THIS SUBJECT
@@ -80,7 +78,7 @@ for sj = (subjects),
         end
     end
     
-    % for some subjects, the dot coordinates were lost...
+    % for some subjects, the dot coordinates were lost
     if sj == 12 || sj == 4 || sj == 3 || sj == 8,
         
         % replace those missing values with the means from other trials
@@ -138,12 +136,13 @@ for sj = (subjects),
     % use subfunction to get all the pupil info we're interested in
     % ==================================================================
     
-    data.fsample          = 100;
+    data.fsample          = 100; % make sure we use the resampled frequency from the pupilAnalysis
     [pupildat, timelock] = s2b_GetIndividualData(data, sj, 0);
     
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
     RT             = (newtrl(:, 9) - newtrl(:,6)) / data.fsample;
+    RT             = RT - 0.5; % the stimulus presentation was 500 ms, makes more sense to compute RT from its offset
     
     % remove sample idx
     newtrl(:, [1 2 6 9 10 11]) = [];
@@ -170,9 +169,9 @@ for sj = (subjects),
         'resp', 'rt', 'correct', 'correctM', ...
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'latency', ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
+        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/pupilUncertainty/CSV/2ifc_data2_sj%02d.csv', sj));
+    writetable(t, sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     disp(['finished sj ' num2str(sj)]);
     alldat{find(sj==subjects)} = newtrl;
@@ -193,9 +192,9 @@ if length(subjects) > 5,
         'resp', 'rt', 'correct', 'correctM', ...
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'latency', ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil'});
+        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
     
-    writetable(t, sprintf('~/Data/HD1/pupilUncertainty/CSV/2ifc_data2_allsj.csv'));
+    writetable(t, sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
     
     % ==================================================================
     % write a grand average file with all the timelocked data
@@ -203,7 +202,7 @@ if length(subjects) > 5,
     
     disp('saving timelock...');
     tic;
-    savefast('~/Data/HD1/pupilUncertainty/GrandAverage/pupilgrandaverage2.mat', 'pupilgrandavg');
+    savefast('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat', 'pupilgrandavg');
     toc;
     
     fprintf('\n\nout of %d trials (all sj), %d trials not matched \n\n', length(t.motionstrength), ...
@@ -271,9 +270,9 @@ if length(cohs) == 4,
     data_blcorr.trialinfo(find(data_blcorr.trialinfo(:,5)==5), 5) = 4; % change 5 to 3
 end
 
-    % ==================================================================
+% ==================================================================
 % TIMELOCK ALL THE 4 EPOCHS
-    % ==================================================================
+% ==================================================================
 
 whichlock   = {'ref', 'stim', 'resp', 'fb'};
 
@@ -312,6 +311,10 @@ pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
     find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.470) ), 3));
+
+% ==================================================================
+% plot what this looks like
+% ==================================================================
 
 if plotme,
     clf;
@@ -382,7 +385,16 @@ end
 feedbackscalars = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, find(timelock(4).lock.time > 0) ), 3));
 trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
 
-assert(~any(isnan(trialinfo(:))));
+% ==================================================================
+% lastly, take the final 100 ms of each trial
+% ==================================================================
+
+endoftrlscalar = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
+    end-(0.1*data.fsample):end), 3));
+trialinfo(:, 4) = endoftrlscalar;
+
+% check this all went well
+% assert(~any(isnan(trialinfo(:))));
 
 end
 
