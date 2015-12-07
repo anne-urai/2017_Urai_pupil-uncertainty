@@ -14,7 +14,6 @@ ft_defaults;
 
 subjects = 1:27;
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
-tabledat = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
@@ -55,15 +54,15 @@ for sj = unique(subjects),
     
     for c = 1:2,
         
-        thistabledat = tabledat(find(tabledat.subjnr == sj), :);
-        trls = find(thistabledat.correct == cors(c));
+        thistabledat = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
+        trls = find(thistabledat(:, 8) == cors(c));
         
         % add RT as another predictor
         if RTstratification,
-            designM = [ones(length(trls), 1) zscore(abs(thistabledat.motionstrength(trls))) ...
-                zscore(thistabledat.rt(trls))];
+            designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
+                zscore(thistabledat(trls, 6))];
         else % dont include RT
-            designM = [ones(length(trls), 1) zscore(abs(thistabledat.motionstrength(trls)))];
+            designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ];
         end
 
         % regress for each sample
@@ -214,7 +213,6 @@ for whichbeta = 1:size(designM2, 2),
 end
 
 save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
-
 
 % ==================================================================
 % show the canonical pupil IRF as well

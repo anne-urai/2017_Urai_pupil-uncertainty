@@ -1,4 +1,4 @@
-function [] = a3_writeData2CSV()
+function [] = a4_writeData2CSV()
 % from the pupil file and the motionenergy overview, make one csv file to
 % quickly do behavioural analyses per subject
 % the pupil data will be segmented here, and a single-trial scalar for the
@@ -306,11 +306,19 @@ pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
 % ==================================================================
 % THIS SCALAR IS DEFINED BASED ON THE FINAL CLUSTER BASED PERMUTATION TEST
-% significant window = 470 ms before feedback
+% significant window = 1s before feedback
 % ==================================================================
 
+load('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat');
+alltiming = [timelock(3).lock.time timelock(4).lock.time];
+
+for s = 1:3,
+    signific(s, :)  = stat{s}.mask;
+end
+% find where all of them are significant
+signific = all(signific);
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
-    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -1) ), 3));
+    find(timelock(4).lock.time < 0 & timelock(4).lock.time > min(alltiming(signific))) ), 3));
 
 % ==================================================================
 % plot what this looks like
