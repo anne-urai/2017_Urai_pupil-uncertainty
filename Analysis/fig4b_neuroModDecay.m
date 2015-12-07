@@ -3,7 +3,7 @@
 % panel E: neuromodulatory decay
 % ========================================================= %
 clf; clear; clc;
-nlags = 10;
+nlags = 5;
 
 subjects = 1:27;
 for sj = unique(subjects),
@@ -51,7 +51,7 @@ b1 = boundedline(1:lag, mean(neuromodDecay.pear(:, :, 1)), std(neuromodDecay.pea
 axis tight;  xlim([-1 lag+0.5]);
 xlabel('Lags'); ylabel({'Pearson''s rho'});
 set(gca, 'xtick', 0:nlags);
-ylim([0.35 0.7]);
+ylim([0.4 0.7]);
 
 %lh = legend([b1 b2], {'Pearson', 'Spearman'}, 'Location', 'NorthEast'); legend boxoff;
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4b_neuroModDecay2.pdf'));

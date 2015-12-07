@@ -4,7 +4,7 @@
 % group lags 4-7
 
 clear; clc;
-whichmodulator = 'rt';
+whichmodulator = 'pupil';
 subjects = 1:27;
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
@@ -34,7 +34,7 @@ for l = 1:length(lagGroups)
     set(h(1), 'marker', 'none');
     axis tight; axis square;
     
-    [~, pval] = permtest(mean(datG.response(:, lagGroups{l}), 2));
+    [pval] = randtest1d(mean(datG.response(:, lagGroups{l}), 2));
     sigstar({[1 1]}, pval);
     title(sprintf('p = %.3f', pval));
 
@@ -57,7 +57,7 @@ for l = 1:length(lagGroups)
    % axis tight; 
     axis square; box off;
     
-    [~, pval] = permtest(mean(datG.response_pupil(:, lagGroups{l}), 2));
+    [pval] = randtest1d(mean(datG.response_pupil(:, lagGroups{l}), 2));
     sigstar({[1 1]}, pval);
 
     xlabel(sprintf('Lags %d, %d, %d, %d', lagGroups{l}));

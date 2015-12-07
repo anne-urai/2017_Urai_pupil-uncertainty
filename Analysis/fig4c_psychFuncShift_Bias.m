@@ -140,7 +140,7 @@ stats = rm_anova(x, s, f);
 [~, pval(1)] = ttest(grandavg.logisticRep(:, 1), grandavg.logisticRep(:, 2));
 [~, pval(2)] = ttest(grandavg.logisticRep(:, 2), grandavg.logisticRep(:, 3));
 
-sigstar({[1 2], [2 3], [1 3]}, [pval(1) pval(2) stats.f1.pvalue]);
+sigstar({[1 3]}, [stats.f1.pvalue]);
 
 % ========================================================= %
 % show that this effect is symmetrical

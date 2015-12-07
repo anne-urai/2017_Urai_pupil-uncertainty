@@ -2,7 +2,7 @@ function [pvalS, pvalR] = fig4d_serialdependencies_group
 
 clear all; close all; clc;
 
-whichmodulator = 'rt';
+whichmodulator = 'pupil';
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % ============================================ %
@@ -79,7 +79,7 @@ mat(nanidx, :) = [];
 colors = linspecer(8);
 % for each lag, do permutation test
 for m = 1:7,
-   [~, pval(m)] = permtest(mat(:, m));
+   [pval(m)] = randtest1d(mat(:, m));
 end
 
 signific = find(pval < 0.05);

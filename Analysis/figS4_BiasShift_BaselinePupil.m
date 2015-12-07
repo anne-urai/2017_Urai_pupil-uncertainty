@@ -16,6 +16,8 @@ for sj = unique(subjects),
         case 'rt'
             data.rt = log(data.rt);
         case 'baseline_pupil'
+            % pretend as if the baseline of the next trial is this trial's
+            % decision pupil
             data.baseline_pupil = circshift(data.baseline_pupil, -1);
     end
     
@@ -74,7 +76,6 @@ for sj = unique(subjects),
                 'binomial','link','logit');
             stimx = -4:0.01:4;
             yfit = glmval([b(1) - grandavg.overallLogistic(sj, 1); b(2)], stimx, 'logit');
-            %  plot(x, yfit);
             
             % save betas
             grandavg.logistic(sj, r, u, :) = b;
