@@ -139,11 +139,8 @@ for session = unique(sessions),
             % zscore since we work with the bandpassed signal
             % ==================================================================
             
-            pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
-            
-            % normalize
-            pupildat = zscore(pupildat);
-            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupildat; % put back in
+            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = ...
+                zscore(data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:));
             
         end
         
