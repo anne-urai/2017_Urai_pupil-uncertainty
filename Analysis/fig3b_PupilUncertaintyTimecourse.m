@@ -63,7 +63,7 @@ for sj = unique(subjects),
             designM = [ones(length(trls), 1) zscore(abs(thistabledat.motionstrength(trls))) ...
                 zscore(thistabledat.rt(trls))];
         else % dont include RT
-            designM = [ones(length(trls), 1) zscore(thistabledat.motionstrength(trls))];
+            designM = [ones(length(trls), 1) zscore(abs(thistabledat.motionstrength(trls)))];
         end
 
         % regress for each sample
@@ -168,15 +168,14 @@ for whichbeta = 1:size(designM2, 2),
         end
         
         % also test their difference
-        % tail 1: gr1 > gr2
         stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
         p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
-        ylim([-1 0.5]);
+        % ylim([-1 0.5]);
     end
     
     % also a shaded area to indicate which part we will use for the
     % statistical comparison
-    if 1,
+    if 0,
         xticks = get(gca, 'xtick');
         a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
             min(get(gca, 'ylim')));

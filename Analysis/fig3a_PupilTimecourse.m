@@ -31,9 +31,9 @@ subplot(4,4,1);
 ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
     squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), ...
     'cmap', cols);
-ylabel({'Pupil response' ; '(% signal change)'});
+ylabel({'Pupil response (z)'});
 
-axis tight; set(gca, 'ytick', [-1:2:9], 'ylim', [-1 9]);
+axis tight; set(gca, 'ytick', [-0.2:0.2:1.2], 'ylim', [-0.2 1.2]);
 % subfunction to put lines and xlabels at the right spots
 plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(2).lock, [0], ...
@@ -99,7 +99,7 @@ subplot(4,4,1);
 ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
     permute(squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), [2 3 1]), ...
     'cmap', cols);
-ylabel({'Pupil response' ; '(% signal change)'});
+ylabel({'Pupil response (z)'});
 axis tight;
 ph2 = plot(1:6, mean(get(gca, 'ylim'))*ones(6, 10), '.w');
 lh = legend(ph2); % make t
@@ -113,7 +113,7 @@ lh.String = {'\color[rgb]{0.647058823529412,0,0.149019607843137} error hard', ..
 lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .15;
 set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
 
-axis tight; set(gca, 'ytick', [-1:2:9], 'ylim', [-1 9]);
+axis tight; set(gca, 'ytick', [-0.2:0.2:1.2], 'ylim', [-0.2 1.2]);
 % subfunction to put lines and xlabels at the right spots
 plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(2).lock, [0], ...

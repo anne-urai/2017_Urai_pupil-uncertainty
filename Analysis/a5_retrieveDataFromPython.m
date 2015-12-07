@@ -7,7 +7,7 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'rt'; % model has been run on both pupil and RT
+whichmodulator = 'pupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -44,8 +44,8 @@ for sj = subjects,
     stimw = model_h_mod.w(hf0+hlen:hf0+hlen*2-1);
     
     % project back into lag space
-    stimw = h * stimw';
-    respw = h * respw';
+    stimw = h * stimw;
+    respw = h * respw;
     
     % for bootstrapped values, also multiply with the bootstrapped slope
     bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
@@ -115,7 +115,7 @@ for sj = subjects,
     % ============================================ %
     
     pupilw = model_h_mod.w(hf0+hlen*2:hf0+hlen*3-1);
-    pupilw = h * pupilw';
+    pupilw = h * pupilw;
     pupilboot = bootstrap_corr(:, nlags*2+1:nlags*3);
     
     pupilwci = prctile(pupilboot, [2.5, 97.5])';
@@ -136,8 +136,8 @@ for sj = subjects,
     pupilstimw = model_h_mod.w(hf0+hlen*4:hf0+hlen*5-1);
     
     % project back into lag space
-    pupilrespw = h * pupilrespw';
-    pupilstimw = h * pupilstimw';
+    pupilrespw = h * pupilrespw;
+    pupilstimw = h * pupilstimw;
     
     % also get error bars, multiply bootstrapped values with slope too
     pupilrespboot = bootstrap_corr(:, nlags*3+1:nlags*4);

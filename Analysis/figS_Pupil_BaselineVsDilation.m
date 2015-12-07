@@ -40,7 +40,7 @@ for whichpup = 1,
         axis square;
         
         box off;
-        offsetAxes;
+       % offsetAxes;
         
         [rho, pval] = corr(data.(xlab), data.(ylab), 'type', 'Spearman');
         title(sprintf('rho %.2f', rho));

@@ -149,7 +149,7 @@ for f = 1:length(fields),
     end
     
     xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel',  {'hard', 'medium', 'easy'});
-    ylim([1 4]);
+    ylim([0.2 0.8]);
     ylabel({fieldnames{f}; fieldunits{f}});
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
     

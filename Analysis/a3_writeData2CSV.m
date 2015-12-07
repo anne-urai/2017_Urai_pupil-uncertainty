@@ -8,13 +8,13 @@ function [] = a3_writeData2CSV()
 % Anne Urai, 2015
 
 clear all; close all; clc;
-addpath('~/code/pupilUncertainty/Analysis');
+addpath('~/Dropbox/code/pupilUncertainty/Analysis');
 dbstop if error;
 addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-for sj = (subjects),
+for sj = fliplr(subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
@@ -310,7 +310,7 @@ pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 % ==================================================================
 
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
-    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.470) ), 3));
+    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -1) ), 3));
 
 % ==================================================================
 % plot what this looks like
