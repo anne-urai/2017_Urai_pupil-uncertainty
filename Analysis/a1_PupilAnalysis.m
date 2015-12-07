@@ -113,20 +113,39 @@ for session = unique(sessions),
         % ==================================================================
         
         % for this, use only EL-defined blinksamples
-        data = blink_regressout(data, blinksmp, saccsmp, 1);
+        % dont add back slow drift for now
+        addBackSlowDrift = 0;
+        
+        data = blink_regressout(data, blinksmp, saccsmp, 1, addBackSlowDrift);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
         
-        % ==================================================================
-        % compute percent signal change rather than zscore
-        % median is less sensitive to outliers
-        % ==================================================================
-        
-        pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
-        medianpupil = median(pupildat);
-        
-        % normalize
-        pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
-        data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupiltimecourse; % put back in
+        if addBackSlowDrift,
+            
+            % ==================================================================
+            % compute percent signal change rather than zscore
+            % median is less sensitive to outliers
+            % ==================================================================
+            
+            pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
+            medianpupil = median(pupildat);
+            
+            % normalize
+            pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
+            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupiltimecourse; % put back in
+            
+        else
+            
+            % ==================================================================
+            % zscore since we work with the bandpassed signal
+            % ==================================================================
+            
+            pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
+            
+            % normalize
+            pupildat = zscore(pupildat);
+            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupildat; % put back in
+            
+        end
         
         % ==================================================================
         % define trials
