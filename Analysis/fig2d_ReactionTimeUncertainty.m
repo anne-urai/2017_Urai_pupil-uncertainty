@@ -92,7 +92,7 @@ xlabel('Task difficulty');
 ylabel('Reaction time (s)');
 ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
 xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel', {'hard', 'medium', 'easy' });
-offsetAxes(gca, 0.1, 0);
+%offsetAxes(gca, 0.1, 0);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 %% make the subplot next to it show the significance of the intercepts
@@ -124,6 +124,7 @@ sigstar({[1 2]}, pvalD_interc);
 sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
 %ylims = get(gca, 'ylim');  ylim([-max(abs(ylims)) max(abs(ylims))]);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
+ylim([-0.05 0.1]);
 
 print(gcf, '-dpdf', sprintf('%s/Fig1e_RTuncertainty.pdf', figpath));
 end

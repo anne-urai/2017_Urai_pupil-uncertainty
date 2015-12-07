@@ -1,4 +1,4 @@
-function [] = fig3de_Uncertainty_Accuracy(nbins)
+function [grandavg] = fig3de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 if ~exist('nbins', 'var'), nbins = 100; end
@@ -9,7 +9,7 @@ fitIndividual = false;
 
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data3_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -50,17 +50,10 @@ boundedline(1:nbins, nanmean(grandavg.acc), ...
 xlabel('Pupil response');
 ylabel({'Percent correct'});
 axis tight; axis square;
-%ylim([0.7 0.78]);
 set(gca, 'ytick', [65 75 85]);
-%xlim([-10 20]);
-set(gca, 'xtick', [1  nbins/2 nbins]);
-offsetAxes; box off;
-
-% stats to report
-%[~, pval] = permtest(grandavg.b(:, 2), zeros(size(grandavg.b(:, 2))), 100000)
-
-%[~, pval, ~, stat] = ttest(grandavg.b)
-%bf10 = t1smpbf(stat.tstat(2),27)
+set(gca, 'xtick', [1  nbins/2 nbins], 'xticklabel', {'low', 'medium', 'high'});
+% offsetAxes; 
+box off; ylim([65 85]);
 
 if 0,
     subplot(463);
@@ -68,7 +61,7 @@ if 0,
     [~, pval(1)] = permtest(grandavg.betas(:, 1));
     [~, pval(2)] = permtest(grandavg.betas(:, 2));
     [~, pval(3)] = permtest(grandavg.betas(:, 3));
-    [~, pval(4)] = permtest(grandavg.betas(:,4));
+    [~, pval(4)] = permtest(grandavg.betas(:, 4));
     
     h = ploterr(1:size(grandavg.b, 2), squeeze(mean(grandavg.b)), [], squeeze(std(grandavg.b)) / sqrt(length(subjects)), ...
         'k.', 'hhxy', 0.0000000000000001);
@@ -88,12 +81,10 @@ print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3d_pupil_accuracy.
 %% fit logistic slope on high vs low pupil bins
 subjects = 1:27;
 allcohs = [-0.3 -0.2 -0.1 -0.05 -0.025 -0.0125 -0.0063 0.0063 0.0125 0.025 0.05 0.1 0.2 0.3];
-cols = linspecer(5); cols = cols([1 4], :);
 
 grandavg.xpts  = nan(length(subjects), 2, length(allcohs));
 grandavg.ypts  = nan(length(subjects), 2, length(allcohs));
 grandavg.betas = nan(length(subjects), 2, 2);
-figure;
 
 for sj = unique(subjects),
     
@@ -110,7 +101,7 @@ for sj = unique(subjects),
     for b = 1:length(puptrls),
         thisdat = data(puptrls{b}, :);
         
-        subplot(5,6,sj);
+        % subplot(5,6,sj);
         LogisticFit = Psychometric_Logistic(thisdat, 0, 0);
         
         % make it such that we can plot the GA
@@ -121,9 +112,6 @@ for sj = unique(subjects),
                 grandavg.ypts(find(sj==subjects), b, j) = LogisticFit.meanresp(idx);
             end
         end
-        
-        % plot
-        % plotFittedLogistic(LogisticFit, cols(b, :))
         
         % fit on all the trials, dont average beforehand!
         x = thisdat.motionstrength;
@@ -158,7 +146,6 @@ for sj = unique(subjects),
     end
 end
 
-clf;
 % make sure I actually plot the bar graph here to reproduce figure 3!
 subplot(4,5,3);
 h = ploterr(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))), [], ...
@@ -168,11 +155,14 @@ set(h(1), 'marker', 'none');
 hold on;
 bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
 bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
+% do ttest on regression coefficients
 [~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 1), grandavg.betas(:, 1, 2));
-s1 = sigstar({[1 2]}, pval(3), 0);
-ylim([0.4 1.5]); xlim([0.5 2.5]); box off;
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
+ylim([0.9 1.5]); xlim([0.5 2.5]); box off;
+s1 = sigstar({[1 2]}, pval(3), 0); ylim([0.9 1.5]); set(gca, 'ytick', [1 1.5]);
+xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
+ylabel('Perceptual sensitivity');
 
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
 savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'allcohs', 'subjects', 'cols');
 
 %%
@@ -208,8 +198,6 @@ for sj = unique(subjects),
     
     out = rocAnalysis(data.decision_pupil(data.correct==1), ...
         data.decision_pupil(data.correct==0), 0, 1);
-    
-  %  [X,Y,T,AUC] = perfcurve(labels,scores,posclass);
     
     grandavg.roc(sj)    = out.i;
     grandavg.pval(sj)   = out.p;

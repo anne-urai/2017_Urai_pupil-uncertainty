@@ -46,7 +46,7 @@ print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+clearvars -except subjects
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data

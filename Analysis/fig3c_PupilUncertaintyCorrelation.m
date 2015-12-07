@@ -7,13 +7,12 @@ RTstratification    = true; % include RT in the model, do stratification on bins
 RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
 % get all data
-data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data3_allsj.csv');
+data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 subjects = 1:27; % for this analysis, use all SJ!
 
 
 nbins       = 6; % bin in 5 to have comparable plots to the difficulty version?
-cohs        = 1:nbins;
 data.xval   = abs(data.motionstrength);
 data.rpebin = nan(size(data.xval));
 
@@ -21,9 +20,11 @@ data.rpebin = nan(size(data.xval));
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fields      = {'baseline_pupil', 'decision_pupil', 'feedback_pupil'};
-fieldnames  = {'Baseline pupil', 'Decision pupil',  'Feedback pupil'};
-fieldunits  = {'(% signal change)','(% signal change)','(Decision pupil projected out)'};
+if 0, % only decision_pupil
+    fields      = {'baseline_pupil', 'decision_pupil', 'feedback_pupil'};
+    fieldnames  = {'Baseline pupil', 'Decision pupil',  'Feedback pupil'};
+    fieldunits  = {'(% signal change)','(% signal change)','(Decision pupil projected out)'};
+end
 
 fields      = {'decision_pupil', };
 fieldnames  = {'Pupil response'};
@@ -109,11 +110,12 @@ for f = 1:length(fields),
     % slopes
     slopes       = [grandavg.(fields{f}).regline(:, 1, 2) grandavg.(fields{f}).regline(:, 2, 2)];
     [~, pval(1), ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
-    bf10 = t1smpbf(stat.tstat,27)
+    bf10 = t1smpbf(stat.tstat,27);
     [~, pval(2), ~, stat] = ttest(slopes(:, 2), 0, 'tail', 'both');
-    bf10 = t1smpbf(stat.tstat,27)
+    bf10 = t1smpbf(stat.tstat,27);
     [~, pval(3), ~, stat] = ttest(slopes(:,1), slopes(:,2));
-    bf10 = t1smpbf(stat.tstat,27)
+    bf10 = t1smpbf(stat.tstat,27);
+    
     hold on;
     for co = 1:2,
         
@@ -141,38 +143,31 @@ for f = 1:length(fields),
     end
     
     if f == length(fields),
-        xlabel('|\Delta| motion strength (a.u.)');
+        xlabel('Task difficulty');
     else
         set(gca, 'xticklabel', []);
     end
-    set(gca, 'xtick', 0:4, 'xticklabel',  {'c_1', 'c_2', 'c_3', 'c_4', 'c_5'});
     
-   % set(gca, 'ytick', 3:6);
+    xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel',  {'hard', 'medium', 'easy'});
+    ylim([1 4]);
     ylabel({fieldnames{f}; fieldunits{f}});
-  %  offsetAxes(gca, 0.1, 0);
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
-    axis tight; axis square;
-
-    % make a barplot
-    % subplot(length(fields),length(fields), length(fields)*(f-1)+2);
-    subplot(4,5,3);
-    h = ploterr(1:2, squeeze(mean(slopes)), [], squeeze(std(slopes)) / sqrt(length(subjects)), 'k.', 'hhxy', 0.00001);
-    set(h(1), 'marker', 'none');
     
+    % make a barplot
+    subplot(4,5,3);
     hold on;
     bar(1, mean(slopes(:, 1)), 'facecolor', cols(1, :), 'edgecolor', 'none', 'barwidth', 0.4);
     bar(2, mean(slopes(:, 2)), 'facecolor', cols(2, :), 'edgecolor', 'none', 'barwidth', 0.4);
+    h = errorbar(1:2, squeeze(mean(slopes)), squeeze(std(slopes)) / sqrt(length(subjects)), 'k', 'Marker', 'none', 'LineStyle', 'none');
     s1 = sigstar({[1 1]}, pval(1), 0); set(s1(2), 'position', [1 0.01 0]);
     s1 = sigstar({[2 2]}, pval(2), 0); set(s1(2), 'position', [2 -0.01 0]);
-    s1 = sigstar({[1 2]}, pval(3), 0); 
+    s1 = sigstar({[1 2]}, pval(3), 0);
     
-    set(gca, 'xtick', [0.5 1 2 2.5]);
-    try ylims = get(gca, 'ylim');
-        %set(gca, 'ytick', [-.04 0 .04]); 
-    end
+    xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
+        [] , 'ydir', 'normal', 'xticklabelrotation', 0);
+    ylim([-0.05 0.05]);
     
-   % offsetAxes; 
-   box off;
+    box off;
     if f == length(fields),
         set(gca, 'xtick', 1:2, 'xticklabel', {'Error', 'Correct'});
     else
