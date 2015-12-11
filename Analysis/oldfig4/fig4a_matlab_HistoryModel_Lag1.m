@@ -9,7 +9,7 @@ grandavg.betas = nan(27, 3, 7);
 grandavg.pval = nan(27, 3, 7);
 
 for sj = unique(subjects),
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data3_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     % get the variables we need
     resp = data.resp; resp(resp == -1) = 0; % predict response identity

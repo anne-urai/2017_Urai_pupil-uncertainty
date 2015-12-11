@@ -118,11 +118,10 @@ end
 % plot the timecourse of regression coefficients
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for whichbeta = 1:size(designM2, 2),
+for whichbeta = 1:size(designM2, 2)-2,
     
     % GRAND average
-    sp = subplot(5,3, 1+3*(whichbeta-1));
-    % sp = subplot(4,4,3);
+    sp = subplot(4,4, 1+4*(whichbeta-1));
     
     % line to indicate zero
     plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.1);
@@ -168,36 +167,35 @@ for whichbeta = 1:size(designM2, 2),
         
         % also test their difference
         stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
-        p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
-        % ylim([-1 0.5]);
+        p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);        
+        
+        % also a shaded area to indicate which part we will use for the
+        % statistical comparison
+        if 1,
+            xticks = get(gca, 'xtick');
+            a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
+                min(get(gca, 'ylim')));
+            a.FaceColor = [0.9 0.9 0.9];
+            a.EdgeColor = 'none';
+        end
     end
     
-    % also a shaded area to indicate which part we will use for the
-    % statistical comparison
-    if 0,
-        xticks = get(gca, 'xtick');
-        a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
-            min(get(gca, 'ylim')));
-        a.FaceColor = [0.8 0.8 0.8];
-        a.EdgeColor = 'none';
-    end
     set(gca, 'xticklabel', []);
     
     switch whichbeta
         case 1
             set(gca, 'ytick', [-6:2:8]);
-            ylabel('\beta intercept');
+            ylabel('Intercept');
         case 2
-            ylabel('Stimulus difficulty beta');
-            set(gca, 'ytick', -1:0.5:0.5);
+            ylabel('Stimulus difficulty');
+            ylim([-0.25 0.1]);
+            set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
-            
         case 3
-            ylabel('\beta reaction time');
+            ylabel('Reaction time');
             set(gca, 'ytick', -.5:0.5:1);
            % xlabel('Time (ms)');
     end
-   % offsetAxes(gca, 0.12, 0);
     
     if whichbeta == 2 && doStats,
         hold on;
@@ -232,9 +230,11 @@ if 0,
     xlabel('Time (s)'); ylabel({'Impulse'; 'response'});
     offsetAxes;
    % title('Canonical pupil IRF');
+   print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
+
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig2c_pupilRegressionTimecourse.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3b_pupilRegressionTimecourse.pdf'));
 disp('SAVED');
 end
 

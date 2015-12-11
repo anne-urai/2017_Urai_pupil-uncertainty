@@ -4,7 +4,7 @@ function [] = fig3c_PupilUncertaintyCorrelation()
 
 close all; clear; clc;
 RTstratification    = true; % include RT in the model, do stratification on bins
-RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
+% RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
 % get all data
 data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
@@ -27,8 +27,7 @@ if 0, % only decision_pupil
 end
 
 fields      = {'decision_pupil', };
-fieldnames  = {'Pupil response'};
-fieldunits  = {'(% signal change)'};
+fieldnames  = {'Pupil response (z)'};
 figure;
 
 for f = 1:length(fields),
@@ -149,9 +148,10 @@ for f = 1:length(fields),
     end
     
     xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel',  {'hard', 'medium', 'easy'});
-    ylim([0.2 0.8]);
-    ylabel({fieldnames{f}; fieldunits{f}});
+    ylim([0.2 0.6]); set(gca, 'ytick', 0.3:0.1:0.6);
+    ylabel('Pupil response (z)');
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
+    axis square; offsetAxes;
     
     % make a barplot
     subplot(4,5,3);
@@ -166,6 +166,7 @@ for f = 1:length(fields),
     xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
         [] , 'ydir', 'normal', 'xticklabelrotation', 0);
     ylim([-0.05 0.05]);
+    axis square;
     
     box off;
     if f == length(fields),
@@ -178,7 +179,7 @@ for f = 1:length(fields),
     
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig2b_scalarPupil.pdf'));
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3c_scalarPupil.pdf'));
 
 savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_pupil_uncertainty.mat', 'grandavg');
 

@@ -1,9 +1,11 @@
+function [] = fig4b_neuroModDecay(lagGroups)
 
 % ========================================================= %
 % panel E: neuromodulatory decay
 % ========================================================= %
-clf; clear; clc;
+clear; clc;
 nlags = 5;
+subplot(442); hold on;
 
 subjects = 1:27;
 for sj = unique(subjects),
@@ -43,7 +45,6 @@ for sj = unique(subjects),
     end
 end
 
-subplot(4,4,1); hold on;
 errorbar(0, nanmean(neuromodDecay.sametrial), (nanstd(neuromodDecay.sametrial) ./ sqrt(length(subjects))), ...
     '.k', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'k', 'markersize', 8);
 b1 = boundedline(1:lag, mean(neuromodDecay.pear(:, :, 1)), std(neuromodDecay.pear(:, :, 1)) ./ sqrt(length(subjects)), 'cmap', [0.5 0.5 0.5]);
@@ -52,6 +53,8 @@ axis tight;  xlim([-1 lag+0.5]);
 xlabel('Lags'); ylabel({'Pearson''s rho'});
 set(gca, 'xtick', 0:nlags);
 ylim([0.4 0.7]);
+set(gca, 'xcolor', 'k', 'ycolor', 'k');
+axis square;
 
 %lh = legend([b1 b2], {'Pearson', 'Spearman'}, 'Location', 'NorthEast'); legend boxoff;
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4b_neuroModDecay2.pdf'));

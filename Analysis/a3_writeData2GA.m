@@ -134,7 +134,7 @@ for sj = fliplr(subjects),
     % ==================================================================
     
     data.fsample          = 100; % make sure we use the resampled frequency from the pupilAnalysis
-    [timelock]            = s2b_GetIndividualData(data, sj, 0);
+    [timelock, trialinfo]            = s2b_GetIndividualData(data, sj, 0);
     
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;
@@ -146,17 +146,10 @@ for sj = fliplr(subjects),
     
     % add in reaction times and newcorrect
     newtrl = [newtrl(:, [1:3]) newtrl(:, 9) newtrl(:, 4) RT newtrl(:, 5)...
-        newtrl(:, 10) newtrl(:, [6:8])];
+        newtrl(:, 10) newtrl(:, [6:8]) trialinfo(:, 1)];
     
     % replace
     timelock(4).lock.trialinfo = newtrl;
-    
-    % compute each trial's latency, useful for history effects (Anke)
-    timing     = (data.trialinfo(:, 1) - circshift(data.trialinfo(:, 11), 1)) / data.fsample;
-    % latency is defined as the difference between feedback and the start
-    % of the next trial
-    skippedtrl = find(diff(data.trialinfo(:, 12)) ~= 1) + 1;
-    timing(skippedtrl) = NaN; % set the difference between blocks to NaN
     
     % also save the mat file
     for i = 1:4, timelock(i).lock = rmfield(timelock(i).lock, 'cfg'); end
@@ -184,7 +177,7 @@ toc;
 
 end
 
-function [timelock] = s2b_GetIndividualData(data, sj, plotme)
+function [timelock, trialinfo] = s2b_GetIndividualData(data, sj, plotme)
 % in this function, the actual single-trial pupil values will be computed
 
 pupilchan       = find(strcmp(data.label, 'EyePupil')==1);

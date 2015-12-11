@@ -33,7 +33,7 @@ ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
     'cmap', cols);
 ylabel({'Pupil response (z)'});
 
-axis tight; set(gca, 'ytick', [-0.2:0.2:1.2], 'ylim', [-0.2 1.2]);
+axis tight; set(gca, 'ytick', [0:0.5:1 1.2], 'ylim', [-0.2 1.3]);
 % subfunction to put lines and xlabels at the right spots
 plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(2).lock, [0], ...
@@ -51,6 +51,7 @@ warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
+clf;
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
@@ -113,7 +114,7 @@ lh.String = {'\color[rgb]{0.647058823529412,0,0.149019607843137} error hard', ..
 lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .15;
 set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
 
-axis tight; set(gca, 'ytick', [-0.2:0.2:1.2], 'ylim', [-0.2 1.2]);
+axis tight; set(gca, 'ytick', [0:0.5:1 1.1], 'ylim', [-0.2 1.3]);
 % subfunction to put lines and xlabels at the right spots
 plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(2).lock, [0], ...
@@ -170,7 +171,7 @@ for t = 1:length(fbtp),
     end
 end
 
-set(gca, 'XTick', xticks, 'XTickLabel', xlabels, ...
+set(gca, 'XTick', xticks, 'XTickLabel', [], ...
     'XTickLabelRotation', -45, 'tickdir', 'out', 'box', 'off');
 
 % add white lines to indicate transitions between intervals

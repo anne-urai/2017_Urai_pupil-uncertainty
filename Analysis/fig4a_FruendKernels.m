@@ -1,3 +1,5 @@
+function [] = fig4a_FruendKernels(lagGroups)
+
 % make all the panels for figure 4a
 %     - panel A: frund kernels
 %     - panel B: decision strategy for lags 1-3
@@ -9,36 +11,38 @@
 
 addpath('~/Documents/fieldtrip');
 ft_defaults;
+subplot(441); hold on;
 
-clear all; clc; close all;
 whichmodulator = 'pupil';
-lagGroups = 1:3;
 
 % ========================================================= %
 % panel A: Fr?nd kernels for response and stimulus
 % ========================================================= %
 
-subplot(341); hold on;
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
-a = area(1:3, ones(1, 3) * 0.14, -0.14);
-a.FaceColor = [0.98 0.98 0.98];
+if lagGroups == 1,
+    lagGroups = [0.8 1.2];
+end
+
+a = area(lagGroups, ones(1, length(lagGroups)) * 0.14, -0.01);
+a.FaceColor = [0.9 0.9 0.9];
 a.EdgeColor = 'none';
 a.LineStyle = 'none';
 a.BaseLine.Visible = 'off';
 
 lags = 1:7; subjects = 1:27;
 colors = linspecer(9);
-colors = colors([5 9], :);
+colors = colors([2], :);
+
 colors(1, :) = colors(1, :) - 0.15; % a bit darker
 nlags = 7;
-bh = boundedline(lags, nanmean(dat.stimulus), nanstd(dat.stimulus) ./ sqrt(length(subjects)), ...
-    lags, nanmean(dat.response), nanstd(dat.response) ./ sqrt(length(subjects)), ...
-    'cmap', colors([1 2], :), 'alpha');
-xlim([0.5 nlags+0.5]); ylim([-0.15 0.15]); set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
-ylabel('History weights'); xlabel('Lags');
-text(4, 0.1, 'Response', 'color', colors(2,:), 'fontsize', 7);
-text(4.5, -0.1, 'Stimulus', 'color', colors(1,:), 'fontsize', 7);
+bh = boundedline(lags, nanmean(dat.response), nanstd(dat.response) ./ sqrt(length(subjects)), ...
+    'cmap', colors, 'alpha');
+xlim([0.5 nlags]); ylim([-0.02 0.15]); set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
+ylabel('Response weights'); xlabel('Lags');
+%text(4, 0.1, 'Response', 'color', colors(2,:), 'fontsize', 7);
+%text(4.5, -0.1, 'Stimulus', 'color', colors(1,:), 'fontsize', 7);
 axis square;
 
 % cluster based permutation test and indicate stats.mask
@@ -52,7 +56,7 @@ cfgstats.clusteralpha     = 0.05;
 cfgstats.tail             = 0; % two-tailed!
 cfgstats.clustertail      = 0; % two-tailed!
 cfgstats.alpha            = 0.025;
-cfgstats.numrandomization = 1000; % make sure this is large enough
+cfgstats.numrandomization = 100; % make sure this is large enough
 cfgstats.randomseed       = 1; % make the stats reproducible!
 
 % use only our preselected sensors for the time being
@@ -86,10 +90,10 @@ dataZero = dataResp;
 dataZero.individual = zeros(size(dataResp.individual));
 
 statResp = ft_timelockstatistics(cfgstats, dataResp, dataZero);
-statStim = ft_timelockstatistics(cfgstats, dataStim, dataZero);
+%statStim = ft_timelockstatistics(cfgstats, dataStim, dataZero);
 
 %
-plot(find(statResp.mask==1), -0.12*ones(1, length(find(statResp.mask==1))), '-', 'color', colors(2, :), 'markersize', 4);
-plot(find(statStim.mask==1), -0.13*ones(1, length(find(statStim.mask==1))), '-', 'color', colors(1, :), 'markersize', 4);
+plot(find(statResp.mask==1), -0.01*ones(1, length(find(statResp.mask==1))), '-', 'color', colors(1, :), 'markersize', 4);
+%plot(find(statStim.mask==1), -0.13*ones(1, length(find(statStim.mask==1))), '-', 'color', colors(1, :), 'markersize', 4);
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4a_FruendKernels.pdf'));

@@ -92,8 +92,10 @@ xlabel('Task difficulty');
 ylabel('Reaction time (s)');
 ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
 xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel', {'hard', 'medium', 'easy' });
-%offsetAxes(gca, 0.1, 0);
+axis square;
+offsetAxes(gca, 0.1, 0);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
+%legend('Error','Correct'); legend boxoff;
 
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
@@ -117,7 +119,7 @@ errorbar(1:2, mean(slopes), std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 
 xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
     [] , 'ydir', 'normal', 'xticklabelrotation', 0);
 
-axis tight; axis square;
+axis tight; 
 set(gca, 'xticklabel', {'Error', 'Correct'}); 
 ylabel('Beta task difficulty');
 sigstar({[1 2]}, pvalD_interc);

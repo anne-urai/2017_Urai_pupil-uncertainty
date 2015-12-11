@@ -1,11 +1,11 @@
 function [grandavg] = fig3de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
-if ~exist('nbins', 'var'), nbins = 100; end
+if ~exist('nbins', 'var'), nbins = 20; end
 close all;
 
 subjects      = 1:27;
-fitIndividual = false;
+fitIndividual = true;
 
 for sj = unique(subjects),
     
@@ -16,12 +16,12 @@ for sj = unique(subjects),
         divideintobins(data.decision_pupil, data.correct, nbins);
     
     % do a logistic regression
-    x = [zscore(abs(data.motionstrength)) zscore(data.rt) zscore(data.decision_pupil) ];
-    
+    x = [zscore(abs(data.motionstrength)) zscore(data.decision_pupil) ];
     x(data.trialnr < 2, :) = nan;
     
-    [b,dev,stats] = glmfit(x, data.correct, ...
+    [b] = glmfit(x, data.correct, ...
         'binomial','link','logit');
+    
     % save for later
     grandavg.b(sj, :) = b;
     
@@ -31,15 +31,14 @@ for sj = unique(subjects),
         hold on;
         plot(grandavg.pup(sj, :), grandavg.acc(sj,:), 'b.');
         axis tight; ylim([0.5 1]); xlims = get(gca, 'xlim');
-        plot(x,yfit,'k');
-        xlim(xlims);
+      %  plot(x,yfit,'k');
+      %  xlim(xlims);
         title(sprintf('P%02d', sj));
     end
     
 end
 
 % now, plot
-cols = linspecer(3);
 figure;
 subplot(441);
 
@@ -50,10 +49,15 @@ boundedline(1:nbins, nanmean(grandavg.acc), ...
 xlabel('Pupil response');
 ylabel({'Percent correct'});
 axis tight; axis square;
-set(gca, 'ytick', [65 75 85]);
-set(gca, 'xtick', [1  nbins/2 nbins], 'xticklabel', {'low', 'medium', 'high'});
-% offsetAxes;
-box off; ylim([65 85]);
+set(gca, 'ytick', [60:5:80]);
+set(gca, 'xtick', [1 nbins/2 nbins], 'xticklabel', {'low', 'medium', 'high'});
+%offsetAxes;
+box off; ylim([65 80]);
+
+% do stats on these logistic betas
+[h, p, ci, stats] = ttest(grandavg.b(:, end));
+text(2, 69, sprintf('t(%d) = %.2f', stats.df, stats.tstat));
+text(2, 67, sprintf('p = %.3f', p));
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3d_pupil_accuracy.pdf'));
 
@@ -124,9 +128,10 @@ ylim([0.9 1.5]); xlim([0.5 2.5]); box off;
 s1 = sigstar({[1 2]}, pval(3), 0); ylim([0.9 1.5]); set(gca, 'ytick', [1 1.5]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
 ylabel('Perceptual sensitivity');
+set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
-savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'subjects', 'cols');
+savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'subjects');
 
 %%
 % !!! rather than doing a permutation test on the logistic slope
