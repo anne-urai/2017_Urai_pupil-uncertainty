@@ -7,7 +7,7 @@ function [] = a4_writeData2CSV()
 %
 % Anne Urai, 2015
 
-close all; 
+close all;
 addpath('~/Dropbox/code/pupilUncertainty/Analysis');
 dbstop if error;
 addpath('~/Documents/fieldtrip');
@@ -17,7 +17,7 @@ ft_defaults;
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 
 subjects = 1:length(pupilgrandavg.timelock);
-for sj = fliplr(subjects),
+for sj = (subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
@@ -33,24 +33,20 @@ for sj = fliplr(subjects),
     % get pupil scalars
     % ==================================================================
     
-    data.fsample          = 100; % make sure we use the resampled frequency from the pupilAnalysis
-   
-    % baseline, decision, feedback, end of trial
-    baselinePupil = pupilgrandavg.timelock{sj}(1).lock.bl';
-    
+    data.fsample    = 100; % make sure we use the resampled frequency from the pupilAnalysis
     pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(4).lock.label, 'EyePupil')==1);
-
+    
     % 250 ms before feedback
     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
     
     % 250 ms after feedback
     feedbackPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
-        find(pupilgrandavg.timelock{sj}(4).lock.time > 0 & pupilgrandavg.timelock{sj}(4).lock.time < 0.250 ) ), 3));
+        find(pupilgrandavg.timelock{sj}(4).lock.time > 0 & pupilgrandavg.timelock{sj}(4).lock.time < 0.2500 ) ), 3));
     
     endofTrlPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
-    end-(0.1*data.fsample):end), 3));
-
+        end-(0.1*data.fsample):end), 3));
+    
     % put together
     newtrl = [newtrl decisionPupil feedbackPupil endofTrlPupil];
     

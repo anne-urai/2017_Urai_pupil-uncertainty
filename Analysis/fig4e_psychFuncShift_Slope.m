@@ -1,10 +1,9 @@
-function fig4e_psychFuncShift_Slope(lagGroups)
+function fig4e_psychFuncShift_Slope(lagGroups, whichmodulator)
 % plot both the effect of pupil on overall repetition bias and show that
 % this is symmetrical for both previous choices
 
-if ~exist('lagGroups', 'var'), lagGroups = 1:2; end
-whichmodulator = 'pupil';
-subplot(447);
+if ~exist('lagGroups', 'var'), lagGroups = 1; end
+subplot(449);
 
 switch whichmodulator
     case 'pupil'
@@ -20,12 +19,7 @@ whichLags = 1:3; % lag 1
 for lag = whichLags,
     for sj = unique(subjects),
         data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
-        switch whichMod
-            case 'rt'
-                data.rt = log(data.rt);
-            case 'decision_pupil';
-                %   data.decision_pupil = projectout(data.decision_pupil, data.rt);
-        end
+        
         
         % outcome vector need to be 0 1 for logistic regression
         data.resp(data.resp == -1) = 0;
@@ -86,36 +80,52 @@ end
 % normalize by their overall slope
 % ========================================================= %
 
-grandavg.logistic = bsxfun(@minus, grandavg.logistic, grandavg.overallLogistic(:, 2));
+% grandavg.logistic = bsxfun(@minus, grandavg.logistic, grandavg.overallLogistic(:, 2));
 
 % ========================================================= %
 % combine the lag groups
 % ========================================================= %
 
 grandavg.logisticSlope = squeeze(mean(grandavg.logistic(:, :, lagGroups, 2), 3));
+colors = linspecer(9);
+
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
+posRespSj = find(mean(dat.response(:, lagGroups), 2) > 0);
+negRespSj = find(mean(dat.response(:, lagGroups), 2) < 0);
 
 stimx2 = 1:u;
-h = ploterr(stimx2, ...
-    nanmean(grandavg.logisticSlope),  [], ...
-    nanstd(grandavg.logisticSlope) ./ sqrt(length(subjects)), ...
-    '-k',  'hhxy', 0.001);
-set(h(1), 'color', 'k', ...
-    'marker', '.', 'markerfacecolor', 'k', 'markersize', 12);
-set(h(2), 'color', 'k');
+hold on;
+errorbar(stimx2, ...
+    nanmean(grandavg.logisticSlope(posRespSj, :)), ...
+    nanstd(grandavg.logisticSlope(posRespSj, :)) ./ sqrt(length(posRespSj)), ...
+    'o-', 'color', colors(8, :), 'markeredgecolor', 'w', 'markerfacecolor', colors(8, :));
+errorbar(stimx2, ...
+    nanmean(grandavg.logisticSlope(negRespSj, :)), ...
+    nanstd(grandavg.logisticSlope(negRespSj, :)) ./ sqrt(length(negRespSj)), ...
+    'o-', 'color', colors(9, :), 'markeredgecolor', 'w', 'markerfacecolor', colors(9, :));
+
+axis square; axis tight;
+xlim([0.5 nbins+1.5]); set(gca, 'xtick', 1:4, ...
+    'xticklabel', {'low', 'med', 'high', 'all'}, 'xticklabelrotation', 0);
+box off;
 
 switch whichMod,
     case 'baseline_pupil';
-        xlabel(sprintf('Baseline pupil_{t%d}', 0));
+        xlabel(sprintf('Baseline pupil'));
     case 'decision_pupil'
-        xlabel(sprintf('Decision pupil_{t-1}'));
+        xlabel(sprintf('Pupil response'));
+    case 'rt'
+        xlabel(sprintf('Reaction time'));
+        
     otherwise
         xlabel(sprintf('%s_{t-%d}', whichModTitle, whichLag));
 end
-ylabel({'Slope_{t0}'});
+ylabel({'Next trial slope'});
 
+axis tight;
 axis square;
 xlim([0.5 3.5]); set(gca, 'xtick', 1:3, 'xticklabel', {'low', 'med', 'high'});
-ylim([-0.02 0.04]); box off;
+box off;
 
 % repeated measures anova on those bins
 cnt = 0; clear x s f
@@ -134,7 +144,8 @@ stats = rm_anova(x, s, f);
 [~, pval(1)] = ttest(grandavg.logisticSlope(:, 1), grandavg.logisticSlope(:, 2));
 [~, pval(2)] = ttest(grandavg.logisticSlope(:, 2), grandavg.logisticSlope(:, 3));
 
-sigstar({[1 3]}, [stats.f1.pvalue]);
+sigstar2({[1 3]}, [stats.f1.pvalue]);
+ylim([1.1 1.53]);
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));
 

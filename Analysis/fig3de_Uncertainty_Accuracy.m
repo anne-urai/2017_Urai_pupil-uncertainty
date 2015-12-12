@@ -127,7 +127,7 @@ bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', '
 ylim([0.9 1.5]); xlim([0.5 2.5]); box off;
 s1 = sigstar({[1 2]}, pval(3), 0); ylim([0.9 1.5]); set(gca, 'ytick', [1 1.5]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
-ylabel('Perceptual sensitivity');
+ylabel('Current trial slope');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));

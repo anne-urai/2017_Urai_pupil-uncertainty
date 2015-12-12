@@ -141,7 +141,22 @@ for session = unique(sessions),
             
             data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = ...
                 zscore(data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:));
-            
+        end
+        
+        % ==================================================================
+        % make channels with blinks and saccades
+        % ==================================================================
+        
+        data.label{4} = 'Blinks';
+        data.trial{1}(4, :) = zeros(1, length(data.time{1}));
+        for b = 1:length(blinksmp),
+            data.trial{1}(4, blinksmp(b,1):blinksmp(b,2)) = 1;
+        end
+        
+        data.label{5} = 'Saccades';
+        data.trial{1}(5, :) = zeros(1, length(data.time{1}));
+        for s= 1:length(saccsmp),
+            data.trial{1}(5, saccsmp(s,1):saccsmp(s,2)) = 1;
         end
         
         % ==================================================================
@@ -190,7 +205,6 @@ for session = unique(sessions),
         savefast(sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block), 'data');
         cd(['S' num2str(session)]);
         
-        %  end
     end
 end
 

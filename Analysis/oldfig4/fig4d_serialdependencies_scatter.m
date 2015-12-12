@@ -3,7 +3,7 @@
 % ============================================ %
 % group lags 4-7
 
-whichmodulator = 'pupilR';
+whichmodulator = 'pupil';
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 colors = linspecer(8);
 

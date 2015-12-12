@@ -24,18 +24,18 @@ for sj = subjects,
     % 16.11, use abs(motionstrength) because the toolbox will multiply with
     % stim identity again
     % newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0)];
-
+    
     % use this one to add the pupil values
     newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(data.decision_pupil)];
-    subplot(5,6,sj); histogram(zscore(data.decision_pupil), 'binwidth', 0.01);
     
     dlmwrite(sprintf('2ifc_pupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
-        
+    
     % double check negative rts
     data.rt(data.rt < 0.01) = 0.01;
-        newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(log(data.rt))];
-    
+    newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(log(data.rt))];
+        subplot(5,6,sj); histogram(zscore(log(data.rt))); axis tight;
+
     dlmwrite(sprintf('2ifc_rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
 end
