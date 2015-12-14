@@ -143,6 +143,7 @@ for whichbeta = 1:size(designM2, 2)-2,
         % on this, do cluster based permutation testing over the time
         % dimension - because the samples are not temporally independent...
         
+        assert(1==0)
         for c = 1:2,
             % put into fieldtrip-style
             grandavg_thiscorr(c).time       = 1:size(grandavg.beta, 3);

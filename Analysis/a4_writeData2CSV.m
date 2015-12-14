@@ -40,9 +40,11 @@ for sj = (subjects),
     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
     
-    % 250 ms after feedback
+    % peak of error vs correct betas across the group is at 640 ms after
+    % feedback
+    % so for the scalar, we take 515 - 765ms after fb
     feedbackPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
-        find(pupilgrandavg.timelock{sj}(4).lock.time > 0 & pupilgrandavg.timelock{sj}(4).lock.time < 0.2500 ) ), 3));
+        find(pupilgrandavg.timelock{sj}(4).lock.time > 0.515 & pupilgrandavg.timelock{sj}(4).lock.time < 0.765 ) ), 3));
     
     endofTrlPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         end-(0.1*data.fsample):end), 3));

@@ -2,12 +2,12 @@
 % read in the python-generated mat files and do some plots!
 
 clear; close all; clc;
-subjects = [1:27];
+subjects = 1:27;
 nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'rt'; % model has been run on both pupil and RT
+whichmodulator = 'fb-decpupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -23,7 +23,7 @@ dat.historyPval = nan(27, 1);
 dat.modulationPval = nan(27, 1);
 
 for sj = subjects,
-  %  clf;
+   clf;
     
     % ============================================ %
     % ======= model WITH pupil term =========== %
@@ -35,14 +35,10 @@ for sj = subjects,
         warning('skipping this participant');
         continue;
     end
-  %  subplot(5,6,sj);
-  %  histogram(data(:, end));
-  %  axis tight;
-%end
     
     % get the fitted weights
     hf0 = model_h_mod.hf0+1;
-    model_h_mod.w = model_h_mod.w'
+    model_h_mod.w = model_h_mod.w(:);
     hlen = size(h, 2);
     
     respw = model_h_mod.w(hf0:hf0+hlen-1);

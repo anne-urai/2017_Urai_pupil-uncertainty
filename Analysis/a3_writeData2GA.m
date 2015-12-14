@@ -134,7 +134,7 @@ for sj = fliplr(subjects),
     % ==================================================================
     
     data.fsample          = 100; % make sure we use the resampled frequency from the pupilAnalysis
-    [timelock, trialinfo]            = s2b_GetIndividualData(data, sj, 0);
+    [timelock, trialinfo] = s2b_GetIndividualData(data, sj, 0);
     
     % trialinfo matrix as it is
     newtrl         = data.trialinfo;

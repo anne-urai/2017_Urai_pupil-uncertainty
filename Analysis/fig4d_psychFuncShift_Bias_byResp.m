@@ -1,12 +1,11 @@
-function fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, grouping)
+function fig4d_psychFuncShift_Bias_byResp(lagGroups, whichmodulator, grouping)
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
-if ~exist('grouping', 'var'); grouping = 'all'; end
 
 % plot both the effect of pupil on overall repetition bias and show that
 % this is symmetrical for both previous choices
-% subplot(443);
+subplot(441); hold on;
 
 switch whichmodulator
     case 'pupil'
@@ -34,7 +33,6 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         end
-        
         % outcome vector need to be 0 1 for logistic regression
         data.resp(data.resp == -1) = 0;
         
@@ -147,70 +145,27 @@ grandavg.respBiasNoPupilSplit = squeeze(nanmean(grandavg.respBiasNoPupilSplit(:,
 grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups), 2));
 
 % ========================================================= %
-% plot
+% plot for all subjects
 % ========================================================= %
+theseSj = 1:27;
+colors = linspecer(4);
+colors = colors([1 4], :);
+stimx2 = 1:nbins;
+plot([1 nbins], [0 0], 'k');
 
-colors = linspecer(9);
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
-hold on;
-
-switch grouping
+for r = [1 2],
+    h = ploterr(stimx2, ...
+        squeeze(nanmean(grandavg.logistic(theseSj, r, :, 1))),  [], ...
+        squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), ...
+        '-',  'hhxy', 0.00001);
+    set(h(1), 'color', colors(r, :), ...
+        'marker', '.', 'markerfacecolor', colors(r, :), 'markersize', 12);
+    set(h(2), 'color', colors(r, :));
+    stimx2 = stimx2 - 0.15;
     
-    case 'all'
-        theseSj = 1:27;
-        thiscolor = colors(2, :);
-    case 'repeat'
-        theseSj = find(dat.response(:, 1) > 0);
-        thiscolor = colors(8, :);
-    case 'switch'
-        theseSj = find(dat.response(:, 1) < 0);
-        thiscolor = colors(9, :);
-end
-
-stimx2 = 1:u;
-errorbar(stimx2, ...
-    nanmean(grandavg.logisticRep(theseSj, :)), ...
-    nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)), ...
-    'o-', 'color', thiscolor, 'markerfacecolor', thiscolor, 'markersize', 4);
-
-errorbar(nbins+1, nanmean(grandavg.repetitionBias(theseSj)), ...
-    nanstd(grandavg.repetitionBias(theseSj)) ./ sqrt(length(theseSj)), 'o-', 'color', ...
-    thiscolor, 'markerfacecolor', thiscolor, 'markersize', 4);
-
-% repeated measures anova on those bins
-cnt = 0; clear x s f
-for sj = 1:length(theseSj),
-    for u = 1:nbins,
-        cnt = cnt + 1;
-        x(cnt) = grandavg.logisticRep(theseSj(sj), u);
-        s(cnt) = sj;
-        f{1}(cnt) = u; % factor of previous uncertainty
-    end
-end
-clear stats
-stats = rm_anova(x, s, f);
-% axis square;
-axis tight;
-
-% low vs high
-[~, pval(1)] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3));
-ymax = max( nanmean(grandavg.logisticRep(theseSj, :)) + ...
-   2* nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)));
-mysigstar([1 3], [ymax ymax], pval(1));
-
-% medium vs high
-[~, pval(2)] = ttest(grandavg.logisticRep(theseSj, 2), grandavg.logisticRep(theseSj, 3));
-ymax = max( nanmean(grandavg.logisticRep(theseSj, [2:3])) + ...
-   1.5* nanstd(grandavg.logisticRep(theseSj, [2:3])) ./ sqrt(length(theseSj)));
-mysigstar([2 3], [ymax ymax], pval(2));
-
-% only test for a repetition bias when we haven't split the subjects
-switch grouping
-    case 'all'
-        [~, pval(3)] = ttest(grandavg.repetitionBias(theseSj));
-        max( nanmean(grandavg.repetitionBias(theseSj)) + ...
-            nanstd(grandavg.repetitionBias(theseSj)) ./ sqrt(length(theseSj)));
-        mysigstar(nbins+1, ymax, pval(3));
+    errorbar(nbins+1, nanmean(grandavg.respBiasNoPupilSplit(theseSj, r)), ...
+        nanstd(grandavg.respBiasNoPupilSplit(theseSj, r)) ./ sqrt(length(theseSj)), ...
+        '.', 'markersize', 12, 'color', colors(r, :));
 end
 
 switch whichMod,
@@ -219,24 +174,120 @@ switch whichMod,
     case 'decision_pupil'
         xlabel(sprintf('Pupil response'));
     case 'rt'
-        xlabel(sprintf('Reaction time'));
-    case 'feedback_pupil',
-        xlabel('Feedback pupil');
-        
-        switch whichmodulator
-            case 'fb-decpupil'
-                xlabel('Feedback-dec pupil');
-        end
+        xlabel('Reaction time');
     otherwise
         %  xlabel(sprintf('%s_{t-%d}', whichModTitle, whichLag));
 end
-ylabel('Next trial repetition');
+axis tight;
+xlim([0.5 nbins+1.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high', 'all'});
+ylabel('Next trial P(resp A)');
 
-xlim([0.5 nbins+1.5]); set(gca, 'xtick', 1:nbins+1, ...
-    'xticklabel', {'low', 'med', 'high', 'all'}, 'xticklabelrotation', 0);
-box off;
+title('All subjects', 'color', colors(2, :));
+% ========================================================= %
+% plot for different subgroups
+% ========================================================= %
 
-ylims = get(gca, 'ylim');
-set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
+
+posRespSj = find(dat.response(:, 1) > 0);
+negRespSj = find(dat.response(:, 1) < 0);
+
+% ========================================================= %
+% show that this effect is symmetrical
+% ========================================================= %
+
+for groups = 1:2,
+    stimx2 = 1:nbins;
+    switch groups
+        case 1
+            theseSj = posRespSj;
+            subplot(442);
+        case 2
+            theseSj = negRespSj;
+            subplot(443);
+    end
+    
+    hold on;
+    colors = linspecer(4);
+    colors = colors([1 4], :);
+    plot([1 nbins], [0 0], 'k');
+    
+    for r = [1 2],
+        h = ploterr(stimx2, ...
+            squeeze(nanmean(grandavg.logistic(theseSj, r, :, 1))),  [], ...
+            squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), ...
+            '-',  'hhxy', 0.00001);
+        set(h(1), 'color', colors(r, :), ...
+            'marker', '.', 'markerfacecolor', colors(r, :), 'markersize', 12);
+        set(h(2), 'color', colors(r, :));
+        stimx2 = stimx2 - 0.15;
+        
+        errorbar(nbins+1, nanmean(grandavg.respBiasNoPupilSplit(theseSj, r)), ...
+            nanstd(grandavg.respBiasNoPupilSplit(theseSj, r)) ./ sqrt(length(theseSj)), ...
+            '.', 'markersize', 12, 'color', colors(r, :));
+    end
+    
+    switch whichMod,
+        case 'baseline_pupil';
+            xlabel(sprintf('Baseline pupil', 0));
+        case 'decision_pupil'
+            xlabel(sprintf('Pupil response'));
+        case 'rt'
+            xlabel(sprintf('Reaction time'));
+        case 'feedback_pupil',
+            xlabel('Feedback pupil');
+            
+            switch whichmodulator
+                case 'fb-decpupil'
+                    xlabel('Feedback-dec pupil');
+            end
+        otherwise
+            %  xlabel(sprintf('%s_{t-%d}', whichModTitle, whichLag));
+    end
+    axis tight;
+    xlim([0.5 nbins+1.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high', 'all'});
+    ylabel('Next trial P(resp A)');
+    
+    % repeated measures anova on those bins
+    cnt = 0; clear x s f
+    for sj = 1:length(theseSj),
+        for u = 1:nbins,
+            for r = 1:2,
+                cnt = cnt + 1;
+                x(cnt) = grandavg.logistic(theseSj(sj), r, u, 1, 1);
+                s(cnt) = sj;
+                f{1}(cnt) = r; % factor of previous response
+                f{2}(cnt) = u; % factor of previous uncertainty
+            end
+        end
+    end
+    clear stats
+    stats = rm_anova(x, s, f);
+    
+    % also test for the 2 pairwise comparisons
+    % [h, pval(1)] = ttest(grandavg.logistic(:, 1, whichParam), grandavg.logistic(:, 2, whichParam));
+    % [h, pval(2)] = ttest(grandavg.logistic(:, 2, whichParam), grandavg.logistic(:, 3, whichParam));
+    % [~, pval(3)] = ttest(grandavg.respBiasNoPupilSplit(theseSj, 1), grandavg.respBiasNoPupilSplit(theseSj, 2));
+    
+    sigstar2({[1 nbins], [nbins+1 nbins+1]}, [stats.f1xf2.pvalue stats.f1.pvalue]);
+    stats.f1xf2
+    
+    colors = linspecer(9);
+    
+    switch groups
+        case 1
+            title('Repeaters', 'color', colors(8,:));
+        case 2
+            title('Switchers', 'color', colors(9,:));
+            
+            % add text to indicate whats going on
+            colors = linspecer(4);
+            text(nbins+1.5, 0.03, 'Resp_{-1} A', 'color', colors(4, :));
+            text(nbins+1.5, -0.03, 'Resp_{-1} B', 'color', colors(1,:));
+    end
+end
+
+% suplabel(sprintf('Lags %d %d %d', lagGroups), 'x');
+% print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_biasShift_%s_correct%d_lags%d%d%d.pdf', whichMod, correctness, lagGroups));
 
 end

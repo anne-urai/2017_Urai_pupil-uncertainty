@@ -25,10 +25,30 @@ for sj = subjects,
     % stim identity again
     % newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0)];
     
+    % no modulatrion
+    newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0)];
+    
+    dlmwrite(sprintf('2ifc_plain_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
     % use this one to add the pupil values
     newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(data.decision_pupil)];
     
     dlmwrite(sprintf('2ifc_pupil_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
+    % feedback pupil
+    newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(data.feedback_pupil)];
+    
+    dlmwrite(sprintf('2ifc_feedbackpupil_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
+        
+    % feedback pupil with decision pupil regressed out
+    newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) ...
+        zscore(projectout(data.feedback_pupil, data.decision_pupil))];
+    
+    dlmwrite(sprintf('2ifc_fb-decpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
     % double check negative rts
