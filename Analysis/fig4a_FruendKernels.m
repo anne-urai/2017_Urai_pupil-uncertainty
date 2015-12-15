@@ -14,15 +14,20 @@ if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 
 addpath('~/Documents/fieldtrip');
 ft_defaults;
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
+
+% determine the subjects based on their plain weights
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+
+posRespSj = find(dat.response(:, 1) > 0);
+negRespSj = find(dat.response(:, 1) < 0);
+
+% load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 switch grouping
     case 'individual'
         %subplot(441);
         hold on;
         colors = linspecer(9);
-        posRespSj = find(dat.response(:, 1) > 0);
-        negRespSj = find(dat.response(:, 1) < 0);
         
         plot(dat.response(posRespSj, :)', 'color', colors(8, :));
         plot(ones(size(dat.response(posRespSj))), dat.response(posRespSj, 1), ...

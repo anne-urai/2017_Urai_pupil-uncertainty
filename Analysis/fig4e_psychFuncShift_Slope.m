@@ -99,7 +99,9 @@ end
 
 grandavg.logisticSlope = squeeze(mean(grandavg.logistic(:, :, lagGroups, 2), 3));
 colors = linspecer(9);
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
+
+% split subgroups by their plain history effects
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 
 switch grouping
     

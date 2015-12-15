@@ -29,6 +29,9 @@ end
 colors = linspecer(9);
 bwMat = cat(3, [groupedDat.response_pupil groupedDat.correct_pupil groupedDat.incorrect_pupil]);
 
+% split subgroups by plain weights
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+
 switch grouping
     
     case 'all'

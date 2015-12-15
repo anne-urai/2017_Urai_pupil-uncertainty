@@ -151,7 +151,9 @@ grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups)
 % ========================================================= %
 
 colors = linspecer(9);
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
+% split subjects based on their plain history weights
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+
 hold on;
 
 switch grouping

@@ -187,7 +187,7 @@ title('All subjects', 'color', colors(2, :));
 % plot for different subgroups
 % ========================================================= %
 
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil'));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 
 posRespSj = find(dat.response(:, 1) > 0);
 negRespSj = find(dat.response(:, 1) < 0);

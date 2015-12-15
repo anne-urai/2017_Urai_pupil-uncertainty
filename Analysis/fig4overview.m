@@ -3,8 +3,8 @@
 mods = {'rt', 'pupil', 'feedbackpupil', 'fb-decpupil'};
 lags = {[1], [2], [3], [1 2], [1 2 3]};
 
-%lags = {[1]};
-% mods = {'fb-decpupil'};
+lags = {[1]};
+mods = {'pupil'};
 
 for m = 1:length(mods),
     whichmodulator = mods{m};
@@ -12,8 +12,9 @@ for m = 1:length(mods),
         lagGroups = lags{l};
         
         close; 
-        subplot(441); fig4a_FruendKernels(lagGroups, whichmodulator, 'individual');
-        subplot(442); fig4c_decisionStrategies(lagGroups, whichmodulator);
+        % top row pure history effects
+        subplot(441); fig4a_FruendKernels(lagGroups, 'plain', 'individual');
+        subplot(442); fig4c_decisionStrategies(lagGroups, 'plain');
         
         subplot(445); fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, 'all');
         subplot(446); fig4e_psychFuncShift_Slope(lagGroups, whichmodulator, 'all');
@@ -34,8 +35,9 @@ for m = 1:length(mods),
         %% now the supplementary figure
         close all; clc;
         fig4d_psychFuncShift_Bias_byResp(lagGroups, whichmodulator); % split by response
-        subplot(4,4,5);fig4g_SjCorrelation(lagGroups, whichmodulator);
+        subplot(4,4,5); fig4g_SjCorrelation(lagGroups, whichmodulator);
         subplot(446); fig4c_decisionStrategies_interaction(lagGroups, whichmodulator);
+        subplot(447); fig4S_FruendPlainVsMod(lagGroups, whichmodulator);
         
         suplabel(sprintf('%s, Lags %d %d %d', whichmodulator, lagGroups), 't');
         print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty_paper/figureS4_%s_lags%d%d%d.pdf', whichmodulator, lagGroups));

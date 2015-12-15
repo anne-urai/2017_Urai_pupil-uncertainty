@@ -9,12 +9,13 @@ if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 
 clc;
 subjects = 1:27;
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 colors = linspecer(9);
 
 posRespSj = find(dat.response(:, 1) > 0);
 negRespSj = find(dat.response(:, 1) < 0);
 
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 %subplot(442);
 hold on;
 
@@ -43,15 +44,15 @@ xlabel('Pupil * response'); ylabel('Pupil * stimulus');
 box on; axis square;
 
 if 0,
-fz = 6;
-text(0, 0.26, 'win stay', 'horizontalalignment', 'center', 'fontsize', fz);
-text(0, 0.22, 'lose switch', 'horizontalalignment', 'center', 'fontsize', fz);
-
-text(0, -0.22, 'win switch', 'horizontalalignment', 'center', 'fontsize', fz);
-text(0, -0.26, 'lose stay', 'horizontalalignment', 'center', 'fontsize', fz);
-
-text(0.26, .05, 'stay', 'rotation', 270, 'fontsize', fz);
-text(-0.26, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
+    fz = 6;
+    text(0, 0.26, 'win stay', 'horizontalalignment', 'center', 'fontsize', fz);
+    text(0, 0.22, 'lose switch', 'horizontalalignment', 'center', 'fontsize', fz);
+    
+    text(0, -0.22, 'win switch', 'horizontalalignment', 'center', 'fontsize', fz);
+    text(0, -0.26, 'lose stay', 'horizontalalignment', 'center', 'fontsize', fz);
+    
+    text(0.26, .05, 'stay', 'rotation', 270, 'fontsize', fz);
+    text(-0.26, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
 end
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategiesInteraction.pdf'));

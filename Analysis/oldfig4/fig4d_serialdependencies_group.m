@@ -2,7 +2,7 @@ function [pvalS, pvalR] = fig4d_serialdependencies_group
 
 clear all; close all; clc;
 
-whichmodulator = 'pupil';
+whichmodulator = 'pupil7lags';
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % ============================================ %
@@ -10,7 +10,7 @@ load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', which
 % ============================================ %
 
 clf;
-lags = 1:7; subjects = 27;
+lags = 1:7; subjects = 1:27;
 colors = linspecer(8);
 nlags = 7;
 ylim1st = [-0.4 0.4];
@@ -24,8 +24,10 @@ bh = boundedline(lags, nanmean(dat.stimulus), nanstd(dat.stimulus) ./ sqrt(lengt
     'cmap', colors([2 4], :), 'alpha');
 doSigstar(dat.stimulus, 2); doSigstar(dat.response, 4);
 legend(bh, 'stimulus', 'response'); legend boxoff;
-xlim([0.5 nlags+0.5]); ylim(ylim1st); set(gca, 'xtick', lags, 'ytick', -1:0.2:1);
+xlim([0.5 nlags+0.5]); %ylim(ylim1st); 
+set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
 ylabel('History kernels');
+ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
 
 % err correct
 subplot(3,3,2);
@@ -35,7 +37,8 @@ bh = boundedline(lags, nanmean(dat.correct), nanstd(dat.correct) ./ sqrt(length(
 doSigstar(dat.correct, 3); doSigstar(dat.incorrect, 1);
 legend(bh, 'correct', 'error'); legend boxoff;
 axis tight; ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
-xlim([0.5 nlags+0.5]); ylim(ylim1st);set(gca, 'xtick', lags, 'ytick', -1:0.2:1);
+xlim([0.5 nlags+0.5]); %ylim(ylim1st);
+set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
 
 % now the pupil
 subplot(3,3,4);
@@ -45,9 +48,9 @@ bh = boundedline(lags, nanmean(dat.stimulus_pupil), nanstd(dat.stimulus_pupil) .
 pvalS = doSigstar(dat.stimulus_pupil, 2); pvalR = doSigstar(dat.response_pupil, 4);
 legend(bh, 'stimulus', 'response'); legend boxoff;
 axis tight; ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
-xlim([0.5 nlags+0.5]); ylim(ylim2nd);
-ylabel([whichmodulator ' interaction']);set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
-
+xlim([0.5 nlags+0.5]); 
+ylabel([whichmodulator ' interaction']); set(gca, 'xtick', lags, 'ytick', -1:0.01:1);
+ 
 subplot(3,3,5);
 bh = boundedline(lags, nanmean(dat.correct_pupil), nanstd(dat.correct_pupil) ./ sqrt(length(subjects)), ...
     lags, nanmean(dat.incorrect_pupil), nanstd(dat.incorrect_pupil) ./ sqrt(length(subjects)), ...
@@ -55,7 +58,7 @@ bh = boundedline(lags, nanmean(dat.correct_pupil), nanstd(dat.correct_pupil) ./ 
 doSigstar(dat.correct_pupil, 3); doSigstar(dat.incorrect_pupil, 1);
 legend(bh, 'correct', 'error'); legend boxoff;
 axis tight; ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
-xlim([0.5 nlags+0.5]); ylim(ylim2nd);set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
+xlim([0.5 nlags+0.5]); set(gca, 'xtick', lags, 'ytick', -1:0.01:1);
 
 subplot(3,3,6);
 bh = boundedline(lags, nanmean(dat.pupil), nanstd(dat.pupil) ./ sqrt(length(subjects)), ...
@@ -63,7 +66,7 @@ bh = boundedline(lags, nanmean(dat.pupil), nanstd(dat.pupil) ./ sqrt(length(subj
 doSigstar(dat.pupil, 5); 
 legend(bh, whichmodulator); legend boxoff;
 axis tight; ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
-xlim([0.5 nlags+0.5]); ylim(ylim2nd);set(gca, 'xtick', lags, 'ytick', -1:0.1:1);
+xlim([0.5 nlags+0.5]); 
 xlabel('Lags');
 
 suplabel('Grand Average', 't');
