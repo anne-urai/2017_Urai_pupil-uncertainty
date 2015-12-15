@@ -54,8 +54,15 @@ for sj = subjects,
     % double check negative rts
     data.rt(data.rt < 0.01) = 0.01;
     newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) zscore(log(data.rt))];
-        subplot(5,6,sj); histogram(zscore(log(data.rt))); axis tight;
-
+    subplot(5,6,sj); histogram(zscore(log(data.rt))); axis tight;
+    
     dlmwrite(sprintf('2ifc_rt_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
+    % rt projected out of decision pupil
+    newdat = [ blocknrs data.sessionnr abs(data.coherence) (data.stim > 0) (data.resp > 0) ...
+        zscore(projectout(data.decision_pupil, data.rt))];
+    
+    dlmwrite(sprintf('2ifc_pupil-rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
 end

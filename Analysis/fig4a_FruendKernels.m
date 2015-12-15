@@ -32,10 +32,11 @@ switch grouping
         plot(dat.response(posRespSj, :)', 'color', colors(8, :));
         plot(ones(size(dat.response(posRespSj))), dat.response(posRespSj, 1), ...
             'o', 'markerfacecolor', colors(8,:), 'markeredgecolor', 'w', 'markersize', 4);
+        
         plot(dat.response(negRespSj, :)', 'color', colors(9, :));
         plot(ones(size(dat.response(negRespSj))), dat.response(negRespSj, 1), ...
             'o', 'markerfacecolor', colors(9,:), 'markeredgecolor', 'w', 'markersize', 4);
-        xlim([0.5 7]); ylim([-.4 .4]); set(gca, 'xtick', 1:7, 'ytick', -1:0.2:1);
+        xlim([0.5 7]); ylim([-.4 .4]); set(gca, 'xtick', 1:7, 'ytick', [-0.4 0 0.4]);
         ylabel('Response weight'); xlabel('Lags');
         axis square;
         

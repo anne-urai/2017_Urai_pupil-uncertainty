@@ -1,11 +1,13 @@
-function fig4e_psychFuncShift_Slope(lagGroups, whichmodulator, grouping)
+function fig4e_psychFuncShift_Slope(lagGroups, whichmodulator, grouping, correctness)
 % plot both the effect of pupil on overall repetition bias and show that
 % this is symmetrical for both previous choices
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
+if ~exist('correctness', 'var'); correctness = []; end
 
+%%
 switch whichmodulator
     case 'pupil'
         whichMod = 'decision_pupil';
@@ -16,6 +18,8 @@ switch whichmodulator
     case 'fb-decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
+    case 'pupil-rt'
+        whichMod = 'decision_pupil';
 end
 
 nbins = 3;
@@ -30,6 +34,9 @@ for lag = whichLags,
         switch whichmodulator
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
+            case 'pupil-rt',
+                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -58,8 +65,10 @@ for lag = whichLags,
                     trls = find(data.(whichMod) > uncQs(u-1) & data.(whichMod) < uncQs(u));
             end
             
-            % only use correct trials!
-            % trls = intersect(trls, find(data.correct == 1));
+            if ~isempty(correctness),
+                % only use correct trials!
+                trls = intersect(trls, find(data.correct == correctness));
+            end
             
             % with this selection, take the trials after that
             laggedtrls = trls+lag;
@@ -104,25 +113,43 @@ colors = linspecer(9);
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 
 switch grouping
-    
     case 'all'
         theseSj = 1:27;
-        thiscolor = colors(2, :);
+        tit = 'All subjects';
+        titcolor = colors(7, :);
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        thiscolor = colors(8, :);
+        titcolor = colors(8, :);
+        tit = 'Repeaters';
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        thiscolor = colors(9, :);
+        titcolor = colors(9, :);
+        tit = 'Switchers';
 end
-
 stimx2 = 1:u;
+if correctness == 0,
+    stimx2 = stimx2 + 0.05;
+elseif correctness == 1,
+    stimx2 = stimx2 - 0.05;
+end
 hold on;
+
+if isempty(correctness),
+    thiscolor = 'k';
+else
+    % rather define color by correctness
+    switch correctness
+        case 1
+            thiscolor = colors(3,:);
+        case 0
+            thiscolor = colors(1,:);
+    end
+end
 
 errorbar(stimx2, ...
     nanmean(grandavg.logisticSlope(theseSj, :)), ...
     nanstd(grandavg.logisticSlope(theseSj, :)) ./ sqrt(length(theseSj)), ...
-    'o-', 'color', thiscolor, 'markeredgecolor', 'w', 'markerfacecolor', thiscolor);
+    '.-', 'color', thiscolor, 'markersize', 12);
 
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'}, 'xticklabelrotation', 0);
@@ -144,32 +171,44 @@ stats = rm_anova(x, s, f);
 
 ymax = max( nanmean(grandavg.logisticSlope(theseSj, :)) + ...
     2* nanstd(grandavg.logisticSlope(theseSj, :)) ./ sqrt(length(theseSj)));
-mysigstar([stimx2(1) stimx2(end)], [ymax ymax], stats.f1.pvalue);
+mysigstar([stimx2(1) stimx2(end)], [1.45 1.45], stats.f1.pvalue);
 
-switch whichMod,
-    case 'baseline_pupil';
-        xlabel(sprintf('Baseline pupil', 0));
-    case 'decision_pupil'
-        xlabel(sprintf('Pupil response'));
-    case 'rt'
-        xlabel(sprintf('Reaction time'));
-    case 'feedback_pupil',
-        xlabel('Feedback pupil');
-        
-        switch whichmodulator
-            case 'fb-decpupil'
-                xlabel('Feedback-dec pupil');
-        end
-    otherwise
-        %  xlabel(sprintf('%s_{t-%d}', whichModTitle, whichLag));
-end
-ylabel({'Next trial slope'});
-xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins+1, ...
-    'xticklabel', {'low', 'med', 'high'}, 'xticklabelrotation', 0);
 box off;
+% title(tit, 'color', titcolor);
 
-ylims = get(gca, 'ylim');
-set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
+switch grouping
+    
+    case 'all'
+        ylim([-0.05 0.2]);
+        
+    case 'repeat'
+        ylim([-0.05 0.4]);
+        
+    case 'switch'
+        ylim([-0.4 0.05]);
+        
+        xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
+            'xticklabel', {'low', 'med', 'high'});
+        switch whichMod,
+            case 'baseline_pupil';
+                xlabel(sprintf('Baseline pupil', 0));
+            case 'decision_pupil'
+                xlabel(sprintf('Pupil response'));
+            case 'rt'
+                xlabel(sprintf('Reaction time'));
+            case 'feedback_pupil',
+                xlabel('Feedback pupil');
+                
+                switch whichmodulator
+                    case 'fb-decpupil'
+                        xlabel('Feedback-dec pupil');
+                end
+            otherwise
+        end
+end
+xlim([0.5 nbins+0.5]);
+ylim([1 1.5]); set(gca, 'ytick', [1 1.5]);
+ylabel('Subsequent slope');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));
 

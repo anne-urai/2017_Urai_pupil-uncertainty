@@ -69,14 +69,23 @@ for i = 1:3,
     
 end
 
+% difference error and correct
+[~, pval] = ttest(bwMat(theseSj, 2), bwMat(theseSj, 3));
+ymax = min( nanmean(bwMat(theseSj, 2:3)) - ...
+    3* nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
+mysigstar([2 3], [ymax ymax], pval, 'up');
+
 switch grouping
     case 'all'
-        ylabel('Resp-1*Pupil-1');
 end
+ylabel('Pupil modulation');
+
 set(gca, 'xtick', []);
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
 %axis tight; axis square; xlim([0.5 i+0.5]);
-title(tit, 'color', thiscolor);
+%title(tit, 'color', thiscolor);
+ylim([-0.1 0.01]); set(gca, 'ytick', [-0.1:0.1:0]);
+set(gca, 'xcolor', 'w');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));

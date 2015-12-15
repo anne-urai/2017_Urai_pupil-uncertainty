@@ -7,7 +7,7 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'pupil'; % model has been run on both pupil and RT
+whichmodulator = 'pupil-rt'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -29,8 +29,8 @@ for sj = subjects,
     % ======= model WITH pupil term =========== %
     % ============================================ %
     try
-        load(sprintf('~/Data/serial/7lags/2ifc_%s_sj%02d.txtresults.mat', whichmodulator, sj));
-        load(sprintf('~/Data/serial/7lags/2ifc_%s_sj%02d.txtdata.mat', whichmodulator, sj));
+        load(sprintf('~/Data/serial/sim_backup/2ifc_%s_sj%02d.txtresults.mat', whichmodulator, sj));
+        load(sprintf('~/Data/serial/sim_backup/2ifc_%s_sj%02d.txtdata.mat', whichmodulator, sj));
     catch
         warning('skipping participant %02d', sj);
         continue;
@@ -225,5 +225,5 @@ for sj = subjects,
 end
 
 % save for group plots
-savefast(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s7lags.mat', whichmodulator), 'dat');
+savefast(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator), 'dat');
 close all;

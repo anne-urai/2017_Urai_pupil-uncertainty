@@ -32,9 +32,9 @@ h = ploterr(mean(mean(dat.response(:, lagGroups), 2)), mean(mean(dat.stimulus(:,
     std(mean(dat.response(:, lagGroups), 2)), ...
     std(mean(dat.stimulus(:, lagGroups), 2)), ...
     'o',  'hhxy', 0.0000001);
-set(h(1), 'markeredgecolor', colors(2,:), 'markerfacecolor', 'w', 'markersize', 4);
-set(h(2), 'color', colors(2,:));
-set(h(3), 'color', colors(2,:));
+set(h(1), 'markeredgecolor', colors(7,:), 'markerfacecolor', 'w', 'markersize', 4);
+set(h(2), 'color', colors(7,:));
+set(h(3), 'color', colors(7,:));
 
 maxlim = 0.3;
 xlim([-maxlim maxlim]); ylim([-maxlim maxlim]);
