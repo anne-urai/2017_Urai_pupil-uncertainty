@@ -9,6 +9,8 @@ if ~exist('correctness', 'var'); correctness = []; end
 % this is symmetrical for both previous choices
 % subplot(443);
 
+warning('error', 'stats:glmfit:PerfectSeparation');
+
 switch whichmodulator
     case 'pupil'
         whichMod = 'decision_pupil';
@@ -37,7 +39,7 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                %    data.decision_pupil = projectout(data.decision_pupil, data.rt);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -119,8 +121,12 @@ for lag = whichLags,
                 % fit logistic regression
                 thisdat = data(laggedtrls, :);
                 
-                [b, dev, stats] = glmfit(thisdat.motionstrength, thisdat.resp, ...
-                    'binomial','link','logit');
+                try
+                    [b, dev, stats] = glmfit(thisdat.motionstrength, thisdat.resp, ...
+                        'binomial','link','logit');
+                catch
+                    b = zeros(size(b));
+                end
                 
                 % save betas
                 grandavg.logistic(sj, r, u, lag, :) = b;
@@ -164,7 +170,7 @@ grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups)
 % plot
 % ========================================================= %
 
-colors = linspecer(9);
+colors = cbrewer('qual', 'Set1', 9);
 % split subjects based on their plain history weights
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 hold on;
@@ -173,14 +179,14 @@ switch grouping
     case 'all'
         theseSj = 1:27;
         tit = 'All subjects';
-        titcolor = colors(7, :);
+        titcolor = 'k';
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        titcolor = colors(8, :);
+        titcolor = colors(2,:);
         tit = 'Repeaters';
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        titcolor = colors(9, :);
+        titcolor = colors(5,:);
         tit = 'Switchers';
 end
 
@@ -191,7 +197,7 @@ else
     switch correctness
         case 1
             thiscolor = colors(3,:);
-            plot([1 nbins], [0 0], 'k', 'linewidth', 0.5);
+            plot([1 nbins], [0 0], 'k', 'linewidth', 0.2);
             
         case 0
             thiscolor = colors(1,:);
@@ -213,59 +219,39 @@ errorbar(stimx2, ...
 axis tight; axis square;
 
 % low vs high
-[~, pval(1)] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3));
-ymax = max( nanmean(grandavg.logisticRep(theseSj, :)) + ...
-    2* nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)));
-%mysigstar([1 3], [ymax ymax], pval(1));
+% one sample t-test with the prediction of less switching
+[~, pval] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3), 'tail', 'right');
 
-if 0,
-    % only test for a repetition bias when we haven't split the subjects
-    switch grouping
-        case 'all'
-            [~, pval(3)] = ttest(grandavg.repetitionBias(theseSj));
-            max( nanmean(grandavg.repetitionBias(theseSj)) + ...
-                nanstd(grandavg.repetitionBias(theseSj)) ./ sqrt(length(theseSj)));
-            mysigstar(nbins+1, ymax, pval(3));
-    end
+switch correctness
+    case 0
+        ymax = max( nanmean(grandavg.logisticRep(theseSj, :)) + ...
+            2* nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)));
+        mysigstar([1 3], [ymax ymax], pval, thiscolor, 'down');
+        
+    case 1
+        ymax = min( nanmean(grandavg.logisticRep(theseSj, :)) - ...
+            2* nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)));
+        mysigstar([1 3], [ymax ymax], pval, thiscolor, 'up');
+        
 end
 
 box off;
 
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
-    'xticklabel', []);
+    'xticklabel', {'low', 'med', 'high'});
 title(tit, 'color', titcolor);
 
 switch grouping
     
     case 'all'
-        ylim([-0.05 0.2]);
-        
+        ylim([-0.10 .25]);
+        ylabel({'Repetition bias'; 'on next trial'});
     case 'repeat'
         ylim([-0.05 0.4]);
         
     case 'switch'
-        ylim([-0.4 0.05]);
+        ylim([-0.3 0.05]);
         
-        % xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
-        %     'xticklabel', {'low', 'med', 'high'});
-        switch whichMod,
-            case 'baseline_pupil';
-                xlabel(sprintf('Baseline pupil', 0));
-            case 'decision_pupil'
-                xlabel(sprintf('Pupil response'));
-            case 'rt'
-                xlabel(sprintf('Reaction time'));
-            case 'feedback_pupil',
-                xlabel('Feedback pupil');
-                
-                switch whichmodulator
-                    case 'fb-decpupil'
-                        xlabel('Feedback-dec pupil');
-                end
-            otherwise
-        end
 end
-ylabel('Repetition');
-
 
 end

@@ -27,15 +27,15 @@ switch grouping
     case 'individual'
         %subplot(441);
         hold on;
-        colors = linspecer(9);
+        colors = cbrewer('qual', 'Set1', 9);
         
-        plot(dat.response(posRespSj, :)', 'color', colors(8, :));
+        plot(dat.response(posRespSj, :)', 'color', colors(2, :));
         plot(ones(size(dat.response(posRespSj))), dat.response(posRespSj, 1), ...
-            'o', 'markerfacecolor', colors(8,:), 'markeredgecolor', 'w', 'markersize', 4);
+            '.', 'markeredgecolor', colors(2,:), 'markersize', 10);
         
-        plot(dat.response(negRespSj, :)', 'color', colors(9, :));
+        plot(dat.response(negRespSj, :)', 'color', colors(5, :));
         plot(ones(size(dat.response(negRespSj))), dat.response(negRespSj, 1), ...
-            'o', 'markerfacecolor', colors(9,:), 'markeredgecolor', 'w', 'markersize', 4);
+            '.', 'markeredgecolor', colors(5,:), 'markersize', 10);
         xlim([0.5 7]); ylim([-.4 .4]); set(gca, 'xtick', 1:7, 'ytick', [-0.4 0 0.4]);
         ylabel('Response weight'); xlabel('Lags');
         axis square;

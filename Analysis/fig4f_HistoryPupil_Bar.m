@@ -26,7 +26,7 @@ end
 % barweb matrix
 % ============================================ %
 
-colors = linspecer(9);
+colors = cbrewer('qual', 'Set1', 9);
 bwMat = cat(3, [groupedDat.response_pupil groupedDat.correct_pupil groupedDat.incorrect_pupil]);
 
 % split subgroups by plain weights
@@ -36,25 +36,19 @@ switch grouping
     
     case 'all'
         theseSj = 1:27;
-        tit = 'All subjects';
-        thiscolor = colors(2, :);
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        thiscolor = colors(8, :);
-        tit = 'Repeaters';
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        thiscolor = colors(9, :);
-        tit = 'Switchers';
 end
 
 % sigstars
 pvals = squeeze(cat(3, ...
-    [randtest1d(groupedDat.response_pupil(theseSj)) randtest1d(groupedDat.correct_pupil(theseSj)) ...
-    randtest1d(groupedDat.incorrect_pupil(theseSj))]));
+    [permtest(groupedDat.response_pupil(theseSj)) permtest(groupedDat.correct_pupil(theseSj)) ...
+    permtest(groupedDat.incorrect_pupil(theseSj))]));
 hold on;
 
-barcolors = colors([2 3 1], :);
+barcolors = colors([9 3 1], :);
 
 for i = 1:3,
     bar(i, mean(bwMat(theseSj, i)), 'barwidth', 0.5', 'facecolor', barcolors(i, :), 'edgecolor', 'none');
@@ -62,7 +56,7 @@ for i = 1:3,
     
     % add significance star
     if mean(bwMat(theseSj, i)) < 0,
-        mysigstar(i, mean(bwMat(theseSj, i)) - 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i));
+        mysigstar(i, mean(bwMat(theseSj, i)) - 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i), barcolors(i, :));
     else
         mysigstar(i, mean(bwMat(theseSj, i)) + 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i));
     end
@@ -70,22 +64,23 @@ for i = 1:3,
 end
 
 % difference error and correct
-[~, pval] = ttest(bwMat(theseSj, 2), bwMat(theseSj, 3));
+[pval] = permtest(bwMat(theseSj, 2), bwMat(theseSj, 3));
 ymax = min( nanmean(bwMat(theseSj, 2:3)) - ...
     3* nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
-mysigstar([2 3], [ymax ymax], pval, 'up');
+mysigstar([2 3], [ymax ymax], pval, 'k', 'up');
 
 switch grouping
     case 'all'
+        ylabel({'Pupil modulation'; 'of response weights'});
 end
-ylabel('Pupil modulation');
 
 set(gca, 'xtick', []);
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
 %axis tight; axis square; xlim([0.5 i+0.5]);
 %title(tit, 'color', thiscolor);
-ylim([-0.1 0.01]); set(gca, 'ytick', [-0.1:0.1:0]);
+ylim([-0.1 0.02]); set(gca, 'ytick', [-0.1:0.1:0]);
 set(gca, 'xcolor', 'w');
+axis square;
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));

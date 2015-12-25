@@ -20,6 +20,6 @@ disp(mean(grandavg.pearson))
 disp(min(grandavg.pearson))
 disp(max(grandavg.pearson))
 
-%disp(length(find(grandavg.spearman < 0.05)))
+disp(length(find(grandavg.pearsonpval < 0.05)))
 
 

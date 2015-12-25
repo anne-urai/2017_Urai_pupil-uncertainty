@@ -36,7 +36,7 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                %      data.decision_pupil = projectout(data.decision_pupil, data.rt);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -154,55 +154,45 @@ grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups)
 % plot for all subjects
 % ========================================================= %
 
-colors = linspecer(4);
-colors = colors([1 4], :);
+colors = cbrewer('qual', 'Set2', 8);
+colors = colors([4 6], :);
 stimx2 = 1:nbins;
 
 % split subjects based on their plain history weights
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 
 hold on;
-
 switch grouping
     
     case 'all'
         theseSj = 1:27;
-        thiscolor = colors(2, :);
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        thiscolor = colors(8, :);
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        thiscolor = colors(9, :);
 end
 
-plot([1 nbins], [0 0], 'k');
+plot([1 nbins], [0 0], 'k', 'linewidth', 0.5);
 
 for r = [1 2],
     errorbar(stimx2, ...
         squeeze(nanmean(grandavg.logistic(theseSj, r, :, 1))),   ...
         squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), ...
         '.-', 'color', colors(r, :), 'markersize', 12);
-    stimx2 = stimx2 - 0.15;
+    stimx2 = stimx2 - 0.05;
     
-    errorbar(nbins+1, nanmean(grandavg.respBiasNoPupilSplit(theseSj, r)), ...
-        nanstd(grandavg.respBiasNoPupilSplit(theseSj, r)) ./ sqrt(length(theseSj)), ...
-        '.', 'markersize', 12, 'color', colors(r, :));
 end
 
-switch whichMod,
-    case 'baseline_pupil';
-        xlabel(sprintf('Baseline pupil', 0));
-    case 'decision_pupil'
-        xlabel(sprintf('Pupil response'));
-    case 'rt'
-        xlabel('Reaction time');
-    otherwise
-        %  xlabel(sprintf('%s_{t-%d}', whichModTitle, whichLag));
-end
-axis tight;
-xlim([0.5 nbins+1.5]); set(gca, 'xtick', 1:nbins+1, 'xticklabel', {'low', 'med', 'high', 'all'});
-ylabel('Subsequent bias');
+axis tight; axis square;
+xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
+ylabel({'Response bias'; 'on next trial'});
+xlabel({'Pupil response bin on current trial'});
 
+text(2.5, -.08, 'Current', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, -.12, 'choice A', 'color', colors(1, :), 'horizontalalignment', 'center');
+
+text(2.5, .13, 'Current', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, 0.09, 'choice B', 'color', colors(2, :), 'horizontalalignment', 'center');
+ylim([-.15 .15]);
 
 end

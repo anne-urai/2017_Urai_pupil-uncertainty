@@ -35,7 +35,7 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+             %   data.decision_pupil = projectout(data.decision_pupil, data.rt);
                 
         end
         
@@ -180,6 +180,7 @@ switch grouping
     
     case 'all'
         ylim([-0.05 0.2]);
+        ylabel({'Slope'; 'on next trial'});
         
     case 'repeat'
         ylim([-0.05 0.4]);
@@ -189,26 +190,10 @@ switch grouping
         
         xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
             'xticklabel', {'low', 'med', 'high'});
-        switch whichMod,
-            case 'baseline_pupil';
-                xlabel(sprintf('Baseline pupil', 0));
-            case 'decision_pupil'
-                xlabel(sprintf('Pupil response'));
-            case 'rt'
-                xlabel(sprintf('Reaction time'));
-            case 'feedback_pupil',
-                xlabel('Feedback pupil');
-                
-                switch whichmodulator
-                    case 'fb-decpupil'
-                        xlabel('Feedback-dec pupil');
-                end
-            otherwise
-        end
 end
 xlim([0.5 nbins+0.5]);
 ylim([1 1.5]); set(gca, 'ytick', [1 1.5]);
-ylabel('Subsequent slope');
+%xlabel({'Pupil response bin on current trial'});
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));
 

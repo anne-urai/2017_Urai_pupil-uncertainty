@@ -6,7 +6,7 @@ close all; clear; clc;
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
-doStats             = true; % permutation statistics across the group
+doStats             = false; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 
 addpath('~/Documents/fieldtrip');
@@ -64,7 +64,7 @@ for sj = unique(subjects),
         else % dont include RT
             designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ];
         end
-
+        
         % regress for each sample
         for s = 1:size(tl, 2),
             
@@ -118,10 +118,10 @@ end
 % plot the timecourse of regression coefficients
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for whichbeta = 1:size(designM2, 2)-2,
+for whichbeta = 1:size(designM2, 2),
     
     % GRAND average
-    sp = subplot(4,4, 1+4*(whichbeta-1));
+    sp = subplot(5,3, 1+3*(whichbeta-1));
     
     % line to indicate zero
     plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.1);
@@ -139,11 +139,10 @@ for whichbeta = 1:size(designM2, 2)-2,
     plotLines_respFb(pupilgrandavg.timelock{1}(3).lock, [0 1], ...
         pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
     
-    if doStats && whichbeta == 2, % skip stats for the intercept
+    if doStats, % skip stats for the intercept
         % on this, do cluster based permutation testing over the time
         % dimension - because the samples are not temporally independent...
         
-        assert(1==0)
         for c = 1:2,
             % put into fieldtrip-style
             grandavg_thiscorr(c).time       = 1:size(grandavg.beta, 3);
@@ -157,22 +156,28 @@ for whichbeta = 1:size(designM2, 2)-2,
             stat{c} = clusterStat(grandavg_thiscorr(c), grandavg_zero, length(subjects));
             
             % plot on top
-            p(c) = plot(find(stat{c}.mask==1), yval*ones(1, length(find(stat{c}.mask==1))), '.', 'color', cols(c, :), 'markersize', 4);
+            try
+                p(c) = plot(find(stat{c}.mask==1), yval*ones(1, length(find(stat{c}.mask==1))), '.', 'color', cols(c, :), 'markersize', 4);
+            end
             yval = yval - 0.08*range(get(thisax, 'ylim'));
             
             % output when this starts to become significant
             signific  = find(stat{c}.mask==1);
             alltiming = [pupilgrandavg.timelock{1}(3).lock.time pupilgrandavg.timelock{1}(4).lock.time];
-            disp([alltiming(signific(1)) alltiming(signific(end))]);
+            try
+                disp([alltiming(signific(1)) alltiming(signific(end))]);
+            end
         end
         
-        % also test their difference
-        stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
-        p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);        
+        try
+            % also test their difference
+            stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
+            p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
+        end
         
         % also a shaded area to indicate which part we will use for the
         % statistical comparison
-        if 1,
+        if 0,
             xticks = get(gca, 'xtick');
             a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
                 min(get(gca, 'ylim')));
@@ -181,24 +186,30 @@ for whichbeta = 1:size(designM2, 2)-2,
         end
     end
     
-    set(gca, 'xticklabel', []);
+    if whichbeta < 5,
+        set(gca, 'xticklabel', []);
+    end
     
     switch whichbeta
         case 1
-            set(gca, 'ytick', [-6:2:8]);
+            % set(gca, 'ytick', [-6:2:8]);
             ylabel('Intercept');
         case 2
-            ylabel('Stimulus difficulty');
-            ylim([-0.25 0.1]);
-            set(gca, 'ytick', -0.3:0.1:.1);
+            ylabel('Task difficulty');
+            % ylim([-0.25 0.1]);
+            %  set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
         case 3
             ylabel('Reaction time');
-            set(gca, 'ytick', -.5:0.5:1);
-           % xlabel('Time (ms)');
+            %  set(gca, 'ytick', -.5:0.5:1);
+            % xlabel('Time (ms)');
+        case 4
+            ylabel('Gaze x');
+        case 5
+            ylabel('Gaze y');
     end
     
-    if whichbeta == 2 && doStats,
+    if whichbeta == 5 && doStats,
         hold on;
         ph2 = plot(180:182, mean(get(thisax, 'ylim'))*ones(3, 10), '.w');
         lh = legend(ph2); % make t
@@ -211,7 +222,9 @@ for whichbeta = 1:size(designM2, 2)-2,
     end
 end
 
+if doStats
 save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
+end
 
 % ==================================================================
 % show the canonical pupil IRF as well
@@ -225,14 +238,14 @@ if 0,
     irf =  (t.^w .* exp(-t.*w ./ tmax));
     
     subplot(6,4,1);
-    plot(t, irf); 
+    plot(t, irf);
     set(gca, 'box', 'off', 'tickdir', 'out', 'yticklabel', []);
     set(gca, 'ytick', get(gca, 'ylim'));
     xlabel('Time (s)'); ylabel({'Impulse'; 'response'});
     offsetAxes;
-   % title('Canonical pupil IRF');
-   print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
-
+    % title('Canonical pupil IRF');
+    print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
+    
 end
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3b_pupilRegressionTimecourse.pdf'));

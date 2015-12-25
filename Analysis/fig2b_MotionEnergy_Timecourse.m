@@ -1,10 +1,10 @@
 function fig2b_MotionEnergy_Timecourse()
 % get the full timecourse (fix, s1, delay, s2, resp) of one trial to show
-% fluctuations 
+% fluctuations
 
 figpath = '~/Dropbox/Figures/uncertainty';
 
-if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
+if ~exist('~/Data/pupilUncertainty//MotionEnergy/motionTimecourse.mat', 'file'),
     
     load('~/Data/pupilUncertainty/P20/Behav/Dots_P20_s1_b1_2015-02-05_12-33-12.mat');
     
@@ -33,7 +33,7 @@ if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
     
     % decrease or increase from baseline coherence
     setup.increments         = [1 -1];
-    setup.increment  = [1 -1 1 -1];
+    setup.increment          = [1 -1 1 -1];
     
     % for each trial, compute the actual coherence (from the baseline, individual threshold and the sign of the increment).
     dots.coherence      = setup.baselinecoh + setup.increment.* setup.threshold;
@@ -58,9 +58,9 @@ if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
         end
     end
     
-    save('~/Data/pupilUncertainty/motionStrength_timecourse.mat', 'window', 'coord', 'setup', 'dots');
+    save('~/Data/pupilUncertainty/MotionEnergy/motionStrength_timecourse.mat', 'window', 'coord', 'setup', 'dots');
     clear all; close all; clc;
-    load('~/Data/pupilUncertainty/motionStrength_timecourse.mat');
+    load('~/Data/pupilUncertainty//MotionEnergy/motionStrength_timecourse.mat');
     
     %% RUN THE ACTUAL MOTION ENERGY FILTER ON THIS
     
@@ -170,9 +170,13 @@ if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
         
         % save the filters to output
         % already run the filter fft!
-        filters.one(:, :, :, find(thistheta==theta)) = fftn(single(filt1), cfg.n_convolution);
-        filters.two(:, :, :, find(thistheta==theta)) = fftn(single(filt2), cfg.n_convolution);
-        
+        if 0,
+            filters.one(:, :, :, find(thistheta==theta)) = fftn(single(filt1), cfg.n_convolution);
+            filters.two(:, :, :, find(thistheta==theta)) = fftn(single(filt2), cfg.n_convolution);
+        else
+            filters.(['theta' num2str(find(thistheta==theta))]).one = filt1;
+            filters.(['theta' num2str(find(thistheta==theta))]).two = filt2;
+        end
     end
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -224,7 +228,7 @@ if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
         % get the fft of the stimulus
         stim_fft = fftn(stimrep, cfg.n_convolution);
         
-        clear stimulus stimrep
+        % clear stimulus stimrep
         % determine the size the output will have
         for s = 1:3,
             size2use(s,:) = [cfg.stimsize(s)-cfg.validsize(s)+1  ...
@@ -237,7 +241,41 @@ if ~exist('~/Data/pupilUncertainty/motionTimecourse.mat', 'file'),
             % run multiplication in the frequency domain
             % this is where the bulk of the computation happens
             
-            resp1       = ifftn(stim_fft .* filters.one(:, :, :, find(thistheta==theta)), cfg.n_convolution);
+            %% speed test
+
+            cfg.n_convolution = size(stimrep);
+            
+            tic
+            % fftn based 73s
+            resp1       = ifftn(fftn(stimrep, cfg.n_convolution) .* fftn(filters.(['theta' num2str(find(thistheta==theta))]).one, cfg.n_convolution), cfg.n_convolution);
+            disp('manual fft');
+            toc;
+    
+            
+            tic
+            % convnfft func
+            resp3       = convnfft(stimrep, filters.(['theta' num2str(find(thistheta==theta))]).one, 'same');
+            disp('convnfft from Bruno Luong');
+            toc;
+            
+            assert(1==0)
+            
+            tic;
+            % convn inbuilt
+            resp4 = convn(stimrep, filters.(['theta' num2str(find(thistheta==theta))]).one, 'same');
+            disp('matlabs convn');
+            toc;
+
+                    
+            % imfilter inbuilt
+            tic;
+            resp2 = imfilter(stimrep, filters.(['theta' num2str(find(thistheta==theta))]).one, 'conv', 'same');
+            disp('imfilter conv');
+            toc;
+        
+
+            %%
+            
             resp2       = ifftn(stim_fft .* filters.two(:, :, :, find(thistheta==theta)), cfg.n_convolution);
             
             % use only valid part of the result, slightly smaller than the size of the input
@@ -267,7 +305,7 @@ else
     axis tight; xlabel('Time (s)'); ylabel('Motion strength'); box off;
     offsetAxes; ylim([-1 11]);
     print(gcf, '-dpdf', sprintf('%s/fig1b_MotionEnergyTimecourse.pdf', figpath));
-
+    
 end
 
 
