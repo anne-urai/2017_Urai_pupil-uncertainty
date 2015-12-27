@@ -4,16 +4,18 @@ function [] = fig2b_MotionEnergy_Probability()
 close all;
 figpath = '~/Dropbox/Figures/uncertainty';
 
-if 0,
+if 1,
     % for each sj, check if this worked
     for sj = 1:27,
         t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
         subplot(5,6,sj);
         plot(t.stim .* t.coherence, t.motionstrength, '.');
-        ylim([-1 1]); xlim([-0.35 0.35]);
+        % xlim([-0.35 0.35]);
         title(sprintf('P%02d', sj)); axis tight;
+        box off;
+        ylim([-7 7]);
+        
     end
-    close;
 end
 
 %% group level results
