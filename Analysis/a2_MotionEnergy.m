@@ -6,8 +6,6 @@ function [] =  a2_MotionEnergy(sj)
 %
 % Anne Urai, 2015
 
-sj = 5;
-
 % if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
 
@@ -21,7 +19,7 @@ s = dir('S*');
 s = {s(:).name};
 for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
-for session = fliplr(sessions),
+for session = sessions,
     % if ~exist(sprintf('~/Data/pupilUncertainty/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session), 'file'),
     
     % preallocate the motion energy output
