@@ -21,7 +21,7 @@ s = dir('S*');
 s = {s(:).name};
 for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
-for session = sessions,
+for session = fliplr(sessions),
     % if ~exist(sprintf('~/Data/pupilUncertainty/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session), 'file'),
     
     % preallocate the motion energy output
@@ -404,10 +404,10 @@ for session = sessions,
             if sj == 5 && session == 1,
                 % take the difference between the two intervals for this trial
                 motiondiffRef                 = squeeze(motionenergy(1, 1, :) - motionenergy(1, 2, :));
-                mdat.int1(blockcnt, trial)     = mean(motiondiffRef);
+                mdat.int1(blockcnt, trial)    = mean(motiondiffRef);
                 if isnan(mdat.int1(blockcnt, trial)),
                     % if there were no coordinates, use the mean...
-                    mdat.int1(blockcnt, trial)  = 6.8;
+                    mdat.int1(blockcnt, trial)  = 12.6;
                 end
                 
                 % every dataset should have this, even if there is no refstim
@@ -424,7 +424,7 @@ for session = sessions,
                 mdat.int1(iblock, trial)      = mean(motiondiffRef);
                 if isnan(mdat.int1(iblock, trial)),
                     % if there were no coordinates, use the mean...
-                    mdat.int1(iblock, trial)  = 6.8;
+                    mdat.int1(iblock, trial)  = 12.6;
                 end
                 
                 % every dataset should have this, even if there is no refstim

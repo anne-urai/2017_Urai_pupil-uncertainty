@@ -45,6 +45,10 @@ for sj = (subjects),
     
     % merge all 6 sessions
     mdats          = cat(1, mdats{:});
+    disp(sj);
+    disp(mean(mdats.int1));
+end
+
     trl            = data.trialinfo;
     trl(:, 15)     = zeros(size(trl(:,14)));
     
