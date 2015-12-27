@@ -6,6 +6,8 @@ function [] =  a2_MotionEnergy(sj)
 %
 % Anne Urai, 2015
 
+sj = 5;
+
 % if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
 
@@ -81,7 +83,6 @@ for session = sessions,
             fprintf('~/Data/pupilUncertainty/P%02d/Behav/%s \n', sj, files.name);
             
         else
-            
             % get the one behav file for this session, includes the coords
             files = dir(sprintf('~/Data/pupilUncertainty/P%02d/Behav/P%d_s%d_20*.mat',sj, sj, session));
             if length(files) == 1,
@@ -103,6 +104,7 @@ for session = sessions,
             end % try files
         end % sj nr
         
+        % something weird with SJ 5...
         if sj == 5 && session == 1 && blockcnt == 3,
             cd('~/Data/pupilUncertainty/P05/Behav');
             system('mv P5_s1_2014-02-24_15-07-33.mat first3_P5_s1_2014-02-24_15-07-33.mat');
@@ -399,7 +401,7 @@ for session = sessions,
             % TRANSFORM FILTER TIMECOURSES INTO SINGLE-TRIAL SCALARS
             % ==================================================================
             
-            if (sj == 5 && session == 1),
+            if sj == 5 && session == 1,
                 % take the difference between the two intervals for this trial
                 motiondiffRef                 = squeeze(motionenergy(1, 1, :) - motionenergy(1, 2, :));
                 mdat.int1(blockcnt, trial)     = mean(motiondiffRef);
@@ -416,6 +418,7 @@ for session = sessions,
                 mdat.strength(blockcnt, trial)  = mdat.int2(blockcnt, trial) - mdat.int1(blockcnt, trial) ;
                 
             else
+                
                 % take the difference between the two intervals for this trial
                 motiondiffRef                 = squeeze(motionenergy(1, 1, :) - motionenergy(1, 2, :));
                 mdat.int1(iblock, trial)      = mean(motiondiffRef);

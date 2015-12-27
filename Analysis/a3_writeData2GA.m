@@ -11,7 +11,7 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-for sj = fliplr(subjects),
+for sj = (subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
@@ -104,8 +104,8 @@ for sj = fliplr(subjects),
     end
     
     % check that this all worked
-    assert(~any(trl(:,15)==0), 'merging motionenergy failed');
-    assert(~any(isnan(trl(:,15))), 'matching motionenergy failed');
+  %  assert(~any(trl(:,15)==0), 'merging motionenergy failed');
+  %  assert(~any(isnan(trl(:,15))), 'matching motionenergy failed');
     
     fprintf('\n\nout of %d trials, %d trials not matched \n\n', length(trl(:, 15)), ...
         length(find(isnan(trl(:, 15)))));
