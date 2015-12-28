@@ -1,13 +1,14 @@
-function [] = fig3b_PupilUncertaintyTimecourse()
+function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
-close all; clear; clc;
+clear; clc;
 
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
 doStats             = false; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
+plotAll             = false;
 
 addpath('~/Documents/fieldtrip');
 ft_defaults;
@@ -118,7 +119,13 @@ end
 % plot the timecourse of regression coefficients
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for whichbeta = 1:size(designM2, 2),
+if plotAll,
+    whichBetas2plot = 1:size(designM2, 2);
+else
+    whichBetas2plot = 2; % only for main figure
+end
+
+for whichbeta = whichBetas2plot,
     
     % GRAND average
     sp = subplot(5,3, 1+3*(whichbeta-1));

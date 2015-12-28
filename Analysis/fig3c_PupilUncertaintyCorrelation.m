@@ -147,8 +147,8 @@ for f = 1:length(fields),
         set(gca, 'xticklabel', []);
     end
     
-    xlim([0 3.5]); set(gca, 'xtick', 0:1.75:3.5, 'xticklabel',  {'hard', 'medium', 'easy'});
-    ylim([0.2 0.6]); set(gca, 'ytick', 0.3:0.1:0.6);
+    xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'hard', 'medium', 'easy'});
+    ylim([0.2 0.7]); set(gca, 'ytick', 0.2:0.2:0.8);
     ylabel('Pupil response (z)');
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
     axis square; offsetAxes;

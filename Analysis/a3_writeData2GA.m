@@ -11,7 +11,7 @@ addpath('~/Documents/fieldtrip');
 ft_defaults;
 
 subjects = 1:27;
-for sj = (subjects),
+for sj = flip(subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
@@ -45,10 +45,6 @@ for sj = (subjects),
     
     % merge all 6 sessions
     mdats          = cat(1, mdats{:});
-    disp(sj);
-    disp(mean(mdats.int1));
-end
-
     trl            = data.trialinfo;
     trl(:, 15)     = zeros(size(trl(:,14)));
     
@@ -108,8 +104,8 @@ end
     end
     
     % check that this all worked
-  %  assert(~any(trl(:,15)==0), 'merging motionenergy failed');
-  %  assert(~any(isnan(trl(:,15))), 'matching motionenergy failed');
+    assert(~any(trl(:,15)==0), 'merging motionenergy failed');
+    assert(~any(isnan(trl(:,15))), 'matching motionenergy failed');
     
     fprintf('\n\nout of %d trials, %d trials not matched \n\n', length(trl(:, 15)), ...
         length(find(isnan(trl(:, 15)))));
@@ -163,7 +159,7 @@ end
     
     % save for motion coordinate filling in
     alldat{find(sj==subjects)} = newtrl;
-
+    
 end
 
 % ==================================================================
@@ -372,7 +368,7 @@ endoftrlscalar = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
 trialinfo(:, 4) = endoftrlscalar;
 
 % check this all went well
-% assert(~any(isnan(trialinfo(:))));
+assert(~any(isnan(trialinfo(:))));
 
 end
 

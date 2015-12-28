@@ -10,7 +10,6 @@ if 1,
         t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
         subplot(5,6,sj);
         plot(t.stim .* t.coherence, t.motionstrength, '.');
-        % xlim([-0.35 0.35]);
         title(sprintf('P%02d', sj)); axis tight;
         box off;
         ylim([-7 7]);
@@ -20,7 +19,7 @@ end
 
 %% group level results
 t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
-
+figure;
 stim = t.coherence;
 stim = round((stim) * 100000)/100000;
 stim((abs(stim-0.01)) < 0.000001) = 0.0125;
@@ -58,7 +57,7 @@ set(gca, 'xcolor', 'k', 'ycolor', 'k');
 xlabs = unique(stim) * 100;
 xlabs = {'-30', ' ', ' ', ' ',  ' ', ' ', ' ', '0',  ' ', ' ', ' ',  ' ', ' ', '30'};
 set(gca, 'xtick', unique(stim), 'xticklabel', xlabs, 'xticklabelrotation', 0);
-set(gca, 'ytick', -3:3:3);
+set(gca, 'ytick', -6:3:6);
 set(gca, 'XAxisLocation','top')
 
 % make the colorbar prettier, move to the side
