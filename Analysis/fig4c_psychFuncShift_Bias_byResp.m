@@ -1,4 +1,4 @@
-function fig4d_psychFuncShift_Bias_byResp(lagGroups, whichmodulator, grouping)
+function fig4c_psychFuncShift_Bias_byResp(lagGroups, whichmodulator, grouping)
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -128,27 +128,16 @@ grandavg.logistic = bsxfun(@minus, grandavg.logistic, grandavg.overallLogistic(:
 grandavg.respBiasNoPupilSplit = bsxfun(@minus, grandavg.respBiasNoPupilSplit, grandavg.overallLogistic(:, 1));
 
 % ========================================================= %
-% make one plot with repetition (rather than response) bias
+% transform to probability saying '1'
 % ========================================================= %
 
-resp1 = squeeze(grandavg.logistic(:, 1, :, :, 1));
-resp2 = squeeze(grandavg.logistic(:, 2, :, :, 1));
-
-grandavg.logisticRep = (-resp1 + resp2) ./ 2;
-
-resp1 = squeeze(grandavg.respBiasNoPupilSplit(:, 1, :, 1));
-resp2 = squeeze(grandavg.respBiasNoPupilSplit(:, 2, :, 1));
-
-grandavg.repetitionBias = (-resp1 + resp2) ./ 2;
+grandavg.logistic = exp(grandavg.logistic)./(1+exp(grandavg.logistic));
 
 % ========================================================= %
 % combine the lag groups
 % ========================================================= %
 
-grandavg.logisticRep = squeeze(nanmean(grandavg.logisticRep(:, :, lagGroups), 3));
 grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, lagGroups, :), 4));
-grandavg.respBiasNoPupilSplit = squeeze(nanmean(grandavg.respBiasNoPupilSplit(:, :, lagGroups, 1), 3));
-grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups), 2));
 
 % ========================================================= %
 % plot for all subjects
@@ -172,7 +161,7 @@ switch grouping
         theseSj = find(dat.response(:, 1) < 0);
 end
 
-plot([1 nbins], [0 0], 'k', 'linewidth', 0.5);
+plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.5);
 
 for r = [1 2],
     errorbar(stimx2, ...
@@ -188,11 +177,11 @@ xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', '
 ylabel({'Response bias'; 'on next trial'});
 xlabel({'Pupil response bin on current trial'});
 
-text(2.5, -.08, 'Current', 'color', colors(1, :), 'horizontalalignment', 'center');
-text(2.5, -.12, 'choice A', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, 0.50, 'Current', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, 0.49, 'choice A', 'color', colors(1, :), 'horizontalalignment', 'center');
 
-text(2.5, .13, 'Current', 'color', colors(2, :), 'horizontalalignment', 'center');
-text(2.5, 0.09, 'choice B', 'color', colors(2, :), 'horizontalalignment', 'center');
-ylim([-.15 .15]);
+text(2.5, .52, 'Current', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, 0.51, 'choice B', 'color', colors(2, :), 'horizontalalignment', 'center');
+ylim([0.465 .535]);
 
 end

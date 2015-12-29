@@ -6,9 +6,8 @@ clear; clc;
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
-doStats             = false; % permutation statistics across the group
+doStats             = true; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
-plotAll             = false;
 
 addpath('~/Documents/fieldtrip');
 ft_defaults;
@@ -184,7 +183,7 @@ for whichbeta = whichBetas2plot,
         
         % also a shaded area to indicate which part we will use for the
         % statistical comparison
-        if 0,
+        if plotAll,
             xticks = get(gca, 'xtick');
             a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
                 min(get(gca, 'ylim')));
@@ -193,7 +192,7 @@ for whichbeta = whichBetas2plot,
         end
     end
     
-    if whichbeta < 5,
+    if whichbeta < whichBetas2plot(end),
         set(gca, 'xticklabel', []);
     end
     
@@ -216,7 +215,7 @@ for whichbeta = whichBetas2plot,
             ylabel('Gaze y');
     end
     
-    if whichbeta == 5 && doStats,
+    if whichbeta == whichBetas2plot(end) && doStats,
         hold on;
         ph2 = plot(180:182, mean(get(thisax, 'ylim'))*ones(3, 10), '.w');
         lh = legend(ph2); % make t
@@ -230,7 +229,7 @@ for whichbeta = whichBetas2plot,
 end
 
 if doStats
-save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
+    save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
 end
 
 % ==================================================================
@@ -380,7 +379,7 @@ if 1,
     cfgstats.tail             = 0; % two-tailed!
     cfgstats.clustertail      = 0; % two-tailed!
     cfgstats.alpha            = 0.025;
-    cfgstats.numrandomization = 5000; % make sure this is large enough
+    cfgstats.numrandomization = 1000; % make sure this is large enough
     cfgstats.randomseed       = 1; % make the stats reproducible!
     
     % use only our preselected sensors for the time being

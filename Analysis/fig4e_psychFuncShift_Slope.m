@@ -36,7 +36,6 @@ for lag = whichLags,
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
              %   data.decision_pupil = projectout(data.decision_pupil, data.rt);
-                
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -171,7 +170,7 @@ stats = rm_anova(x, s, f);
 
 ymax = max( nanmean(grandavg.logisticSlope(theseSj, :)) + ...
     2* nanstd(grandavg.logisticSlope(theseSj, :)) ./ sqrt(length(theseSj)));
-mysigstar([stimx2(1) stimx2(end)], [1.45 1.45], stats.f1.pvalue);
+mysigstar([stimx2(1) stimx2(end)], [ymax ymax], stats.f1.pvalue);
 
 box off;
 % title(tit, 'color', titcolor);
@@ -191,8 +190,9 @@ switch grouping
         xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
             'xticklabel', {'low', 'med', 'high'});
 end
+axis tight;
 xlim([0.5 nbins+0.5]);
-ylim([1 1.5]); set(gca, 'ytick', [1 1.5]);
+ylim([0.6 0.85]); set(gca, 'ytick', [0.6 0.7 0.8]);
 %xlabel({'Pupil response bin on current trial'});
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));

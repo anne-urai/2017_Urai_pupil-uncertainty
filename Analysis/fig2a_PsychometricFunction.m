@@ -1,9 +1,6 @@
 % plot a logistic psychometric function for all subjects
 % Anne Urai, 2015
 
-clear; clc; close all;
-figpath = '~/Dropbox/Figures/uncertainty';
-
 subjects = 1:27;
 % all the coherence levels that were used throughout
 allcohs = [-0.3 -0.2 -0.1 -0.05 -0.025 -0.0125 -0.0063 0.0063 0.0125 0.025 0.05 0.1 0.2 0.3];
@@ -66,7 +63,6 @@ for sj = unique(subjects),
     end
 end
 
-subplot(441)
 % plot the whole thing
 plot(LogisticFit.x*100, nanmean(grandavg.yfit), 'color', [0.3 0.3 0.3]); % average function fit
 hold on;
@@ -80,5 +76,4 @@ box off; axis tight; set(gca, 'ytick', [0 0.5 1], 'xtick', [-30 -15 0 15 30]);
 axis square;
 xlabel('delta motion coherence'); ylabel('% response ''stronger''');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-print(gcf, '-dpdf', sprintf('%s/fig1a_psychometricFunc.pdf', figpath));
 

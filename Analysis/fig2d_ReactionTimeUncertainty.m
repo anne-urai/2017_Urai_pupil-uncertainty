@@ -2,9 +2,6 @@ function [] = fig2d_ReactionTimeUncertainty()
 % plot RT as a function of |motionstrength|, to show that the pattern
 % follows model predictions of uncertainty
 
-close all; clear; clc;
-figpath = '~/Dropbox/Figures/uncertainty';
-
 % load('~/Data/pupilUncertainty/GrandAverage/reinforcementlearning_fmincon_fixbc.mat');
 data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 
@@ -18,9 +15,6 @@ subjects = 1:27;
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-figure;
-set(gcf, 'DefaultAxesFontSize', 8, 'DefaultAxesFontName', 'Helvetica');
 
 grandavg.rt.data = nan(length(subjects), 2, nbins);
 
@@ -56,8 +50,6 @@ for sj = subjects,
 end
 
 % PLOT
-subplot(4,4,1);
-
 % use nice shades of red and green
 cols = linspecer(3); cols = cols(2:3, :);
 
@@ -93,14 +85,13 @@ ylabel('Reaction time (s)');
 ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
 xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'hard', 'medium', 'easy' });
 axis square;
-offsetAxes(gca, 0.1, 0);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 %legend('Error','Correct'); legend boxoff;
 
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
 
-subplot(4,5,3);
+subplot(4,6,23);
 
 % slopes
 slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
@@ -124,9 +115,7 @@ set(gca, 'xticklabel', {'Error', 'Correct'});
 ylabel('Beta task difficulty');
 sigstar({[1 2]}, pvalD_interc);
 sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
-%ylims = get(gca, 'ylim');  ylim([-max(abs(ylims)) max(abs(ylims))]);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-ylim([-0.05 0.1]);
+ylim([-0.05 0.08]);
 
-print(gcf, '-dpdf', sprintf('%s/Fig1e_RTuncertainty.pdf', figpath));
 end

@@ -3,7 +3,7 @@ function fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, grouping, correctn
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
-if ~exist('correctness', 'var'); correctness = []; end
+if ~exist('correctness', 'var'); correctness = 1; end
 
 % plot both the effect of pupil on overall repetition bias and show that
 % this is symmetrical for both previous choices
@@ -39,7 +39,7 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-                %    data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                 data.decision_pupil = projectout(data.decision_pupil, data.rt);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -141,21 +141,22 @@ end
 % ========================================================= %
 
 grandavg.logistic = bsxfun(@minus, grandavg.logistic, grandavg.overallLogistic(:, 1));
-grandavg.respBiasNoPupilSplit = bsxfun(@minus, grandavg.respBiasNoPupilSplit, grandavg.overallLogistic(:, 1));
+
+% ========================================================= %
+% transform to probability saying '1'
+% ========================================================= %
+
+grandavg.logistic = exp(grandavg.logistic)./(1+exp(grandavg.logistic));
 
 % ========================================================= %
 % make one plot with repetition (rather than response) bias
 % ========================================================= %
 
-resp1 = squeeze(grandavg.logistic(:, 1, :, :, 1));
+resp1 = -1 * (squeeze(grandavg.logistic(:, 1, :, :, 1)) - 0.5) + 0.5;
 resp2 = squeeze(grandavg.logistic(:, 2, :, :, 1));
 
-grandavg.logisticRep = (-resp1 + resp2) ./ 2;
-
-resp1 = squeeze(grandavg.respBiasNoPupilSplit(:, 1, :, 1));
-resp2 = squeeze(grandavg.respBiasNoPupilSplit(:, 2, :, 1));
-
-grandavg.repetitionBias = (-resp1 + resp2) ./ 2;
+% since this is centred at 0.5, treat it that way
+grandavg.logisticRep = (resp1 + resp2) ./ 2;
 
 % ========================================================= %
 % combine the lag groups
@@ -163,8 +164,6 @@ grandavg.repetitionBias = (-resp1 + resp2) ./ 2;
 
 grandavg.logisticRep = squeeze(nanmean(grandavg.logisticRep(:, :, lagGroups), 3));
 grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, lagGroups, :), 4));
-grandavg.respBiasNoPupilSplit = squeeze(nanmean(grandavg.respBiasNoPupilSplit(:, :, lagGroups, 1), 3));
-grandavg.repetitionBias  = squeeze(nanmean(grandavg.repetitionBias(:, lagGroups), 2));
 
 % ========================================================= %
 % plot
@@ -197,7 +196,7 @@ else
     switch correctness
         case 1
             thiscolor = colors(3,:);
-            plot([1 nbins], [0 0], 'k', 'linewidth', 0.2);
+            plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.2);
             
         case 0
             thiscolor = colors(1,:);
@@ -236,7 +235,6 @@ switch correctness
 end
 
 box off;
-
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'});
 title(tit, 'color', titcolor);
@@ -244,14 +242,13 @@ title(tit, 'color', titcolor);
 switch grouping
     
     case 'all'
-        ylim([-0.10 .25]);
-        ylabel({'Repetition bias'; 'on next trial'});
+        ylim([0.48 0.56]);
+        ylabel({'P(repeat)'; 'on next trial'});
     case 'repeat'
-        ylim([-0.05 0.4]);
-        
+        ylim([0.5 0.6]);
     case 'switch'
-        ylim([-0.3 0.05]);
-        
+        ylim([0.42 0.52]);
 end
+set(gca, 'ytick', 0:0.02:1);
 
 end

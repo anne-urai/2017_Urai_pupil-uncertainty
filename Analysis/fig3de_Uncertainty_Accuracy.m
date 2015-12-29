@@ -2,10 +2,8 @@ function [grandavg] = fig3de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 if ~exist('nbins', 'var'), nbins = 20; end
-close all;
-
 subjects      = 1:27;
-fitIndividual = true;
+fitIndividual = false;
 
 for sj = unique(subjects),
     
@@ -31,17 +29,12 @@ for sj = unique(subjects),
         hold on;
         plot(grandavg.pup(sj, :), grandavg.acc(sj,:), 'b.');
         axis tight; ylim([0.5 1]); xlims = get(gca, 'xlim');
-      %  plot(x,yfit,'k');
-      %  xlim(xlims);
         title(sprintf('P%02d', sj));
     end
     
 end
 
 % now, plot
-figure;
-subplot(441);
-
 grandavg.acc = 100 * grandavg.acc;
 boundedline(1:nbins, nanmean(grandavg.acc), ...
     nanstd(grandavg.acc) / sqrt(length(subjects)), 'cmap', [0 0 0]);
@@ -56,10 +49,8 @@ box off; ylim([65 80]);
 
 % do stats on these logistic betas
 [h, p, ci, stats] = ttest(grandavg.b(:, end));
-text(2, 69, sprintf('t(%d) = %.2f', stats.df, stats.tstat));
+text(2, 69, sprintf('b = %.3f', mean(grandavg.b(:, end))));
 text(2, 67, sprintf('p = %.3f', p));
-
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3d_pupil_accuracy.pdf'));
 
 %% fit logistic slope on high vs low pupil bins
 subjects = 1:27;
@@ -114,23 +105,22 @@ for sj = unique(subjects),
 end
 
 % make sure I actually plot the bar graph here to reproduce figure 3!
-subplot(4,5,3);
-h = ploterr(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))), [], ...
-    squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), 'k.', 'hhxy', 0.00001);
-set(h(1), 'marker', 'none');
-
+subplot(4,4,8);
 hold on;
 bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
 bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
+errorbar(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))),  ...
+    squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), '.k');
+
 % do ttest on regression coefficients
 [~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 1), grandavg.betas(:, 1, 2));
-ylim([0.9 1.5]); xlim([0.5 2.5]); box off;
-s1 = sigstar({[1 2]}, pval(3), 0); ylim([0.9 1.5]); set(gca, 'ytick', [1 1.5]);
+xlim([0.5 2.5]); box off;
+mysigstar([1 2], [1 1], pval(3)); 
+ylim([0.4 1.1]); 
+set(gca, 'ytick', [0.5 1]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
 ylabel('Current trial slope');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig3e_pupil_sensitivity.pdf'));
 savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'subjects');
 
 %%
@@ -155,25 +145,26 @@ if 0,
     disp(mdl);
 end
 
-%% compute ROC AUC based on pupil
-clear all; clc; close all;
-
-subjects = 1:27;
-for sj = unique(subjects),
+if 0,
+    %% compute ROC AUC based on pupil
     
-    % get all the data
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    subjects = 1:27;
+    for sj = unique(subjects),
+        
+        % get all the data
+        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+        
+        out = rocAnalysis(data.decision_pupil(data.correct==1), ...
+            data.decision_pupil(data.correct==0), 0, 1);
+        
+        grandavg.roc(sj)    = out.i;
+        grandavg.pval(sj)   = out.p;
+    end
+    savefast('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat', 'grandavg');
     
-    out = rocAnalysis(data.decision_pupil(data.correct==1), ...
-        data.decision_pupil(data.correct==0), 0, 1);
-    
-    grandavg.roc(sj)    = out.i;
-    grandavg.pval(sj)   = out.p;
+    load('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat');
+    % test across the group, roc auc values are normally distributed
+    [h, pval ci, stats] = ttest(grandavg.roc, 0.5, 'tail', 'both')
 end
-savefast('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat', 'grandavg');
-
-load('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat');
-% test across the group, roc auc values are normally distributed
-[h, pval ci, stats] = ttest(grandavg.roc, 0.5, 'tail', 'both')
 
 end

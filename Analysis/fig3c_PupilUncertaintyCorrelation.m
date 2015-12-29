@@ -2,7 +2,6 @@ function [] = fig3c_PupilUncertaintyCorrelation()
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
-close all; clear; clc;
 RTstratification    = true; % include RT in the model, do stratification on bins
 % RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
@@ -10,7 +9,6 @@ RTstratification    = true; % include RT in the model, do stratification on bins
 data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 subjects = 1:27; % for this analysis, use all SJ!
-
 
 nbins       = 6; % bin in 5 to have comparable plots to the difficulty version?
 data.xval   = abs(data.motionstrength);
@@ -102,7 +100,6 @@ for f = 1:length(fields),
     end
     
     % PLOT
-    subplot(4,4,1);
     % use nice shades of red and green
     cols = linspecer(3); cols = cols(2:3, :);
     
@@ -154,7 +151,7 @@ for f = 1:length(fields),
     axis square; offsetAxes;
     
     % make a barplot
-    subplot(4,5,3);
+    subplot(4,4,6);
     hold on;
     bar(1, mean(slopes(:, 1)), 'facecolor', cols(1, :), 'edgecolor', 'none', 'barwidth', 0.4);
     bar(2, mean(slopes(:, 2)), 'facecolor', cols(2, :), 'edgecolor', 'none', 'barwidth', 0.4);
@@ -179,8 +176,6 @@ for f = 1:length(fields),
     
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3c_scalarPupil.pdf'));
-
 savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_pupil_uncertainty.mat', 'grandavg');
 
 end

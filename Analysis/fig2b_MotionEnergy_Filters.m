@@ -2,8 +2,6 @@ function [] =  fig2b_MotionEnergy_Filters()
 % show two motionenergy filters to describe the filtering process
 % Anne Urai, 2015
 
-figpath = '~/Dropbox/Figures/uncertainty';
-
 % get a random dataset
 load('~/Data/pupilUncertainty/P17/Behav/P17_s1_2015-02-02_17-47-08.mat');
 close all
@@ -45,7 +43,7 @@ cfg.validsize       = cfg.stimsize - cfg.filtsize + 1;  % 'valid' size of convol
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 direc                 = dots.direction;
-counterdir            = dots.direction+90;
+counterdir            = dots.direction+180;
 if counterdir > 360, counterdir = counterdir - 360; end
 theta                 = [direc counterdir]; % only those two directions
 
@@ -185,9 +183,6 @@ for thistheta = theta,
     set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
     cnt = cnt + 1;
 end
-
-print(gcf, '-dpdf', sprintf('~%s/fig1b_MotionEnergySchematic.pdf', figpath));
-close all;
 
 end% function end
 

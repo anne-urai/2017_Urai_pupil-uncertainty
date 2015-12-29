@@ -3,8 +3,6 @@ function [] = fig3a_PupilTimecourse()
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty
 
-close all; clear; clc;
-
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PLOT THE PUPIL GRAND AVERAGE
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,6 +24,7 @@ end
 % color scheme
 cols = linspecer;
 
+if 0,
 % plot
 subplot(4,4,1);
 ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
@@ -42,6 +41,7 @@ plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
 xlabel('Time (ms)');
 offsetAxes(gca, 0.12, 0);
 print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
+end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
@@ -51,7 +51,6 @@ warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
-clf;
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
@@ -96,7 +95,6 @@ cols = cbrewer('div', 'RdYlGn', 10);
 cols = cols([1:3 end-2:end], :);
 
 % plot
-subplot(4,4,1);
 ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
     permute(squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), [2 3 1]), ...
     'cmap', cols);
@@ -122,7 +120,6 @@ plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
 xlabel('Time (ms)');
 offsetAxes(gca, 0.12, 0);
-print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/fig3a_pupilTimecourse.pdf');
 
 end
 

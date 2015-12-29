@@ -1,10 +1,8 @@
 function [] = fig2b_MotionEnergy_Probability()
 % after filtering motionenergy for all subjects, show the distribution of
 % values we get (as a function of nominal coherence level)
-close all;
-figpath = '~/Dropbox/Figures/uncertainty';
 
-if 1,
+if 0,
     % for each sj, check if this worked
     for sj = 1:27,
         t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
@@ -13,13 +11,11 @@ if 1,
         title(sprintf('P%02d', sj)); axis tight;
         box off;
         ylim([-7 7]);
-        
     end
 end
 
 %% group level results
 t = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
-figure;
 stim = t.coherence;
 stim = round((stim) * 100000)/100000;
 stim((abs(stim-0.01)) < 0.000001) = 0.0125;
@@ -43,12 +39,10 @@ end
 
 % check
 assert(isequal(length(unique(stim)), length(find(nansum(n, 2) > 0))), 'spacing not quite right');
-
-subplot(441);
 colormap hot;
 imagesc(stimlevels, edges, n');
 set(gca, 'ydir', 'normal');
-xlabel({'Stimulus difficulty (%)'});
+xlabel({'Stimulus strength (%)'});
 ylabel({'Motion energy (a.u.)'});
 
 %offsetAxes
@@ -58,23 +52,22 @@ xlabs = unique(stim) * 100;
 xlabs = {'-30', ' ', ' ', ' ',  ' ', ' ', ' ', '0',  ' ', ' ', ' ',  ' ', ' ', '30'};
 set(gca, 'xtick', unique(stim), 'xticklabel', xlabs, 'xticklabelrotation', 0);
 set(gca, 'ytick', -6:3:6);
-set(gca, 'XAxisLocation','top')
+set(gca, 'XAxisLocation','top');
 
+% put a string on top of the colorbar
 % make the colorbar prettier, move to the side
 c = colorbar('Location', 'SouthOutside');
 cpos = c.Position;
-cpos(2) = cpos(2)* 0.9; % up
+cpos(2) = cpos(2)*0.85; % down
 cpos(4) = 0.6*cpos(4); % thinner
-cpos(1) = cpos(1)*1.15; % to the rigth
-cpos(3) = cpos(3) *0.75; % shorter
+cpos(1) = cpos(1)*1.06; % to the rigth
+cpos(3) = cpos(3) *0.6; % shorter
 c.Position = cpos;
 c.Box = 'off';
 
-axis square
-% put a string on top of the colorbar
 c.Label.String = 'Probability';
 c.TickDirection = 'out';
-print(gcf, '-dpdf', sprintf('%s/Fig1b_motionenergyResult.pdf', figpath));
+axis square;
 
 end
 

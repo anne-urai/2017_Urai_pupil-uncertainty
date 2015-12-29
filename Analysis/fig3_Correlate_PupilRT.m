@@ -4,7 +4,7 @@
 subjects = 1:27; clc
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data3_sj%02d.csv', sj));
+    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
     subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
     [grandavg.spearman(sj), grandavg.spearmanpval(sj)]  = corr(data.decision_pupil, data.rt, 'type', 'spearman');

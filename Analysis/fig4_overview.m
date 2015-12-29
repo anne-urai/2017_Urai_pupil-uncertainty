@@ -32,7 +32,6 @@ for m = 1:length(mods),
         subplot(4,4,7); fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, 'switch', 0);
         set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
         
-        
         %  suplabel('Pupil response bin on current trial', 'x');
         
         subplot(449); fig4e_psychFuncShift_Slope(lagGroups, whichmodulator, 'all', 1);
@@ -58,17 +57,16 @@ for m = 1:length(mods),
         subplot(4,4,15); fig4f_HistoryPupil_Bar(lagGroups, whichmodulator, 'switch');
         set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
         
-        
         suplabel(sprintf('%s, Lags %d %d %d', whichmodulator, lagGroups), 't');
         print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty_paper/figure4_layout2_%s_lags%d%d%d.pdf', whichmodulator, lagGroups));
         
         if 0,
             %% now the supplementary figure
             close all; clc;
-            %  fig4d_psychFuncShift_Bias_byResp(lagGroups, whichmodulator); % split by response
-            % subplot(4,4,5); fig4g_SjCorrelation(lagGroups, whichmodulator);
-            % subplot(446); fig4c_decisionStrategies_interaction(lagGroups, whichmodulator);
-            % subplot(447); fig4S_FruendPlainVsMod(lagGroups, whichmodulator);
+            fig4d_psychFuncShift_Bias_byResp(lagGroups, whichmodulator); % split by response
+            subplot(4,4,5); fig4g_SjCorrelation(lagGroups, whichmodulator);
+            subplot(446); fig4c_decisionStrategies_interaction(lagGroups, whichmodulator);
+            subplot(447); fig4S_FruendPlainVsMod(lagGroups, whichmodulator);
             
             suplabel(sprintf('%s, Lags %d %d %d', whichmodulator, lagGroups), 't');
             print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty_paper/figureS4_%s_lags%d%d%d.pdf', whichmodulator, lagGroups));
