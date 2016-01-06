@@ -8,7 +8,7 @@ fitIndividual = false;
 for sj = unique(subjects),
     
     data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
-    
+
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
         divideintobins(data.decision_pupil, data.correct, nbins);
@@ -51,6 +51,7 @@ box off; ylim([65 80]);
 [h, p, ci, stats] = ttest(grandavg.b(:, end));
 text(2, 69, sprintf('b = %.3f', mean(grandavg.b(:, end))));
 text(2, 67, sprintf('p = %.3f', p));
+set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 %% fit logistic slope on high vs low pupil bins
 subjects = 1:27;
@@ -105,7 +106,7 @@ for sj = unique(subjects),
 end
 
 % make sure I actually plot the bar graph here to reproduce figure 3!
-subplot(4,4,8);
+subplot(4,8,16);
 hold on;
 bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
 bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);

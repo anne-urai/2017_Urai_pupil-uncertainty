@@ -1,8 +1,6 @@
 function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
-clear; clc;
-
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM

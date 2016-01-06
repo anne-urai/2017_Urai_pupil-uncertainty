@@ -20,6 +20,8 @@ switch whichmodulator
         whichMod = 'rt';
     case 'pupil-rt';
         whichMod = 'decision_pupil';
+    case 'baselinepupil'
+        whichMod = 'baseline_pupil';
 end
 
 nbins = 3;
@@ -36,7 +38,9 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-                %      data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+            case 'baselinepupil'
+                data.baseline_pupil = circshift(data.baseline_pupil, -1);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -144,7 +148,7 @@ grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, lagGroups, :), 4)
 % ========================================================= %
 
 colors = cbrewer('qual', 'Set2', 8);
-colors = colors([4 6], :);
+colors = colors([1 3], :);
 stimx2 = 1:nbins;
 
 % split subjects based on their plain history weights
@@ -174,14 +178,16 @@ end
 
 axis tight; axis square;
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
-ylabel({'Response bias'; 'on next trial'});
-xlabel({'Pupil response bin on current trial'});
+ylabel('Next trial P(choice A)');
+xlabel('Current trial pupil');
 
-text(2.5, 0.50, 'Current', 'color', colors(1, :), 'horizontalalignment', 'center');
-text(2.5, 0.49, 'choice A', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, .53, 'current', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, 0.52, 'choice A', 'color', colors(2, :), 'horizontalalignment', 'center');
 
-text(2.5, .52, 'Current', 'color', colors(2, :), 'horizontalalignment', 'center');
-text(2.5, 0.51, 'choice B', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, 0.48, 'current', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, 0.47, 'choice B', 'color', colors(1, :), 'horizontalalignment', 'center');
+
 ylim([0.465 .535]);
+set(gca, 'ytick', [0.47 0.5 0.53]);
 
 end

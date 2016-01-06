@@ -19,7 +19,7 @@ for sj = unique(subjects),
     prevStim       = circshift(data.stim, 1);
     
     % make design matrix - intercept will be added automatically
-    designM = [motionstrength prevResp prevResp.*prevPupil];
+    designM = [motionstrength prevResp prevResp.*prevPupil prevStim prevStim.*prevPupil prevPupil];
     xlabs = {'bias', 'stim', 'prevResp','prevResp*prevPupil'};
     
     % don't use trials that are at the beginning of each block
@@ -76,6 +76,34 @@ dev.histPval = 1 - chi2cdf(dev.chisqHist,1);
 dev.chisqPup = grandavg.dev(:, 2) - grandavg.dev(:, 3);
 dev.pupilPval = 1 - chi2cdf(dev.chisqPup,1);
 
+%% between SJ correlation
+
+subplot(221);
+plot(grandavg.betas(:, 3, 3), grandavg.betas(:, 3, 4), '.');
+xlabel('resp'); ylabel('resp*pup');
+[rho, pval] = corr(grandavg.betas(:, 3, 3), grandavg.betas(:, 3, 4));
+title(sprintf('rho %.3f, p %.3f', rho, pval));
+
+subplot(222);
+plot(grandavg.betas(:, 3, 5), grandavg.betas(:, 3, 4), '.');
+xlabel('stim'); ylabel('resp*pup');
+[rho, pval] = corr(grandavg.betas(:, 3, 5), grandavg.betas(:, 3, 4));
+title(sprintf('rho %.3f, p %.3f', rho, pval));
+
+subplot(223);
+plot(grandavg.betas(:, 3, 3), grandavg.betas(:, 3, 6), '.');
+xlabel('resp'); ylabel('stim*pup');
+[rho, pval] = corr(grandavg.betas(:, 3, 3), grandavg.betas(:, 3, 6));
+title(sprintf('rho %.3f, p %.3f', rho, pval));
+
+subplot(224);
+plot(grandavg.betas(:, 3, 5), grandavg.betas(:, 3, 6), '.');
+xlabel('stim'); ylabel('stim*pup');
+[rho, pval] = corr(grandavg.betas(:, 3, 5), grandavg.betas(:, 3, 6));
+title(sprintf('rho %.3f, p %.3f', rho, pval));
+
+
+
 %% show the result of the full logistic regression model
 clf;
 colors = linspecer(3); % colors = colors([2 3 1], :);
@@ -100,7 +128,7 @@ for sp = 1:2,
     
     clear pval
     for n = 1:length(what2plot),
-        [~, pval(n)] = permtest(squeeze(grandavg.betas(:, 3, what2plot(n))));
+        [pval(n)] = permtest(squeeze(grandavg.betas(:, 3, what2plot(n))));
     end
     h = sigstar(arrayfun(@repmat, 1:n, ones(1, n), 2*ones(1, n), 'UniformOutput', 0), pval);
     

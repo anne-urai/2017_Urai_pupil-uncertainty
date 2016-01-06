@@ -20,6 +20,8 @@ switch whichmodulator
         whichMod = 'feedback_pupil';
     case 'pupil-rt'
         whichMod = 'decision_pupil';
+    case 'baselinepupil'
+        whichMod = 'baseline_pupil';
 end
 
 nbins = 3;
@@ -35,7 +37,9 @@ for lag = whichLags,
             case 'fb-decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
-             %   data.decision_pupil = projectout(data.decision_pupil, data.rt);
+                data.decision_pupil = projectout(data.decision_pupil, data.rt);
+            case 'baselinepupil'
+                data.baseline_pupil = circshift(data.baseline_pupil, -1);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -179,7 +183,7 @@ switch grouping
     
     case 'all'
         ylim([-0.05 0.2]);
-        ylabel({'Slope'; 'on next trial'});
+        ylabel('Next trial slope');
         
     case 'repeat'
         ylim([-0.05 0.4]);
@@ -193,7 +197,7 @@ end
 axis tight;
 xlim([0.5 nbins+0.5]);
 ylim([0.6 0.85]); set(gca, 'ytick', [0.6 0.7 0.8]);
-%xlabel({'Pupil response bin on current trial'});
+xlabel('Current trial pupil');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));
 

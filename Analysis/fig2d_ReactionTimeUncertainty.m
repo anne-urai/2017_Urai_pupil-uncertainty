@@ -60,7 +60,7 @@ for co = 1:2,
             squeeze(nanmean(grandavg.rt.data(:, co, :))),...
             squeeze(nanstd(grandavg.rpeMean(:, co, :))) / sqrt(length(subjects)), ...
             squeeze(nanstd(grandavg.rt.data(:, co, :))) / sqrt(length(subjects)), ...
-            'ks-', 'hhxy', 0.0011);
+            'k-', 'hhxy', 0.0011);
         set(h(1), 'color', cols(co, :), ...
             'markerfacecolor', cols(co, :),  'markersize', 3);
     elseif co == 2,
@@ -112,7 +112,7 @@ xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
 
 axis tight; 
 set(gca, 'xticklabel', {'Error', 'Correct'}); 
-ylabel('Beta task difficulty');
+ylabel('Beta evidence');
 sigstar({[1 2]}, pvalD_interc);
 sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
 set(gca, 'xcolor', 'k', 'ycolor', 'k');

@@ -25,6 +25,7 @@ for sj = subjects,
     % stim identity again
     % newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0)];
     
+    if 0,
     % no modulatrion
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0)];
     
@@ -64,5 +65,13 @@ for sj = subjects,
         zscore(projectout(data.decision_pupil, data.rt))];
     
     dlmwrite(sprintf('2ifc_pupil-rt_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    end
+    
+    % baseline pupil
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        zscore(circshift(data.baseline_pupil, -1))];
+    
+    dlmwrite(sprintf('2ifc_baselinepupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
 end

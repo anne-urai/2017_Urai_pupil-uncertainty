@@ -26,7 +26,6 @@ end
 
 fields      = {'decision_pupil', };
 fieldnames  = {'Pupil response (z)'};
-figure;
 
 for f = 1:length(fields),
     
@@ -139,16 +138,16 @@ for f = 1:length(fields),
     end
     
     if f == length(fields),
-        xlabel('Task difficulty');
+        xlabel('Evidence strength');
     else
         set(gca, 'xticklabel', []);
     end
     
-    xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'hard', 'medium', 'easy'});
-    ylim([0.2 0.7]); set(gca, 'ytick', 0.2:0.2:0.8);
+    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strpng'});
+    ylim([0.2 0.65]); set(gca, 'ytick', 0.2:0.2:0.8);
     ylabel('Pupil response (z)');
     set(gca, 'xcolor', 'k', 'ycolor', 'k');
-    axis square; offsetAxes;
+    axis square; 
     
     % make a barplot
     subplot(4,4,6);

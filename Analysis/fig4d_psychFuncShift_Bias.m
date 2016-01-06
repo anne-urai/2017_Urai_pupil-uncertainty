@@ -1,14 +1,9 @@
 function fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, grouping, correctness)
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
-if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
+if ~exist('whichmodulator', 'var'); whichmodulator = 'baseline'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
 if ~exist('correctness', 'var'); correctness = 1; end
-
-% plot both the effect of pupil on overall repetition bias and show that
-% this is symmetrical for both previous choices
-% subplot(443);
-
 warning('error', 'stats:glmfit:PerfectSeparation');
 
 switch whichmodulator
@@ -23,6 +18,8 @@ switch whichmodulator
         whichMod = 'rt';
     case 'pupil-rt';
         whichMod = 'decision_pupil';
+    case 'baselinepupil'
+        whichMod = 'baseline_pupil';
 end
 
 nbins = 3;
@@ -40,6 +37,8 @@ for lag = whichLags,
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
                  data.decision_pupil = projectout(data.decision_pupil, data.rt);
+            case 'baselinepupil'
+                data.baseline_pupil = circshift(data.baseline_pupil, -1);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -107,6 +106,7 @@ for lag = whichLags,
                 
                 % with this selection, take the trials after that
                 laggedtrls = trls+lag;
+                
                 % exclude trials at the end of the block
                 if any(laggedtrls > size(data, 1)),
                     trls(laggedtrls > size(data, 1)) = [];
@@ -125,7 +125,8 @@ for lag = whichLags,
                     [b, dev, stats] = glmfit(thisdat.motionstrength, thisdat.resp, ...
                         'binomial','link','logit');
                 catch
-                    b = zeros(size(b));
+                    warning('putting zero in betas!');
+                    b = nan(size(b));
                 end
                 
                 % save betas
@@ -186,7 +187,7 @@ switch grouping
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
         titcolor = colors(5,:);
-        tit = 'Switchers';
+        tit = 'Alternators';
 end
 
 if isempty(correctness),
@@ -197,7 +198,6 @@ else
         case 1
             thiscolor = colors(3,:);
             plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.2);
-            
         case 0
             thiscolor = colors(1,:);
     end
@@ -215,11 +215,12 @@ errorbar(stimx2, ...
     nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)), ...
     '.-', 'color', thiscolor, 'markerfacecolor', thiscolor, 'markersize', 12);
 
-axis tight; axis square;
+axis tight; 
 
 % low vs high
 % one sample t-test with the prediction of less switching
 [~, pval] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3), 'tail', 'right');
+[pval] = permtest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3));
 
 switch correctness
     case 0
@@ -237,18 +238,20 @@ end
 box off;
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'});
-title(tit, 'color', titcolor);
-
 switch grouping
     
     case 'all'
         ylim([0.48 0.56]);
-        ylabel({'P(repeat)'; 'on next trial'});
     case 'repeat'
         ylim([0.5 0.6]);
+        title(tit, 'color', titcolor);
     case 'switch'
-        ylim([0.42 0.52]);
+        ylim([0.40 0.52]);
+        title(tit, 'color', titcolor);
 end
-set(gca, 'ytick', 0:0.02:1);
+set(gca, 'ytick', 0.38:0.03:0.6);
+axis square;
+ylabel('Next trial P(repeat)');
+xlabel('Current trial pupil');
 
 end

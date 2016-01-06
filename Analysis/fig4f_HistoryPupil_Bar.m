@@ -8,14 +8,13 @@ if ~exist('grouping', 'var'); grouping = 'all'; end
 % bargraphs for previous response and response * pupil regressors
 % ============================================ %
 
-clc;
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % ============================================ %
 % combine lags
 % ============================================ %
-flds = fieldnames(dat);
 
+flds = fieldnames(dat);
 for f = 1:length(flds),
     try
         groupedDat.(flds{f}) = mean(dat.(flds{f})(:, lagGroups), 2);
@@ -42,12 +41,14 @@ switch grouping
         theseSj = find(dat.response(:, 1) < 0);
 end
 
-% sigstars
-pvals = squeeze(cat(3, ...
-    [permtest(groupedDat.response_pupil(theseSj)) permtest(groupedDat.correct_pupil(theseSj)) ...
-    permtest(groupedDat.incorrect_pupil(theseSj))]));
-hold on;
+%%
 
+% sigstars
+[ pvals(1)] = permtest(bwMat(theseSj, 1));
+[ pvals(2)] = permtest(bwMat(theseSj, 2));
+[ pvals(3)] = permtest(bwMat(theseSj, 3));
+
+hold on;
 barcolors = colors([9 3 1], :);
 
 for i = 1:3,
@@ -60,27 +61,34 @@ for i = 1:3,
     else
         mysigstar(i, mean(bwMat(theseSj, i)) + 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i));
     end
-    
 end
 
 % difference error and correct
 [pval] = permtest(bwMat(theseSj, 2), bwMat(theseSj, 3));
-ymax = min( nanmean(bwMat(theseSj, 2:3)) - ...
-    3* nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
-mysigstar([2 3], [ymax ymax], pval, 'k', 'up');
 
-switch grouping
-    case 'all'
-        ylabel({'Pupil modulation'; 'of response weights'});
-end
+ymax = min( nanmean(bwMat(theseSj, 2:3)) - ...
+    3*nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
+mysigstar([2 3], [ymax ymax], pval, 'k', 'up');
 
 set(gca, 'xtick', []);
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
-%axis tight; axis square; xlim([0.5 i+0.5]);
-%title(tit, 'color', thiscolor);
-ylim([-0.1 0.02]); set(gca, 'ytick', [-0.1:0.1:0]);
+ylim([-0.1 0.03]); set(gca, 'ytick', [-0.1:0.1:0]);
 set(gca, 'xcolor', 'w');
-axis square;
+
+switch grouping
+    case 'repeat'
+        ylabel({'Pupil modulation'; 'of response weights'});
+end
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));
+
+
+%% do anova between sj
+
+% write to table
+mat = [bwMat(:, 2) bwMat(:, 3)];
+sjs = dat.response(:, 1) > 0;
+tb = array2table([transpose(1:27) mat sjs] , 'VariableNames', {'sjnr', 'correct', 'error', 'sjGroup'});
+writetable(tb, sprintf('~/Data/pupilUncertainty/CSV/sequentialEffects.csv'));
+

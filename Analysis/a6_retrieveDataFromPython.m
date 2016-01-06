@@ -7,7 +7,7 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'fb-decpupil'; % model has been run on both pupil and RT
+whichmodulator = 'baselinepupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -82,6 +82,9 @@ for sj = subjects,
     errorw   = -stimw + respw;
     correctboot = stimboot + respboot;
     errorboot = -stimboot + respboot;
+    
+    % correct - error = stim + resp --stim +- resp = 2stim
+    % error - correct = -stim + resp -resp - stim = -2stim
     
     correctwci = prctile(correctboot, [2.5, 97.5])';
     correctwci(:, 1) = correctw - correctwci(:, 1); correctwci(:, 2) = correctwci(:, 2) - correctw;
