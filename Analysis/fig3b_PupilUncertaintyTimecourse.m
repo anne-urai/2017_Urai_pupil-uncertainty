@@ -6,11 +6,17 @@ function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 RTstratification    = true; % 2. add RT as a predictor in designM
 doStats             = true; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
+if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main evidence strength regressor
 
 addpath('~/Documents/fieldtrip');
 ft_defaults;
 
-subjects = 1:27;
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+
+posRespSj = find(dat.response(:, 1) > 0);
+negRespSj = find(dat.response(:, 1) < 0);
+
+subjects = negRespSj';
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
@@ -125,7 +131,7 @@ end
 for whichbeta = whichBetas2plot,
     
     % GRAND average
-    sp = subplot(5,3, 1+3*(whichbeta-1));
+    sp = subplot(5,3,7+3*(whichbeta-1));
     
     % line to indicate zero
     plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.1);
@@ -200,7 +206,7 @@ for whichbeta = whichBetas2plot,
             ylabel('Intercept');
         case 2
             ylabel('Task difficulty');
-            % ylim([-0.25 0.1]);
+           ylim([-0.15 0.08]);
             %  set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
         case 3
@@ -251,6 +257,8 @@ if 0,
     print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
     
 end
+
+title('Alternators');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3b_pupilRegressionTimecourse.pdf'));
 disp('SAVED');
@@ -377,7 +385,7 @@ if 1,
     cfgstats.tail             = 0; % two-tailed!
     cfgstats.clustertail      = 0; % two-tailed!
     cfgstats.alpha            = 0.025;
-    cfgstats.numrandomization = 1000; % make sure this is large enough
+    cfgstats.numrandomization = 5000; % make sure this is large enough
     cfgstats.randomseed       = 1; % make the stats reproducible!
     
     % use only our preselected sensors for the time being

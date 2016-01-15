@@ -7,7 +7,7 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'baselinepupil'; % model has been run on both pupil and RT
+whichmodulator = 'pupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);

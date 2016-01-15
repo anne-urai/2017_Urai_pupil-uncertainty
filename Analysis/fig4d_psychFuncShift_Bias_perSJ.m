@@ -1,4 +1,4 @@
-function fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, grouping, correctness)
+function fig4d_psychFuncShift_Bias_perSJ(lagGroups, whichmodulator, grouping, correctness)
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'baseline'; end
@@ -60,7 +60,6 @@ for lag = whichLags,
                 trls = find(data.resp == resps(r) & data.correct == correctness);
             end
             
-            % fit an overall bias term
             laggedtrls = trls+lag;
             % exclude trials at the end of the block
             if any(laggedtrls > size(data, 1)),

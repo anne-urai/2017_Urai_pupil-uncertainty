@@ -54,7 +54,7 @@ barcolors = colors([9 3 1], :);
 for i = 1:3,
     bar(i, mean(bwMat(theseSj, i)), 'barwidth', 0.5', 'facecolor', barcolors(i, :), 'edgecolor', 'none');
     errorbar(i, mean(bwMat(theseSj, i)), std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)), 'k');
-    
+    mean(bwMat(theseSj, i))
     % add significance star
     if mean(bwMat(theseSj, i)) < 0,
         mysigstar(i, mean(bwMat(theseSj, i)) - 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i), barcolors(i, :));
@@ -77,18 +77,17 @@ ylim([-0.1 0.03]); set(gca, 'ytick', [-0.1:0.1:0]);
 set(gca, 'xcolor', 'w');
 
 switch grouping
-    case 'repeat'
+    case 'switch'
         ylabel({'Pupil modulation'; 'of response weights'});
 end
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));
 
-
-%% do anova between sj
-
-% write to table
-mat = [bwMat(:, 2) bwMat(:, 3)];
-sjs = dat.response(:, 1) > 0;
-tb = array2table([transpose(1:27) mat sjs] , 'VariableNames', {'sjnr', 'correct', 'error', 'sjGroup'});
-writetable(tb, sprintf('~/Data/pupilUncertainty/CSV/sequentialEffects.csv'));
+% %% do anova between sj
+% 
+% % write to table
+% mat = [bwMat(:, 2) bwMat(:, 3)];
+% sjs = dat.response(:, 1) > 0;
+% tb = array2table([transpose(1:27) mat sjs] , 'VariableNames', {'sjnr', 'correct', 'error', 'sjGroup'});
+% writetable(tb, sprintf('~/Data/pupilUncertainty/CSV/sequentialEffects.csv'));
 

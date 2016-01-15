@@ -110,7 +110,7 @@ end
 % ========================================================= %
 
 grandavg.logisticSlope = squeeze(mean(grandavg.logistic(:, :, lagGroups, 2), 3));
-colors = linspecer(9);
+colors = cbrewer('qual', 'Set1', 9);
 
 % split subgroups by their plain history effects
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
@@ -122,13 +122,14 @@ switch grouping
         titcolor = colors(7, :);
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        titcolor = colors(8, :);
+        titcolor = colors(2, :);
         tit = 'Repeaters';
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        titcolor = colors(9, :);
+        titcolor = colors(5, :);
         tit = 'Switchers';
 end
+
 stimx2 = 1:u;
 if correctness == 0,
     stimx2 = stimx2 + 0.05;
@@ -138,7 +139,7 @@ end
 hold on;
 
 if isempty(correctness),
-    thiscolor = 'k';
+    thiscolor = colors(9, :);
 else
     % rather define color by correctness
     switch correctness
@@ -196,7 +197,7 @@ switch grouping
 end
 axis tight;
 xlim([0.5 nbins+0.5]);
-ylim([0.6 0.85]); set(gca, 'ytick', [0.6 0.7 0.8]);
+ylim([0.65 0.85]); set(gca, 'ytick', [0.6 0.7 0.8]);
 xlabel('Current trial pupil');
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4d_psychFuncShift_slope.pdf'));

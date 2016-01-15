@@ -1,4 +1,4 @@
-function [] = fig4c_decisionStrategies(lagGroups, whichmodulator)
+function [] = fig4b_decisionStrategies(lagGroups, whichmodulator)
 
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'rt'; end

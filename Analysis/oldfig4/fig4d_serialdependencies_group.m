@@ -2,7 +2,7 @@ function [pvalS, pvalR] = fig4d_serialdependencies_group
 
 clear all; close all; clc;
 
-whichmodulator = 'pupil7lags';
+whichmodulator = 'pupil';
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 % ============================================ %
@@ -45,7 +45,7 @@ subplot(3,3,4);
 bh = boundedline(lags, nanmean(dat.stimulus_pupil), nanstd(dat.stimulus_pupil) ./ sqrt(length(subjects)), ...
     lags, nanmean(dat.response_pupil), nanstd(dat.response_pupil) ./ sqrt(length(subjects)), ...
     'cmap', colors([2 4], :), 'alpha');
-pvalS = doSigstar(dat.stimulus_pupil, 2); pvalR = doSigstar(dat.response_pupil, 4);
+%pvalS = doSigstar(dat.stimulus_pupil, 2); pvalR = doSigstar(dat.response_pupil, 4);
 legend(bh, 'stimulus', 'response'); legend boxoff;
 axis tight; ylims = get(gca, 'ylim'); set(gca, 'ylim', [-max(abs(ylims)*1.1) max(abs(ylims)*1.1)]);
 xlim([0.5 nlags+0.5]); 
@@ -75,19 +75,19 @@ print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/serial/historykernels_%s_GA.pdf',
 end
 
 function pval = doSigstar(mat, colIdx)
-
-nanidx = find(isnan(nanmean(mat, 2)));
-mat(nanidx, :) = [];
-
-colors = linspecer(8);
-% for each lag, do permutation test
-for m = 1:7,
-   [pval(m)] = randtest1d(mat(:, m));
-end
-
-signific = find(pval < 0.05);
-meanMat = nanmean(mat);
-plot(signific, meanMat(signific), ...
-    'o', 'markersize', 4, 'markeredgecolor', 'w', 'markerfacecolor', colors(colIdx, :));
+% 
+% nanidx = find(isnan(nanmean(mat, 2)));
+% mat(nanidx, :) = [];
+% 
+% colors = linspecer(8);
+% % for each lag, do permutation test
+% for m = 1:7,
+%  %  [pval(m)] = randtest1d(mat(:, m));
+% end
+% 
+% signific = find(pval < 0.05);
+% meanMat = nanmean(mat);
+% plot(signific, meanMat(signific), ...
+%     'o', 'markersize', 4, 'markeredgecolor', 'w', 'markerfacecolor', colors(colIdx, :));
 
 end
