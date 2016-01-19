@@ -74,4 +74,11 @@ for sj = subjects,
     
     dlmwrite(sprintf('2ifc_baselinepupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
+    
+    % evidence strength
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        abs(data.motionstrength)];
+    
+    dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
 end

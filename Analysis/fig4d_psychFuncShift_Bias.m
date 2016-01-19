@@ -22,7 +22,7 @@ switch whichmodulator
         whichMod = 'baseline_pupil';
 end
 
-nbins = 3;
+nbins = 4;
 subjects = 1:27;
 clear grandavg;
 whichLags = 1:3; % lag 1
@@ -176,6 +176,7 @@ colors = cbrewer('qual', 'Set1', 9);
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 hold on;
 
+load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
 switch grouping
     case 'all'
         theseSj = 1:27;
@@ -183,16 +184,16 @@ switch grouping
         titcolor = 'k';
     case 'repeat'
         theseSj = find(dat.response(:, 1) > 0);
-        titcolor = colors(2,:);
+        titcolor = mycolmap(11,:);
         tit = 'Repeaters';
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
-        titcolor = colors(5,:);
+        titcolor = mycolmap(16,:);
         tit = 'Alternators';
 end
 
 if isempty(correctness),
-    thiscolor = colors(9, :);
+    thiscolor = [0.1 0.1 0.1];
     plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.2);
     
 else
@@ -222,13 +223,13 @@ axis tight;
 
 % low vs high
 % one sample t-test with the prediction of less switching
-[~, pval] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3), 'tail', 'right');
-[pval] = permtest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, 3));
+[~, pval] = ttest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, end), 'tail', 'right');
+[pval] = permtest(grandavg.logisticRep(theseSj, 1), grandavg.logisticRep(theseSj, end));
 
 %if isempty(correctness) || correctness == 0,
 ymax = max( nanmean(grandavg.logisticRep(theseSj, :)) + ...
     2* nanstd(grandavg.logisticRep(theseSj, :)) ./ sqrt(length(theseSj)));
-mysigstar([1 3], [ymax ymax], pval, thiscolor, 'down');
+mysigstar([1 nbins], [ymax ymax], pval, thiscolor, 'down');
 
 %elseif correctness == 1,
 %    ymax = min( nanmean(grandavg.logisticRep(theseSj, :)) - ...
@@ -243,10 +244,10 @@ switch grouping
     case 'all'
         ylim([0.49 0.54]);
     case 'repeat'
-        ylim([0.5 0.6]);
+        ylim([0.5 0.55]);
         title(tit, 'color', titcolor);
     case 'switch'
-        ylim([0.42 0.53]);
+        ylim([0.45 0.53]);
        title(tit, 'color', titcolor);
 end
 set(gca, 'ytick', 0.38:0.02:0.6);

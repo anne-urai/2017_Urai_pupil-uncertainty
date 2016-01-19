@@ -24,7 +24,7 @@ switch whichmodulator
         whichMod = 'baseline_pupil';
 end
 
-nbins = 3;
+nbins = 4;
 subjects = 1:27;
 whichLags = 1:3; % lag 1
 
@@ -139,7 +139,7 @@ end
 hold on;
 
 if isempty(correctness),
-    thiscolor = colors(9, :);
+    thiscolor = [0.1 0.1 0.1];
 else
     % rather define color by correctness
     switch correctness
@@ -173,9 +173,11 @@ end
 clear stats
 stats = rm_anova(x, s, f);
 
+[pval] = permtest(grandavg.logisticSlope(theseSj, 1), grandavg.logisticSlope(theseSj, end));
+
 ymax = max( nanmean(grandavg.logisticSlope(theseSj, :)) + ...
     2* nanstd(grandavg.logisticSlope(theseSj, :)) ./ sqrt(length(theseSj)));
-mysigstar([stimx2(1) stimx2(end)], [ymax ymax], stats.f1.pvalue);
+mysigstar([stimx2(1) stimx2(end)], [ymax ymax], pval);
 
 box off;
 % title(tit, 'color', titcolor);

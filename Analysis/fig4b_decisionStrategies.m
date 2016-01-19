@@ -8,15 +8,32 @@ if ~exist('whichmodulator', 'var'); whichmodulator = 'rt'; end
 % ========================================================= %
 
 clc;
-subjects = 1:27;
-colors = cbrewer('qual', 'Set1', 9);
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
-
-posRespSj = find(dat.response(:, 1) > 0);
-negRespSj = find(dat.response(:, 1) < 0);
 
 %subplot(442);
 hold on;
+plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
+plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);
+
+load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+
+for sj = 1:27,
+    h = ploterr(dat.response(sj, 1), dat.stimulus(sj, 1), ...
+        {dat.responseCI(sj, 1, 1) dat.responseCI(sj, 1, 2)}, ...
+        {dat.stimulusCI(sj, 1, 1) dat.stimulusCI(sj, 1, 2)}, '.', 'abshhxy', 0);
+    set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :));
+    set(h(2), 'color', mycolmap(sj, :), 'linewidth', 0.5);
+    set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
+end
+
+% also show the mean
+h = ploterr(mean(mean(dat.response(:, lagGroups), 2)), mean(mean(dat.stimulus(:, lagGroups), 2)), ...
+    std(mean(dat.response(:, lagGroups), 2)), ...
+    std(mean(dat.stimulus(:, lagGroups), 2)), ...
+    'o', 'abshhxy', 0);
+set(h(1), 'markeredgecolor', 'k', 'markerfacecolor', 'w', 'markersize', 4);
+set(h(2), 'color', 'k');
+set(h(3), 'color', 'k');
 
 % start with text
 fz = 6;
@@ -29,31 +46,12 @@ text(0, -0.36, 'lose stay', 'horizontalalignment', 'center', 'fontsize', fz);
 text(0.36, .05, 'stay', 'rotation', 270, 'fontsize', fz);
 text(-0.36, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
 
-plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
-plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);
-
-plot(mean(dat.response(posRespSj, lagGroups), 2), mean(dat.stimulus(posRespSj, lagGroups), 2), ...
-    '.', 'MarkerFaceColor', colors(2, :), 'MarkerEdgeColor', colors(2, :), 'markersize', 8);
-plot(mean(dat.response(negRespSj, lagGroups), 2), mean(dat.stimulus(negRespSj, lagGroups), 2), ...
-    '.', 'MarkerFaceColor', colors(5, :), 'MarkerEdgeColor', colors(5, :), 'markersize', 8);
-axis tight; axis square; xlims = get(gca, 'xlim'); ylims = get(gca, 'ylim');
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
-
-
-% also show the mean
-h = ploterr(mean(mean(dat.response(:, lagGroups), 2)), mean(mean(dat.stimulus(:, lagGroups), 2)), ...
-    std(mean(dat.response(:, lagGroups), 2)), ...
-    std(mean(dat.stimulus(:, lagGroups), 2)), ...
-    'o');
-set(h(1), 'markeredgecolor', 'k', 'markerfacecolor', 'w', 'markersize', 4);
-set(h(2), 'color', 'k');
-set(h(3), 'color', 'k');
-
-maxlim = 0.4;
+% layout
+maxlim = 0.45;
 xlim([-maxlim maxlim]); ylim([-maxlim maxlim]);
+maxlim = 0.4;
 set(gca, 'xtick', -maxlim:maxlim:maxlim, 'ytick', -maxlim:maxlim:maxlim);
 xlabel('Response weight'); ylabel('Stimulus weight');
 box on; axis square;
-
 
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategies.pdf'));

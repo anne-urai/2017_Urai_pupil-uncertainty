@@ -7,10 +7,6 @@ function [] = a4_writeData2CSV()
 %
 % Anne Urai, 2015
 
-close all;
-addpath('~/Dropbox/code/pupilUncertainty/Analysis');
-dbstop if error;
-
 % we already have all the info we need in the grandaverage file
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 

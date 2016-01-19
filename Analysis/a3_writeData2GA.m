@@ -4,19 +4,13 @@ function [] = a3_writeData2GA()
 %
 % Anne Urai, 2015
 
-clear all; close all; clc;
-addpath('~/Dropbox/code/pupilUncertainty/Analysis');
-dbstop if error;
-addpath('~/Documents/fieldtrip');
-ft_defaults;
-
 subjects = 1:27;
-for sj = flip(subjects),
+for sj = fliplr(subjects),
     tic;
     
     clearvars -except sj subjects alldat pupilgrandavg;
     % choose between 2 and 3
-    load(sprintf('~/Data/pupilUncertainty/P%02d_alleye.mat', sj));
+    load(sprintf('%s/Data/P%02d_alleye.mat', mypath, sj));
     
     % check which sessions to use
     if sj == 15, sessions = 1:7;
@@ -29,7 +23,7 @@ for sj = flip(subjects),
     
     clear mdats mdat
     for session = sessions,
-        load(sprintf('~/Data/pupilUncertainty/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session));
+        load(sprintf('%s/Data/MotionEnergy/motionenergy_P%02d_s%d.mat', mypath, sj, session));
         
         % transform into table
         mdat = structfun(@transpose, mdat, 'uniformoutput', 0);
@@ -167,13 +161,9 @@ end
 % ==================================================================
 
 disp('saving timelock...');
-tic;
-savefast('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat', 'pupilgrandavg');
-toc;
-
-%fprintf('\n\nout of %d trials (all sj), %d trials not matched \n\n', length(t.motionstrength), ...
-%    length(find(isnan(t.motionstrength))));
-
+cd mypath/Data;
+mkdir GrandAverage;
+savefast('%s/Data/GrandAverage/pupilgrandaverage.mat', 'pupilgrandavg');
 
 end
 
@@ -198,7 +188,7 @@ if plotme,
             cnt = cnt + 1;
         end
     end
-    print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_alldata.pdf', sj));
+%    print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_alldata.pdf', sj));
 end
 
 % ==================================================================
@@ -271,20 +261,12 @@ end
 pupilchan       = find(strcmp(data.label, 'EyePupil')==1);
 
 % ==================================================================
-% THIS SCALAR IS DEFINED BASED ON THE FINAL CLUSTER BASED PERMUTATION TEST
-% significant window = 1 s before feedback
+% DEFINE A SINGLE-TRIAL PUPIL SCALAR
 % ==================================================================
 
-load('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat');
-alltiming = [timelock(3).lock.time timelock(4).lock.time];
-
-for s = 1:3,
-    signific(s, :)  = stat{s}.mask;
-end
 % find where all of them are significant
-signific = all(signific);
 trialinfo(:, 2)      = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
-    find(timelock(4).lock.time < 0 & timelock(4).lock.time > min(alltiming(signific))) ), 3));
+    find(timelock(4).lock.time < 0 & timelock(4).lock.time > -0.250 ) ), 3));
 
 % ==================================================================
 % plot what this looks like
@@ -348,8 +330,7 @@ if plotme,
     ph = boundedline(1:size(fulltimelock.mn, 2), fulltimelock.mn', ...
         permute(fulltimelock.std, [2 3 1]) ./ 4, 'cmap', cols, 'alpha');
     hold on;
-    print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_timecourse.pdf', sj));
-    
+   % print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_timecourse.pdf', sj));
 end
 
 % ==================================================================

@@ -3,7 +3,6 @@ function [] = fig1ab_Model
 %
 % Anne Urai, 2015
 
-close all;
 % ==================================================================
 % 1. decision variable
 % ==================================================================
@@ -13,7 +12,7 @@ gr1 = [0.2 0.2 0.2];
 gr2 = [0.6 0.6 0.6];
 
 % sigma from datas
-data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
+data = readtable(sprintf('%s/CSV/2ifc_data_allsj.csv', mypath));
 b = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
 
 if 0,
@@ -187,7 +186,8 @@ xlim([-0.5 max(stimlevs)]);
 set(gca, 'ytick', [0:0.25:1]);
 set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 
-print(gcf, '-dpdf', sprintf('figure1_UncertaintyModel.pdf'));
+cd mypath; mkdir Figures;
+print(gcf, '-dpdf', sprintf('%s/Figures/figure1_UncertaintyModel.pdf', mypath));
 
 end
 

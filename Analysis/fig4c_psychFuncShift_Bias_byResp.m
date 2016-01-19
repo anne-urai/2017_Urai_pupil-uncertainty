@@ -24,7 +24,7 @@ switch whichmodulator
         whichMod = 'baseline_pupil';
 end
 
-nbins = 3;
+nbins = 4;
 subjects = 1:27;
 clear grandavg;
 whichLags = 1:3; % lag 1

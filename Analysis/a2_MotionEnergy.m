@@ -6,12 +6,9 @@ function [] =  a2_MotionEnergy(sj)
 %
 % Anne Urai, 2015
 
-% if we're running this on torque, make sure the input arg is a number
-if ischar(sj), sj = str2double(sj); end
-
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
-cd(sprintf('~/Data/pupilUncertainty/P%02d/', sj));
+cd(sprintf('%s/Data/P%02d/', mypath, sj));
 
 clear sessions;
 % check which sessions to use
@@ -20,7 +17,6 @@ s = {s(:).name};
 for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
 for session = sessions,
-    % if ~exist(sprintf('~/Data/pupilUncertainty/MotionEnergy/motionenergy_P%02d_s%d.mat', sj, session), 'file'),
     
     % preallocate the motion energy output
     mdat.int1     = single(nan(10, 50));
@@ -75,22 +71,22 @@ for session = sessions,
         
         if sj > 14,
             % for all the SJs OJay measured, there are separate coord files
-            files = dir(sprintf('~/Data/pupilUncertainty/P%02d/Behav/Dots_P%d_s%d_b%d_20*.mat',sj, sj, session, iblock));
+            files = dir(sprintf('%s/Data/P%02d/Behav/Dots_P%d_s%d_b%d_20*.mat', mypath, sj, sj, session, iblock));
             assert(length(files)==1);
-            load(sprintf('~/Data/pupilUncertainty/P%02d/Behav/%s', sj, files.name));
-            fprintf('~/Data/pupilUncertainty/P%02d/Behav/%s \n', sj, files.name);
+            load(sprintf('%s/Data/P%02d/Behav/%s', mypath, sj, files.name));
+            fprintf('%s/Data/P%02d/Behav/%s \n',  mypath, files.name);
             
         else
             % get the one behav file for this session, includes the coords
-            files = dir(sprintf('~/Data/pupilUncertainty/P%02d/Behav/P%d_s%d_20*.mat',sj, sj, session));
+            files = dir(sprintf('%s/Data/P%02d/Behav/P%d_s%d_20*.mat', mypath, sj, sj, session));
             if length(files) == 1,
-                load(sprintf('~/Data/pupilUncertainty/P%02d/Behav/%s', sj, files.name));
-                fprintf('~/Data/pupilUncertainty/P%02d/Behav/%s \n', sj, files.name);
+                load(sprintf('%s/Data/P%02d/Behav/%s', mypath, sj, files.name));
+                fprintf('%s/Data/P%02d/Behav/%s \n', mypath, sj, files.name);
                 
             else % if there are multiple files
                 for f = 1:length(files),
-                    load(sprintf('~/Data/pupilUncertainty/P%02d/Behav/%s', sj, files(f).name));
-                    fprintf('~/Data/pupilUncertainty/P%02d/Behav/%s \n', sj, files(f).name);
+                    load(sprintf('%s/Data/P%02d/Behav/%s',  mypath, sj, files(f).name));
+                    fprintf('%s/Data/P%02d/Behav/%s \n',  mypath, sj, files(f).name);
                     % check if there are responses in this block
                     try
                         if ~isnan(nanmean(results.response(iblock, :))) && ...
@@ -104,7 +100,7 @@ for session = sessions,
         
         % something weird with SJ 5...
         if sj == 5 && session == 1 && blockcnt == 3,
-            cd('~/Data/pupilUncertainty/P05/Behav');
+            cd(sprintf('%s/Data/P05/Behav', mypath));
             system('mv P5_s1_2014-02-24_15-07-33.mat first3_P5_s1_2014-02-24_15-07-33.mat');
         end
         
@@ -458,13 +454,9 @@ for session = sessions,
             mdat.correct(iblock, :)      = results.correct(iblock, :);
         end
     end % block
-    save([ '~/Data/pupilUncertainty/MotionEnergy/' sprintf('motionenergy_P%02d_s%d.mat', sj, session)], '-mat', 'mdat');
     
-    % else
-    %      disp('file already exists, skipping');
-    % end
+    save(sprintf('%s/Data/MotionEnergy/motionenergy_P%02d_s%d.mat', mypath, sj, session), '-mat', 'mdat');
 end
-system(sprintf('touch ~/Data/pupilUncertainty/MotionEnergy/P%02d_finished.log', sj));
 
 end% function end
 

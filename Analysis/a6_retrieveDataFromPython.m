@@ -7,11 +7,13 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'pupil'; % model has been run on both pupil and RT
+whichmodulator = 'plain'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
+dat.responseCI = nan(27, nlags, 2);
 dat.stimulus = nan(27, nlags);
+dat.stimulusCI = nan(27, nlags, 2);
 dat.correct = nan(27, nlags);
 dat.incorrect = nan(27, nlags);
 dat.pupil = nan(27, nlags);
@@ -61,8 +63,12 @@ for sj = subjects,
     stimboot = bootstrap_corr(:, nlags+1:nlags*2);
     
     respwci = prctile(respboot, [2.5, 97.5])';
-    respwci(:, 1) = respw - respwci(:, 1); respwci(:, 2) = respwci(:, 2) - respw;
+    dat.responseCI(sj, :, :) = respwci;
+    
+    respwci(:, 1) = respw - respwci(:, 1); respwci(:, 2) = respwci(:, 2) - respw; % relative error
     stimwci = prctile(stimboot, [2.5, 97.5])';
+    dat.stimulusCI(sj, :, :) = stimwci;
+    
     stimwci(:, 1) = stimw - stimwci(:, 1); stimwci(:, 2) = stimwci(:, 2) - stimw;
     
     % ============================================ %

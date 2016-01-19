@@ -3,6 +3,7 @@ function fig4f_HistoryPupil_Bar(lagGroups, whichmodulator, grouping)
 if ~exist('lagGroups', 'var'), lagGroups = 1; end
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
+%subplot(481);
 
 % ============================================ %
 % bargraphs for previous response and response * pupil regressors
@@ -32,16 +33,15 @@ bwMat = cat(3, [groupedDat.response_pupil groupedDat.correct_pupil groupedDat.in
 load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
 
 switch grouping
-    
     case 'all'
         theseSj = 1:27;
-    case 'repeat'
-        theseSj = find(dat.response(:, 1) > 0);
+        repeaters = find(dat.response(:, 1) > 0);
+        alternators = find(dat.response(:, 1) < 0);
     case 'switch'
         theseSj = find(dat.response(:, 1) < 0);
+    case 'repeat'
+        theseSj = find(dat.response(:, 1) > 0);
 end
-
-%%
 
 % sigstars
 [ pvals(1)] = permtest(bwMat(theseSj, 1));
@@ -51,24 +51,31 @@ end
 hold on;
 barcolors = colors([9 3 1], :);
 
-for i = 1:3,
+for i = 1,
     bar(i, mean(bwMat(theseSj, i)), 'barwidth', 0.5', 'facecolor', barcolors(i, :), 'edgecolor', 'none');
     errorbar(i, mean(bwMat(theseSj, i)), std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)), 'k');
-    mean(bwMat(theseSj, i))
     % add significance star
     if mean(bwMat(theseSj, i)) < 0,
-        mysigstar(i, mean(bwMat(theseSj, i)) - 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i), barcolors(i, :));
+        mysigstar(i, min(bwMat(theseSj, i)) - 1*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i), barcolors(i, :));
     else
         mysigstar(i, mean(bwMat(theseSj, i)) + 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj))), pvals(i));
     end
+    
+    switch grouping
+        case 'all'
+            % add the individual datapoints on top
+            plot(1+0.01*randn(1, length(repeaters)), bwMat(repeaters, i), '.', 'color', colors(2, :));
+            plot(1+0.01*randn(1, length(alternators)), bwMat(alternators, i), '.', 'color', colors(5, :));
+    end
 end
 
-% difference error and correct
-[pval] = permtest(bwMat(theseSj, 2), bwMat(theseSj, 3));
-
-ymax = min( nanmean(bwMat(theseSj, 2:3)) - ...
-    3*nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
-mysigstar([2 3], [ymax ymax], pval, 'k', 'up');
+try
+    % difference error and correct
+    [pval] = permtest(bwMat(theseSj, 2), bwMat(theseSj, 3));
+    ymax = min( nanmin(bwMat(theseSj, 2:3)) - ...
+        1*nanstd(bwMat(theseSj, 2:3)) ./ sqrt(length(theseSj)));
+    mysigstar([2 3], [ymax ymax], pval, 'k', 'up');
+end
 
 set(gca, 'xtick', []);
 ylims = get(gca, 'ylim');
@@ -84,7 +91,7 @@ end
 print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));
 
 % %% do anova between sj
-% 
+%
 % % write to table
 % mat = [bwMat(:, 2) bwMat(:, 3)];
 % sjs = dat.response(:, 1) > 0;

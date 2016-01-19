@@ -1,9 +1,16 @@
 # pupilUncertainty
 
-Urai AE, Braun A, Donner THD. Eye-opener: pupil dilation signals decision uncertainty.
+This is the overall repository that replicates all analyses from
+Urai AE, Braun A, Donner THD. 
 
 This repository contains:
 *	Task_2IFC_RandomDots, containing all the code neede to run the behavioural and eye-tracking task. This code runs under PsychToolbox-3 (http://psychtoolbox.org). The scripts s1a and s1b show instructions and examples to the participant (in Dutch), and s3_2IFC_Main.m runs the main experiment.
-*	Analysis, containing Jupyter notebooks outlining all the steps in the code. Going through the files in alphabetical order will get you from data to final figures. The Data folder contains a few sample files to try out the code.
+The data that were collected are in the Zenodo repository XXX.
+*	Analysis, containg all Matlab files to replicate the analyses. Going through the files in alphabetical order will get you from data to final figures. The Data folder contains a few sample files to try out the code.
+*                     serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model. 
 
-This code was run under Matlab2015b. Some functionality, for example for reading and writing table files, is not available in earlier releases.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+If you use the Software for your own research, cite the paper.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
