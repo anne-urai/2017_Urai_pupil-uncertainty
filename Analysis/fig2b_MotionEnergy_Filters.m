@@ -47,7 +47,7 @@ counterdir            = dots.direction+180;
 if counterdir > 360, counterdir = counterdir - 360; end
 theta                 = [direc counterdir]; % only those two directions
 
-theta = [90 180]; % up, for visualization
+theta = [90]; % up, for visualization
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. CREATE SPATIAL AND TEMPORAL FILTERS
@@ -96,13 +96,14 @@ alpha      = atand(xprime ./ sc);
 f1rot      = (cosd(alpha).^4 .* cosd(4*alpha) .* exp(-yprime.^2/(2*sg^2)))';
 f2rot      = (cosd(alpha).^4 .* sind(4*alpha) .* exp(-yprime.^2/(2*sg^2)))';
 
+
 %% make a nice looking schematic
 figure;
 colormap bone;
 % start by showing the 2 temporal and 2 spatial filters
 
 % temporal filters
-subplot(441); 
+subplot(441);
 plot([t(1) t(end)], [0 0], 'k-'); hold on;
 p = plot(t, squeeze(g1), t, squeeze(g2));
 cols = linspecer(2);
@@ -120,7 +121,7 @@ set(gca, 'xtick', [0 0.1 0.2], 'ytick', [-0.1 0.2]); offsetAxes;
 % spatial filters
 subplot(442);
 plot([x(1) x(end)], [0 0], 'k-'); hold on;
-plot([0 0], [-2.5 3], 'k-'); 
+plot([0 0], [-2.5 3], 'k-');
 p = plot(x, sum(f1rot), x, sum(f2rot));
 p(1).Color = cols(2, :); p(2).Color = cols(1, :);
 xlabel('Space (degree)'); ylabel('Spatial filters');
@@ -133,10 +134,59 @@ legend boxoff;
 axis tight; axis square; box off;
 set(gca, 'xtick', [-0.7 0 0.7], 'ytick', [-2 3]); offsetAxes;
 
+
+for thistheta = 90,
+    
+    % rotate the meshgrid
+    yprime  = - xmesh .* sind(thistheta) + ymesh .* cosd(thistheta);
+    xprime  =   xmesh .* cosd(thistheta) + ymesh .* sind(thistheta);
+    
+    % SPATIAL FUNCTIONS two fourth order cauchy functions
+    % transpose to match my unit circle directionality
+    alpha      = atand(xprime ./ sc);
+    f1rot      = (cosd(alpha).^4 .* cosd(4*alpha) .* exp(-yprime.^2/(2*sg^2)))';
+    f2rot      = (cosd(alpha).^4 .* sind(4*alpha) .* exp(-yprime.^2/(2*sg^2)))';
+    
+    % these two linear filters are in space-time quadrature
+    basis1   = bsxfun(@times, f1rot, g1) ;
+    basis2   = bsxfun(@times, f1rot, g2);
+    basis3  = bsxfun(@times, f2rot, g1);
+    basis4  = bsxfun(@times, f2rot, g2);
+    
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % plot info about the filters
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % their 4 combinations
+    
+    colormap bone;
+    subplot(4,4,5);
+    imagesc(x, t, squeeze(sum(basis1, 1))', [-.4 .4]);
+    set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
+    set(gca, 'yticklabel', [], 'xticklabel', []);
+    
+    subplot(446);
+    imagesc(x, t, squeeze(sum(basis2, 1))', [-.4 .4]);
+    set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
+    set(gca, 'yticklabel', [], 'xticklabel', []);
+    
+    subplot(447);
+    imagesc(x, t, squeeze(sum(basis3, 1))', [-.4 .4]);
+    set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
+    set(gca, 'yticklabel', [], 'xticklabel', []);
+    
+    subplot(448);
+    imagesc(x, t, squeeze(sum(basis4, 1))', [-.4 .4]);
+    set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
+    set(gca, 'yticklabel', [], 'xticklabel', []);
+    
+end
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % make a separate filter for each direction
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-cnt = 5;
+cnt = 9;
 
 for thistheta = theta,
     
@@ -154,35 +204,27 @@ for thistheta = theta,
     filt1   = bsxfun(@times, f1rot, g1) + bsxfun(@times, f2rot, g2);
     filt2   = bsxfun(@times, f2rot, g1) - bsxfun(@times, f1rot, g2);
     
-    % save the filters to output
-    % already run the filter fft!
-    filters.one(:, :, :, find(thistheta==theta)) = fftn(single(filt1), cfg.n_convolution);
-    filters.two(:, :, :, find(thistheta==theta)) = fftn(single(filt2), cfg.n_convolution);
-    
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % plot info about the filters
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    if cnt < 7,
-        dim = 1;
-    else
-        dim = 2; 
-    end
-    
+
     % their 4 combinations
     subplot(4,4,cnt);
-    imagesc(x, t, squeeze(sum(filt1, dim))', [-.4 .4]);
+    imagesc(x, t, squeeze(sum(filt1, 1))', [-.4 .4]);
     xlabel('Space (degree)');
     if cnt == 5, ylabel('Time (s)'); end
     set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
     cnt  = cnt + 1;
     
     subplot(4,4,cnt);
-    imagesc(x, t, squeeze(sum(filt2, dim))', [-.4 .4]);
-    xlabel('Space (degree)'); 
+    imagesc(x, t, squeeze(sum(filt2, 1))', [-.4 .4]);
+    xlabel('Space (degree)');
     set(gca, 'ytick', [0 0.1 0.2]); axis square; box off;
     cnt = cnt + 1;
 end
+
+
+print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty_paper/figureS1.pdf'));
 
 end% function end
 

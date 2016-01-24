@@ -47,10 +47,10 @@ for sj = subjects,
     hlen = size(h, 2);
     
     respw = model_h_mod.w(hf0:hf0+hlen-1);
-    % stimw = model_h_mod.w(hf0+hlen:hf0+hlen*2-1);
+    stimw = model_h_mod.w(hf0+hlen:hf0+hlen*2-1);
     
     % project back into lag space
-    %  stimw = h * stimw;
+    stimw = h * stimw;
     respw = h * respw;
     
     % for bootstrapped values, also multiply with the bootstrapped slope
@@ -58,12 +58,12 @@ for sj = subjects,
     
     % also get error bars, multiply bootstrapped values with slope too
     respboot = bootstrap_corr(:, 1:nlags);
-    %  stimboot = bootstrap_corr(:, nlags+1:nlags*2);
+    stimboot = bootstrap_corr(:, nlags+1:nlags*2);
     
     respwci = prctile(respboot, [2.5, 97.5])';
     respwci(:, 1) = respw - respwci(:, 1); respwci(:, 2) = respwci(:, 2) - respw;
-    % stimwci = prctile(stimboot, [2.5, 97.5])';
-    % stimwci(:, 1) = stimw - stimwci(:, 1); stimwci(:, 2) = stimwci(:, 2) - stimw;
+     stimwci = prctile(stimboot, [2.5, 97.5])';
+     stimwci(:, 1) = stimw - stimwci(:, 1); stimwci(:, 2) = stimwci(:, 2) - stimw;
     
     % ============================================ %
     % 1. plot the history kernels for resp and stim (blue/yellow as Fr?nd)
@@ -74,8 +74,7 @@ for sj = subjects,
     ylabel('History kernels');
     
     dat.response(sj, :) = respw;
-    % dat.stimulus(sj, :) = stimw;
-    
+    dat.stimulus(sj, :) = stimw;
     
     %     % ============================================ %
     %     % 2. same thing, but for correct and error (green/red)
@@ -128,9 +127,9 @@ for sj = subjects,
             % 3. the pure pupil weights
             % ============================================ %
             
-            pupilw = model_h_mod.w(hf0+hlen:hf0+hlen*2-1);
+            pupilw = model_h_mod.w(hf0+hlen*2:hf0+hlen*3-1);
             pupilw = h * pupilw;
-            pupilboot = bootstrap_corr(:, nlags+1:nlags*2);
+            pupilboot = bootstrap_corr(:, nlags*3+1:nlags*4);
             
             pupilwci = prctile(pupilboot, [2.5, 97.5])';
             pupilwci(:, 1) = pupilw - pupilwci(:, 1); pupilwci(:, 2) = pupilwci(:, 2) - pupilw;
@@ -146,7 +145,7 @@ for sj = subjects,
             % 4. pupil * history weights
             % ============================================ %
             
-            pupilrespw = model_h_mod.w(hf0+hlen*2:hf0+hlen*3-1);
+            pupilrespw = model_h_mod.w(hf0+hlen*3:hf0+hlen*4-1);
             
             %  model_h_mod.w(hf0+hlen*3:hf0+hlen*4-1);
             %   pupilstimw = model_h_mod.w(hf0+hlen*4:hf0+hlen*5-1);

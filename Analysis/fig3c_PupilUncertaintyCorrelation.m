@@ -42,11 +42,11 @@ for f = 1:length(fields),
             
             if RTstratification,
                 % include RT as a regressor
-                mdl = fitlm([zscore(abs(data.xval(trls))) zscore(data.rt(trls))],  ...
+                mdl = fitlm([zscore(data.xval(trls)) zscore(data.rt(trls))],  ...
                     zscore(data.(fields{f})(trls)));
             else
                 % dont include RT as a regressor?
-                mdl = fitlm(([abs(data.xval(trls))]),  ...
+                mdl = fitlm(([zscore(data.xval(trls))]),  ...
                     (data.(fields{f})(trls)));
             end
             

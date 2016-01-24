@@ -1,7 +1,4 @@
-function [] = fig4b_decisionStrategies(lagGroups, whichmodulator)
-
-if ~exist('lagGroups', 'var'), lagGroups = 1; end
-if ~exist('whichmodulator', 'var'); whichmodulator = 'rt'; end
+function [] = fig4b_decisionStrategies(whichmodulator)
 
 % ========================================================= %
 % panel B: decision strategy for lags 1-3
@@ -15,7 +12,7 @@ plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
 plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);
 
 load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
 
 for sj = 1:27,
     h = ploterr(dat.response(sj, 1), dat.stimulus(sj, 1), ...
@@ -27,9 +24,9 @@ for sj = 1:27,
 end
 
 % also show the mean
-h = ploterr(mean(mean(dat.response(:, lagGroups), 2)), mean(mean(dat.stimulus(:, lagGroups), 2)), ...
-    std(mean(dat.response(:, lagGroups), 2)), ...
-    std(mean(dat.stimulus(:, lagGroups), 2)), ...
+h = ploterr(mean(mean(dat.response(:, 1), 2)), mean(mean(dat.stimulus(:, 1), 2)), ...
+    std(mean(dat.response(:, 1), 2)), ...
+    std(mean(dat.stimulus(:, 1), 2)), ...
     'o', 'abshhxy', 0);
 set(h(1), 'markeredgecolor', 'k', 'markerfacecolor', 'w', 'markersize', 4);
 set(h(2), 'color', 'k');
@@ -47,11 +44,11 @@ text(0.36, .05, 'stay', 'rotation', 270, 'fontsize', fz);
 text(-0.36, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
 
 % layout
-maxlim = 0.45;
+maxlim = 0.4;
 xlim([-maxlim maxlim]); ylim([-maxlim maxlim]);
 maxlim = 0.4;
 set(gca, 'xtick', -maxlim:maxlim:maxlim, 'ytick', -maxlim:maxlim:maxlim);
-xlabel('Response weight'); ylabel('Stimulus weight');
+xlabel('Choice weight'); ylabel('Stimulus weight');
 box on; axis square;
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategies.pdf'));
+%print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategies.pdf'));

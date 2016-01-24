@@ -50,7 +50,7 @@ box off; ylim([65 80]);
 % do stats on these logistic betas
 [h, p, ci, stats] = ttest(grandavg.b(:, end));
 text(2, 69, sprintf('b = %.3f', mean(grandavg.b(:, end))));
-text(2, 67, sprintf('p = %.3f', p));
+text(2, 67, sprintf('p < %.3f', p));
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 %% fit logistic slope on high vs low pupil bins

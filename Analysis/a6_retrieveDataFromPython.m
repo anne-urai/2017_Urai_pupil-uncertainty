@@ -7,7 +7,7 @@ nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
 
-whichmodulator = 'plain'; % model has been run on both pupil and RT
+whichmodulator = 'rt-pupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -59,14 +59,14 @@ for sj = subjects,
     bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
     
     % also get error bars, multiply bootstrapped values with slope too
-    respboot = bootstrap_corr(:, 1:nlags);
-    stimboot = bootstrap_corr(:, nlags+1:nlags*2);
-    
-    respwci = prctile(respboot, [2.5, 97.5])';
+    respboot    = bootstrap_corr(:, 1:nlags);
+    stimboot    = bootstrap_corr(:, nlags+1:nlags*2);
+    alpha       = 1 - 0.68; % should cover 1 std of the distribution
+    respwci     = prctile(respboot, [100*alpha/2,100*(1-alpha/2)])';
     dat.responseCI(sj, :, :) = respwci;
     
     respwci(:, 1) = respw - respwci(:, 1); respwci(:, 2) = respwci(:, 2) - respw; % relative error
-    stimwci = prctile(stimboot, [2.5, 97.5])';
+    stimwci       = prctile(stimboot, [100*alpha/2,100*(1-alpha/2)])';
     dat.stimulusCI(sj, :, :) = stimwci;
     
     stimwci(:, 1) = stimw - stimwci(:, 1); stimwci(:, 2) = stimwci(:, 2) - stimw;

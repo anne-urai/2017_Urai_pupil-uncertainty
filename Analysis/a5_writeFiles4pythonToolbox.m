@@ -8,6 +8,9 @@ for sj = subjects,
     % use files with cleaner pupil data
     data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
     
+    % remove first session
+    data = data(find(data.sessionnr > 1), :);
+    
     % generate block nrs, NOT identical to session nrs! History effects
     % should not continue beyond a block
     blockchange = find(diff(data.trialnr) < 0);
@@ -25,7 +28,13 @@ for sj = subjects,
     % stim identity again
     % newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0)];
     
-    if 0,
+    % evidence strength
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        abs(data.motionstrength)];
+    
+    dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
     % no modulatrion
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0)];
     
@@ -44,7 +53,7 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_feedbackpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
-        
+    
     % feedback pupil with decision pupil regressed out
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
         zscore(projectout(data.feedback_pupil, data.decision_pupil))];
@@ -66,8 +75,15 @@ for sj = subjects,
     
     dlmwrite(sprintf('2ifc_pupil-rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
-    end
     
+ 
+     % decision pupil projected out of rt
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        zscore(projectout(data.rt, data.decision_pupil))];
+    
+    dlmwrite(sprintf('2ifc_rt-pupil_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+ 
     % baseline pupil
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
         zscore(circshift(data.baseline_pupil, -1))];
@@ -75,10 +91,5 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_baselinepupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
-    % evidence strength
-    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
-        abs(data.motionstrength)];
     
-    dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
-        newdat,'delimiter','\t','precision',4);
 end

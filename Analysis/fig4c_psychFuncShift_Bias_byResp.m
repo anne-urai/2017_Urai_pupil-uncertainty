@@ -1,7 +1,6 @@
-function fig4c_psychFuncShift_Bias_byResp(lagGroups, whichmodulator, grouping)
+function fig4c_psychFuncShift_Bias_byResp(whichmodulator, grouping, nbins)
 
-if ~exist('lagGroups', 'var'), lagGroups = 1; end
-if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
+if ~exist('whichmodulator', 'var'); whichmodulator = 'evidence'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
 
 % plot both the effect of pupil on overall repetition bias and show that
@@ -22,9 +21,10 @@ switch whichmodulator
         whichMod = 'decision_pupil';
     case 'baselinepupil'
         whichMod = 'baseline_pupil';
+    case 'evidence'
+        whichMod = 'evidence';
 end
 
-nbins = 4;
 subjects = 1:27;
 clear grandavg;
 whichLags = 1:3; % lag 1
@@ -32,7 +32,8 @@ whichLags = 1:3; % lag 1
 for lag = whichLags,
     for sj = unique(subjects),
         data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
-        
+            data = data(find(data.sessionnr > 1), :);
+
         % in this case, take out decision effects
         switch whichmodulator
             case 'fb-decpupil'
@@ -41,6 +42,8 @@ for lag = whichLags,
                 data.decision_pupil = projectout(data.decision_pupil, data.rt);
             case 'baselinepupil'
                 data.baseline_pupil = circshift(data.baseline_pupil, -1);
+            case 'evidence'
+                data.evidence = abs(data.motionstrength);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -141,7 +144,7 @@ grandavg.logistic = exp(grandavg.logistic)./(1+exp(grandavg.logistic));
 % combine the lag groups
 % ========================================================= %
 
-grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, lagGroups, :), 4));
+grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, 1, :), 4));
 
 % ========================================================= %
 % plot for all subjects
@@ -179,7 +182,16 @@ end
 axis tight; axis square;
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
 ylabel('Next trial P(choice A)');
-xlabel('Current trial pupil');
+
+switch whichMod
+    case 'pupil'
+        xlabel('Current trial pupil');
+    case 'evidence'
+        xlabel('Current trial evidence');
+    otherwise
+        xlabel(whichmodulator);
+end
+
 
 text(2.5, .53, 'current', 'color', colors(2, :), 'horizontalalignment', 'center');
 text(2.5, 0.52, 'choice A', 'color', colors(2, :), 'horizontalalignment', 'center');
@@ -187,7 +199,8 @@ text(2.5, 0.52, 'choice A', 'color', colors(2, :), 'horizontalalignment', 'cente
 text(2.5, 0.48, 'current', 'color', colors(1, :), 'horizontalalignment', 'center');
 text(2.5, 0.47, 'choice B', 'color', colors(1, :), 'horizontalalignment', 'center');
 
-ylim([0.465 .535]);
+ylim([0.465 .545]);
 set(gca, 'ytick', [0.47 0.5 0.53]);
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 
 end

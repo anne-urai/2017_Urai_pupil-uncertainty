@@ -4,7 +4,7 @@ function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
-doStats             = true; % permutation statistics across the group
+doStats             = false; % permutation statistics across the group
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main evidence strength regressor
 
@@ -16,7 +16,7 @@ load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plai
 posRespSj = find(dat.response(:, 1) > 0);
 negRespSj = find(dat.response(:, 1) < 0);
 
-subjects = negRespSj';
+subjects = 1:27';
 load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
@@ -80,6 +80,8 @@ for sj = unique(subjects),
             [b, bint, ~, ~, stats] = regress((tl(trls, s)), designM2);
             grandavg.beta(find(sj==subjects), c, s, :)    = b;
             grandavg.bint(find(sj==subjects), c, s, :)    = [b - bint(:, 1)];
+            grandavg.rsq(find(sj==subjects), c, s, :)     = stats(1);
+            
             signific(c, s) = stats(3);
         end
     end
@@ -102,6 +104,7 @@ for sj = unique(subjects),
         set(gca, 'xticklabel', []);
     end
 end
+
 
 % save to disk to later do the correlation with learning
 save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionBetas.mat', 'grandavg');
