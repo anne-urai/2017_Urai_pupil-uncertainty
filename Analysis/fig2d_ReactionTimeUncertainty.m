@@ -2,10 +2,9 @@ function [] = fig2d_ReactionTimeUncertainty()
 % plot RT as a function of |motionstrength|, to show that the pattern
 % follows model predictions of uncertainty
 
-% load('~/Data/pupilUncertainty/GrandAverage/reinforcementlearning_fmincon_fixbc.mat');
-data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
+data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 
-nbins               = 6; % bin in 5 to have comparable plots to the difficulty version?
+nbins               = 6; 
 data.xval           = abs(data.motionstrength);
 data.rpebin         = nan(size(data.xval)); % preallocate
 

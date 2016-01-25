@@ -6,7 +6,7 @@ RTstratification    = true; % include RT in the model, do stratification on bins
 % RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 
 % get all data
-data = readtable('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv');
+data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 subjects = 1:27; % for this analysis, use all SJ!
 
@@ -18,15 +18,7 @@ data.rpebin = nan(size(data.xval));
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if 0, % only decision_pupil
-    fields      = {'baseline_pupil', 'decision_pupil', 'feedback_pupil'};
-    fieldnames  = {'Baseline pupil', 'Decision pupil',  'Feedback pupil'};
-    fieldunits  = {'(% signal change)','(% signal change)','(Decision pupil projected out)'};
-end
-
 fields      = {'decision_pupil', };
-fieldnames  = {'Pupil response (z)'};
-
 for f = 1:length(fields),
     
     grandavg.(fields{f}).data = nan(length(subjects), 2, nbins);
@@ -175,6 +167,6 @@ for f = 1:length(fields),
     
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_pupil_uncertainty.mat', 'grandavg');
+savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');
 
 end

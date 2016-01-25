@@ -3,58 +3,60 @@ function [] = fig3a_PupilTimecourse()
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PLOT THE PUPIL GRAND AVERAGE
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
-subjects = 1:27;
-
-% append all the mean timecourses per condition
-for sj = unique(subjects),
-    pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(1).lock.label, 'EyePupil')==1);
-    
-    % get all timelock
-    alltimelock(sj, 1, :) = cat(2, squeeze(nanmean(pupilgrandavg.timelock{sj}(1).lock.trial(:, pupilchan, :)))', ...
-        squeeze(nanmean(pupilgrandavg.timelock{sj}(2).lock.trial(:, pupilchan, :)))', ...
-        squeeze(nanmean(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)))', ...
-        squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :)))');
-end
-
-% color scheme
-cols = linspecer;
-
 if 0,
-% plot
-subplot(4,4,1);
-ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
-    squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), ...
-    'cmap', cols);
-ylabel({'Pupil response (z)'});
-
-axis tight; set(gca, 'ytick', [0:0.5:1 1.2], 'ylim', [-0.2 1.3]);
-% subfunction to put lines and xlabels at the right spots
-plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
-    pupilgrandavg.timelock{1}(2).lock, [0], ...
-    pupilgrandavg.timelock{1}(3).lock, [0 1], ...
-    pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
-xlabel('Time (ms)');
-offsetAxes(gca, 0.12, 0);
-print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
+    
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % PLOT THE PUPIL GRAND AVERAGE
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
+    subjects = 1:27;
+    
+    % append all the mean timecourses per condition
+    for sj = unique(subjects),
+        pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(1).lock.label, 'EyePupil')==1);
+        
+        % get all timelock
+        alltimelock(sj, 1, :) = cat(2, squeeze(nanmean(pupilgrandavg.timelock{sj}(1).lock.trial(:, pupilchan, :)))', ...
+            squeeze(nanmean(pupilgrandavg.timelock{sj}(2).lock.trial(:, pupilchan, :)))', ...
+            squeeze(nanmean(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)))', ...
+            squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :)))');
+    end
+    
+    % color scheme
+    cols = linspecer;
+    
+    % plot
+    subplot(4,4,1);
+    ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
+        squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), ...
+        'cmap', cols);
+    ylabel({'Pupil response (z)'});
+    
+    axis tight; set(gca, 'ytick', [0:0.5:1 1.2], 'ylim', [-0.2 1.3]);
+    % subfunction to put lines and xlabels at the right spots
+    plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
+        pupilgrandavg.timelock{1}(2).lock, [0], ...
+        pupilgrandavg.timelock{1}(3).lock, [0 1], ...
+        pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
+    xlabel('Time (ms)');
+    offsetAxes(gca, 0.12, 0);
+    print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clearvars -except subjects
+
+clear; subjects = 1:27;
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
+load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
-    thistable = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    thistable = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     cors = [0 1];
     cnt  = 0;

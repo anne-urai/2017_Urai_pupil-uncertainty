@@ -4,20 +4,12 @@ function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % settings
 % how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
-doStats             = false; % permutation statistics across the group
+doStats             = true; % permutation statistics across the group - this takes a while!
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main evidence strength regressor
 
-addpath('~/Documents/fieldtrip');
-ft_defaults;
-
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
-
-posRespSj = find(dat.response(:, 1) > 0);
-negRespSj = find(dat.response(:, 1) < 0);
-
-subjects = 1:27';
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
+subjects = 1:27;
+load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
@@ -107,7 +99,7 @@ end
 
 
 % save to disk to later do the correlation with learning
-save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionBetas.mat', 'grandavg');
+save(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath), 'grandavg');
 
 if plotIndividual,
     % subfunction to put lines and xlabels at the right spots
@@ -209,7 +201,7 @@ for whichbeta = whichBetas2plot,
             ylabel('Intercept');
         case 2
             ylabel('Task difficulty');
-           ylim([-0.15 0.08]);
+            ylim([-0.15 0.08]);
             %  set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
         case 3
@@ -236,7 +228,7 @@ for whichbeta = whichBetas2plot,
 end
 
 if doStats
-    save('~/Data/pupilUncertainty/GrandAverage/pupilRegressionSignificantCluster.mat', 'stat');
+    save(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath), 'stat');
 end
 
 % ==================================================================
@@ -260,11 +252,6 @@ if 0,
     print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
     
 end
-
-title('Alternators');
-
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/Fig3b_pupilRegressionTimecourse.pdf'));
-disp('SAVED');
 end
 
 % ==================================================================

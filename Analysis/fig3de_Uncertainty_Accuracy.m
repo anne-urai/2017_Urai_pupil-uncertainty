@@ -7,7 +7,7 @@ fitIndividual = false;
 
 for sj = unique(subjects),
     
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
 
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -61,7 +61,7 @@ for sj = unique(subjects),
     
     disp(sj);
     % get all the data
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', sj));
     
     % divide into low and high pupil bins
     puptrls{1} = find(data.decision_pupil < quantile(data.decision_pupil, 0.5));
@@ -122,50 +122,5 @@ set(gca, 'ytick', [0.5 1]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
 ylabel('Current trial slope');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-savefast('~/Data/pupilUncertainty/GrandAverage/grandavg_logistic_bypupil.mat', 'grandavg', 'subjects');
-
-%%
-% !!! rather than doing a permutation test on the logistic slope
-% coefficients, run a proper mixed effects logistic regression
-% fixed effects: slope
-if 0,
-    clear; clc;
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
-    
-    % normalize the pupil response for each subject
-    % this way, we can interpret the coefficient of the pupil fixed effect in
-    % units of standard deviation
-    for sj = unique(data.subjnr)',
-        data.decision_pupil(sj==data.subjnr) = zscore(data.decision_pupil(sj==data.subjnr));
-    end
-    
-    data.absmotion = abs(data.motionstrength);
-    
-    mdl = fitglme(data, 'correct ~ 1 + decision_pupil + absmotion + (1|subjnr) + (1|sessionnr) ', ...
-        'Distribution', 'Binomial', 'Link', 'Logit');
-    disp(mdl);
-end
-
-if 0,
-    %% compute ROC AUC based on pupil
-    
-    subjects = 1:27;
-    for sj = unique(subjects),
-        
-        % get all the data
-        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
-        
-        out = rocAnalysis(data.decision_pupil(data.correct==1), ...
-            data.decision_pupil(data.correct==0), 0, 1);
-        
-        grandavg.roc(sj)    = out.i;
-        grandavg.pval(sj)   = out.p;
-    end
-    savefast('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat', 'grandavg');
-    
-    load('~/Data/pupilUncertainty/GrandAverage/pupilCorrectnessROC.mat');
-    % test across the group, roc auc values are normally distributed
-    [h, pval ci, stats] = ttest(grandavg.roc, 0.5, 'tail', 'both')
-end
 
 end

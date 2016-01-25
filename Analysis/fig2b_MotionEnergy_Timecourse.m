@@ -2,9 +2,9 @@ function fig2b_MotionEnergy_Timecourse()
 % get the full timecourse (fix, s1, delay, s2, resp) of one trial to show
 % fluctuations
 
-if ~exist('~/Data/pupilUncertainty/MotionEnergy/motionTimecourse.mat', 'file'),
+if ~exist(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath), 'file'),
     
-    load('~/Data/pupilUncertainty/P17/Behav/Dots_P17_s1_b1_2015-02-02_16-55-33.mat');
+    load(sprintf('%s/Data/P17/Behav/Dots_P17_s1_b1_2015-02-02_16-55-33.mat', mypath));
     
     % general experimental design
     setup.baselinecoh       = .7; %70% baseline coherence, great for MEG
@@ -56,9 +56,9 @@ if ~exist('~/Data/pupilUncertainty/MotionEnergy/motionTimecourse.mat', 'file'),
         end
     end
     
-    save('~/Data/pupilUncertainty/MotionEnergy/motionStrength_timecourse.mat', 'window', 'coord', 'setup', 'dots');
+    save(sprintf('%s/Data/MotionEnergy/motionStrength_timecourse.mat', mypath), 'window', 'coord', 'setup', 'dots');
     clear all; close all; clc;
-    load('~/Data/pupilUncertainty//MotionEnergy/motionStrength_timecourse.mat');
+    load(sprintf('%s/Data/MotionEnergy/motionStrength_timecourse.mat', mypath));
     
     %% RUN THE ACTUAL MOTION ENERGY FILTER ON THIS
     
@@ -240,9 +240,9 @@ if ~exist('~/Data/pupilUncertainty/MotionEnergy/motionTimecourse.mat', 'file'),
             % this is where the bulk of the computation happens
             
             %% speed test
-
+            
             cfg.n_convolution = size(stimrep);
-            resp1       = ifftn(fftn(stimrep, cfg.n_convolution) .* fftn(filters.(['theta' num2str(find(thistheta==theta))]).one, cfg.n_convolution), cfg.n_convolution);            
+            resp1       = ifftn(fftn(stimrep, cfg.n_convolution) .* fftn(filters.(['theta' num2str(find(thistheta==theta))]).one, cfg.n_convolution), cfg.n_convolution);
             resp2       = ifftn(stim_fft .* filters.two(:, :, :, find(thistheta==theta)), cfg.n_convolution);
             
             % use only valid part of the result, slightly smaller than the size of the input
@@ -260,20 +260,19 @@ if ~exist('~/Data/pupilUncertainty/MotionEnergy/motionTimecourse.mat', 'file'),
     end
     
     motionstrength = squeeze(motionenergy(1, :) - motionenergy(2,:));
-    save('~/Data/pupilUncertainty/motionTimecourse.mat', 'motionstrength');
+    save(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath), 'motionstrength');
     
 else
     % get the file we already have
-    load('~/Data/pupilUncertainty/motionEnergy/motionTimecourse.mat');
+    load(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath));
     window.frameDur = 1/60;
     
     timeaxis = 0:window.frameDur:length(motionstrength)*window.frameDur;
     plot(timeaxis(1:end-1),motionstrength, 'k');
     axis tight; xlabel('Time (s)'); ylabel('Motion strength'); box off;
-   ylim([-1 11]);
+    ylim([-1 11]);
     
 end
-
 
 end
 

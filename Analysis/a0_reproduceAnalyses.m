@@ -33,7 +33,9 @@ a4_writeData2CSV;
 %% also already write away text files that have the format Python needs
 a5_writeFiles4pythonToolbox;
 
-%% let's have a look at the model
-% pdfs will be saved into mypath/Figures
+%% reproduce figure 1, 2, and 3
 fig1ab_Model;
+fig2_overview;
+fig3_overview;
 
+%% run the python model
