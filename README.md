@@ -13,11 +13,11 @@ The data that were collected are in the Zenodo repository XXX.
 ###What to do to replicate our full analyses###
 
 1. Get the data and code
-  * download and unzip all the files from FigShare
-  * put all the folders P01-P27 inside the Data folder to recreate the folder structure we want to work with
-  * put the MotionEnergy folder inside the Data folder
-  * get the repository with the code from GitHub and change the name of the folder to Code
-  * put both Code and Data in a folder called pupilUncertainty, you'll need the name of this path.
+  1. download and unzip all the files from FigShare
+  2. put all the folders P01-P27 inside the Data folder to recreate the folder structure we want to work with
+  3. put the MotionEnergy folder inside the Data folder
+  4. get the repository with the code from GitHub and change the name of the folder to Code
+  5. put both Code and Data in a folder called pupilUncertainty, you'll need the name of this path.
 
 2. Rerun the analyses
   * open a0_reproduceAnalyses.m and follow instructions
