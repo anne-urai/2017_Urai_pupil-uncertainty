@@ -21,6 +21,7 @@ The data that were collected are in the Zenodo repository XXX.
 
 2. Rerun the analyses
   * open a0_reproduceAnalyses.m and follow instructions
+  * if you're missing functions, they can almost certainty be found in my Tools folder https://github.com/anne-urai/Tools
 
 ###LICENSE###
 

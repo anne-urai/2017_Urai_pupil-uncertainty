@@ -8,6 +8,10 @@ cd(mypath);
 % add the code folder
 cd('Code/Analysis');
 
+% optional: get my Tools folder here https://github.com/anne-urai/Tools and
+% add this to your path as well - or, manually get those functions that
+% you're missing (mainly for plotting and some stats). 
+
 % install fieldtrip - see http://www.fieldtriptoolbox.org 
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
