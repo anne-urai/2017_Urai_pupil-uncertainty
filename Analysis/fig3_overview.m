@@ -1,6 +1,8 @@
 % replicates figure 3
 % Anne Urai, 2015
 
+global mypath;
+
 subplot(4,4,1); fig3a_PupilTimecourse;
 subplot(4,4,3); fig3b_PupilUncertaintyTimecourse;
 

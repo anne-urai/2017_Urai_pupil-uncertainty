@@ -2,6 +2,8 @@ function [] = fig2d_ReactionTimeUncertainty()
 % plot RT as a function of |motionstrength|, to show that the pattern
 % follows model predictions of uncertainty
 
+global mypath;
+
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 
 nbins               = 6; 

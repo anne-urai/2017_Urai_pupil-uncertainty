@@ -6,6 +6,7 @@ function [] =  a2_MotionEnergy(sj)
 %
 % Anne Urai, 2015
 
+global mypath;
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
 cd(sprintf('%s/Data/P%02d/', mypath, sj));

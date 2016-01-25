@@ -1,6 +1,8 @@
 % replicates figure 2
 % Anne Urai, 2015
 
+global mypath;
+
 subplot(444); fig2a_PsychometricFunction;
 
 subplot(446); fig2b_MotionEnergy_Timecourse;

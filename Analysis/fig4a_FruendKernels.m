@@ -1,13 +1,7 @@
 function [] = fig4a_FruendKernels(whichmodulator)
+% history kernels
 
-% make all the panels for figure 4a
-%     - panel A: frund kernels
-%     - panel B: decision strategy for lags 1-3
-%     - panel C: valueShift on lag 1-3 with complete stats anova
-%     - panel D: frund interaction lags 1-3, explain why we use the multiplicative term
-%     - panel D: lag 1 valueShift + Frund interaction bargraph
-%     - panel E: decay of neuromodulation over trials (baseline correct the next 7 baselines)
-%     - panel F: correct vs error, model comparison
+global mypath;
 
 % determine the subjects based on their plain weights
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));

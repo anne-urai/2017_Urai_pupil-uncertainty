@@ -1,6 +1,8 @@
 function [grandavg] = fig3de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
+global mypath;
+
 if ~exist('nbins', 'var'), nbins = 20; end
 subjects      = 1:27;
 fitIndividual = false;

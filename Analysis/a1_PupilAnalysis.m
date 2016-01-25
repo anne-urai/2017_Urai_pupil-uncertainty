@@ -7,6 +7,8 @@ function a1_PupilAnalysis(sj)
 %
 % Anne Urai, 2015
 
+global mypath;
+
 % if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
 
@@ -21,8 +23,7 @@ for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
 for session = unique(sessions),
     
-    cd([sprintf('%s/Data/P%02d/', pathname, sj) 'S' num2str(session)]);
-    delete *.png
+    cd([sprintf('%s/Data/P%02d/', mypath, sj) 'S' num2str(session)]);
     
     % ==================================================================
     % LOAD IN SUBJECT SPECIFICS AND READ DATA
@@ -66,18 +67,15 @@ for session = unique(sessions),
         % ==================================================================
         
         clear blinksmp saccsmp
-        load(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block));
         
-        if ~exist('blinksmp', 'var') || ~exist('saccsmp', 'var'),
-            % read in the asc EyeLink file
-            asc = read_eyelink_ascNK_AU(ascfile.name);
-            
-            % create events and data structure, parse asc
-            [data, event, blinksmp, saccsmp] = asc2dat(asc);
-            
-            % save
-            savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
-        end
+        % read in the asc EyeLink file
+        asc = read_eyelink_ascNK_AU(ascfile.name);
+        
+        % create events and data structure, parse asc
+        [data, event, blinksmp, saccsmp] = asc2dat(asc);
+        
+        % save
+        % savefast(sprintf('P%02d_s%d_b%02d_eye.mat', sj, session, block), 'data', 'asc', 'event', 'blinksmp', 'saccsmp');
         
         % ==================================================================
         % blink interpolation

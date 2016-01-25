@@ -1,4 +1,5 @@
 function fig4c_psychFuncShift_Bias_byResp(whichmodulator, grouping, nbins)
+global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'evidence'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end

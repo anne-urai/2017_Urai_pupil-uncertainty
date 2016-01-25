@@ -6,6 +6,7 @@ function [] = a4_writeData2CSV()
 % in fig3b.
 %
 % Anne Urai, 2015
+global mypath;
 
 % we already have all the info we need in the grandaverage file
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));

@@ -1,4 +1,5 @@
 function [] = figS2_decisionStrategies_pupilSplit()
+global mypath;
 
 close all;
 

@@ -1,5 +1,6 @@
 function fig4hi_HistoryPupil_Bar(whichmodulator, grouping)
 if ~exist('grouping', 'var'); grouping = 'all'; end
+global mypath;
 
 % ============================================ %
 % bargraphs for previous response and response * pupil regressors

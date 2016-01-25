@@ -1,4 +1,5 @@
 % figure 4 overview
+global mypath;
 
 lagGroups = 1;
 mods = {'feedbackpupil', 'fb-decpupil'}; %, 'pupil-rt', 'feedbackpupil', 'fb-decpupil'};

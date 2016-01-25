@@ -1,5 +1,7 @@
-%% instead of csv files, write text files that are in the format the Fr?nd toolbox needs
-cd(sprintf('%s/Code/serial-dependencies/data/', mypath);
+%% instead of csv files, write text files that are in the format the Fruend toolbox needs
+
+global mypath;
+cd(sprintf('%s/Code/serial-dependencies/data/', mypath));
 
 figure; clear;
 subjects = 1:27;

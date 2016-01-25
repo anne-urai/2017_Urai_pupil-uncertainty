@@ -1,8 +1,10 @@
 % figure 4 overview
 
+global mypath;
+
 close;
 figure;
-
+%s/Data/serialmodel
 % top row pure history effects
 subplot(441); fig4a_FruendKernels('plain');
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);

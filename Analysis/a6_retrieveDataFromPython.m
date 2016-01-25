@@ -2,6 +2,8 @@ function a6_retrieveDataFromPython(whichmodulator)
 %% this script requires that the intertrial toolbox in Python has been run for all participants
 % read in the python-generated mat files and do some plots!
 
+global mypath;
+
 clear; close all; clc;
 subjects = 1:27;
 nlags = 7;
@@ -30,8 +32,8 @@ for sj = subjects,
     % ======= model WITH pupil term =========== %
     % ============================================ %
     try
-        load(sprintf('~/Data/serial/sim_backup/2ifc_%s_sj%02d.txtresults.mat', whichmodulator, sj));
-        load(sprintf('~/Data/serial/sim_backup/2ifc_%s_sj%02d.txtdata.mat', whichmodulator, sj));
+        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
+        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
     catch
         warning('skipping participant %02d', sj);
         continue;

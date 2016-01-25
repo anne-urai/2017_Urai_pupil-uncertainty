@@ -2,6 +2,8 @@ function [] = fig3c_PupilUncertaintyCorrelation()
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
+global mypath;
+
 RTstratification    = true; % include RT in the model, do stratification on bins
 % RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
 

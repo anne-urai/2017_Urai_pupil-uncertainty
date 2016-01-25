@@ -1,6 +1,7 @@
 function [] = fig4j_SjCorrelation(whichmodulator)
 % correct - error = stim + resp --stim +- resp = 2stim
 % error - correct = -stim + resp -resp - stim = -2stim
+global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 

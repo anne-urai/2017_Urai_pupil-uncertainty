@@ -1,4 +1,5 @@
 function fig4d_psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
+global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('correctness', 'var'); correctness = []; end

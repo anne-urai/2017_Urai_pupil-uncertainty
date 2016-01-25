@@ -3,6 +3,8 @@ function [] = fig3a_PupilTimecourse()
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty
 
+global mypath;
+
 if 0,
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

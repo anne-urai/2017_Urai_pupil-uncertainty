@@ -4,6 +4,8 @@ function [] = a3_writeData2GA()
 %
 % Anne Urai, 2015
 
+global mypath;
+
 subjects = 1:27;
 for sj = fliplr(subjects),
     tic;

@@ -1,12 +1,8 @@
 function [] = fig4b_decisionStrategies(whichmodulator)
+% decision strategy space
 
-% ========================================================= %
-% panel B: decision strategy for lags 1-3
-% ========================================================= %
+global mypath;
 
-clc;
-
-%subplot(442);
 hold on;
 plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
 plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);

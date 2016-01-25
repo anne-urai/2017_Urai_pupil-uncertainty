@@ -2,6 +2,8 @@ function [] =  figS1_MotionEnergy_Filters()
 % show two motionenergy filters to describe the filtering process
 % Anne Urai, 2015
 
+global mypath;
+
 % get a random dataset
 load(sprintf('%s/Data/P17/Behav/P17_s1_2015-02-02_17-47-08.mat', mypath));
 close all

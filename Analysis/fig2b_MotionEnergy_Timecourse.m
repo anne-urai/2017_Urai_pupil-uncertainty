@@ -2,6 +2,8 @@ function fig2b_MotionEnergy_Timecourse()
 % get the full timecourse (fix, s1, delay, s2, resp) of one trial to show
 % fluctuations
 
+global mypath;
+
 if ~exist(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath), 'file'),
     
     load(sprintf('%s/Data/P17/Behav/Dots_P17_s1_b1_2015-02-02_16-55-33.mat', mypath));

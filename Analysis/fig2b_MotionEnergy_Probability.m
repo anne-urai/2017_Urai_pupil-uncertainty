@@ -2,6 +2,8 @@ function [] = fig2b_MotionEnergy_Probability()
 % after filtering motionenergy for all subjects, show the distribution of
 % values we get (as a function of nominal coherence level)
 
+global mypath;
+
 if 0,
     % for each sj, check if this worked
     for sj = 1:27,

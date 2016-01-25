@@ -2,6 +2,8 @@ function fig2a_PsychometricFunction
 % plot a logistic psychometric function for all subjects
 % Anne Urai, 2015
 
+global mypath;
+
 subjects = 1:27;
 % all the coherence levels that were used throughout
 allcohs = [-0.3 -0.2 -0.1 -0.05 -0.025 -0.0125 -0.0063 0.0063 0.0125 0.025 0.05 0.1 0.2 0.3];
