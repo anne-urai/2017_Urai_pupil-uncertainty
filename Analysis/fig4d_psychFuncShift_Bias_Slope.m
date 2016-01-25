@@ -1,4 +1,4 @@
-function fig4d_psychFuncShift_Bias_Slope(whichmodulator, grouping, nbins, correctness)
+function fig4d_psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('correctness', 'var'); correctness = []; end
@@ -29,7 +29,7 @@ clear grandavg;
 lag = 1;
 
 for sj = unique(subjects),
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     data = data(find(data.sessionnr > 1), :);
     
     % in this case, take out decision effects
@@ -175,7 +175,7 @@ grandavgBias = grandavg;
 %% now for slope
 
 for sj = unique(subjects),
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     data = data(find(data.sessionnr > 1), :);
     
     % in this case, take out decision effects

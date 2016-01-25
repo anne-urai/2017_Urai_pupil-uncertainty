@@ -69,6 +69,9 @@ parser.add_option ( "-r", "--hide-results",
 parser.add_option ( "-g", "--graphics-path",
         default="figures",
         help="path where the graphical output should be stored" )
+parser.add_option ( "-p", "--data-path",
+        default="figures",
+        help="path where the graphical output should be stored" )
 parser.add_option ( "-t", "--detection",
         action="store_true",
         help="detection experiment: fit the threshold nonlinearity" )
@@ -90,8 +93,6 @@ data,w0,plotinfo = util.load_data_file ( args[0], header=opts.header, detection=
 currentpath = os.path.expanduser("~/")
 if not os.path.exists (os.path.join ( currentpath,"Data/serial/sim_backup")):
     os.mkdir (os.path.join ( currentpath,"Data/serial/sim_backup"))
-
-print(data)
     
 # write away the data and results to a matlab file for easier plotting
 logging.info ( "Writing data to mat file" )
@@ -115,14 +116,12 @@ datadict['r'] = datadict.pop('_ColumnData__r')
 datadict['conditions'] = datadict.pop('_ColumnData__conditions')
 
 print(datadict.keys())
-#print(datadict.values())
-
-results_file = os.path.join ( currentpath,"Data/serial/sim_backup",os.path.basename(args[0])+"data.mat" )
+results_file = os.path.join ( opts.data_path, os.path.basename(args[0])+"data.mat" )
 scipy.io.savemat(results_file, datadict)
 
 ############################## analyze data or read backup file
 logging.info ( "Searching for backup" )
-backup_file = os.path.join ( currentpath,"Data/serial/sim_backup",os.path.basename(args[0])+".pcl" )
+backup_file = os.path.join ( opts.data_path, os.path.basename(args[0])+".pcl" )
 
 if os.path.exists ( backup_file ) and not opts.force:
     logging.info ( "Loading simulation results from %s" % (backup_file,) )
@@ -142,7 +141,7 @@ print "nu=",results['model_w_hist'].nu
 
 # write away the data and results to a matlab file for easier plotting
 logging.info ( "Writing results to mat file" )
-results_file = os.path.join ( currentpath, "Data/serial/sim_backup",os.path.basename(args[0])+"results.mat" )
+results_file = os.path.join ( opts.data_path, os.path.basename(args[0])+"results.mat" )
 
 # remove fields that scipy io cant handle
 unwanted = [None]
@@ -150,17 +149,3 @@ unwanted_keys = [k for k, v in results.items() if any([v is i for i in unwanted]
 for k in unwanted_keys: del results[k]
 # save
 scipy.io.savemat(results_file, results)
-
-try: # AEU: try to plot, but skip if we are running torque (no display specified)
-    if not opts.hide_results:
-        util.plot ( data, results, plotinfo )
-
-        # store figure
-        pl.savefig ( os.path.join ( opts.graphics_path, os.path.basename(args[0])+".pdf" ) )
-        logging.info ( "Figure saved" )
-
-        pl.show()
-finally:
-        logging.info ( "Done" )
-    
-        # return results

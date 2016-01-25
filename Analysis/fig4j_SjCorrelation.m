@@ -1,11 +1,11 @@
-function [] = fig4g_SjCorrelation(whichmodulator)
+function [] = fig4j_SjCorrelation(whichmodulator)
 % correct - error = stim + resp --stim +- resp = 2stim
 % error - correct = -stim + resp -resp - stim = -2stim
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
-load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
+load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 scatter(dat.response(:, 1), dat.response_pupil(:, 1), 10, mycolmap, 'filled');
 
@@ -31,15 +31,16 @@ switch whichmodulator
     case 'rt-pupil'
         ylabel('RT');
         xlabel('Choice weight');
-
-% between subject stuff
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'pupil-rt'));
-x = dat.response(:, 1);
-y1 = dat.response_pupil(:, 1);
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'rt'));
-y2 = dat.response_pupil(:, 1);
-
-[pval, deltaR] = permtest_correlation(x, y1, y2, 0, 10000)
+        
+        % between subject stuff
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil-rt'));
+        x = dat.response(:, 1);
+        y1 = dat.response_pupil(:, 1);
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'rt'));
+        y2 = dat.response_pupil(:, 1);
+        
+        [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 10000);
+        disp(pval);
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 

@@ -1,3 +1,4 @@
+function a6_retrieveDataFromPython(whichmodulator)
 %% this script requires that the intertrial toolbox in Python has been run for all participants
 % read in the python-generated mat files and do some plots!
 
@@ -6,8 +7,6 @@ subjects = 1:27;
 nlags = 7;
 lags = 1:7;
 colors = linspecer(8);
-
-whichmodulator = 'rt-pupil'; % model has been run on both pupil and RT
 
 % preallocate
 dat.response = nan(27, nlags);
@@ -229,10 +228,11 @@ for sj = subjects,
             sp = subplot(3,3,9);
             spos = get(sp, 'position'); set(lh, 'position', spos, 'box', 'off'); axis off
     end
-    print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/serial/historykernels_%s_sj%02d.pdf', whichmodulator, sj));
+    print(gcf, '-dpdf', sprintf('%s/Figures/serial/historykernels_%s_sj%02d.pdf', mypath, whichmodulator, sj));
     
 end
 
 % save for group plots
-savefast(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator), 'dat');
+savefast(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator), 'dat');
 close all;
+end

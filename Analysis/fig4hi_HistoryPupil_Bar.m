@@ -1,13 +1,11 @@
-function fig4f_HistoryPupil_Bar(whichmodulator, grouping)
-
-if ~exist('whichmodulator', 'var'); whichmodulator = 'rt-pupil'; end
+function fig4hi_HistoryPupil_Bar(whichmodulator, grouping)
 if ~exist('grouping', 'var'); grouping = 'all'; end
 
 % ============================================ %
 % bargraphs for previous response and response * pupil regressors
 % ============================================ %
 
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
 
 % ============================================ %
 % barweb matrix
@@ -18,7 +16,7 @@ bwMat = cat(3, [dat.response_pupil(:, 1) dat.stimulus_pupil(:, 1) ...
     dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)]);
 
 % split subgroups by plain weights
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
 switch grouping
     case 'all'
@@ -65,22 +63,4 @@ set(gca, 'xtick', 1:4, ...
     'xaxislocation', 'top');
 ylabel({'Modulation weights'});
 axis square;
-
-titlecols = cbrewer('div', 'PuOr', 3);
-
-switch grouping
-    case 'switch'
-        title('Alternators', 'color', titlecols(1, :));
-    case 'repeat'
-        title('Repeaters', 'color', titlecols(2, :));
 end
-%print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4e_historyPupil_%s.pdf', whichmodulator));
-
-% %% do anova between sj
-%
-% % write to table
-% mat = [bwMat(:, 2) bwMat(:, 3)];
-% sjs = dat.response(:, 1) > 0;
-% tb = array2table([transpose(1:27) mat sjs] , 'VariableNames', {'sjnr', 'correct', 'error', 'sjGroup'});
-% writetable(tb, sprintf('~/Data/pupilUncertainty/CSV/sequentialEffects.csv'));
-

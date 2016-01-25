@@ -9,11 +9,8 @@ function [] = fig4a_FruendKernels(whichmodulator)
 %     - panel E: decay of neuromodulation over trials (baseline correct the next 7 baselines)
 %     - panel F: correct vs error, model comparison
 
-addpath('~/Documents/fieldtrip');
-ft_defaults;
-
 % determine the subjects based on their plain weights
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
 
 % save colors
 colors = cbrewer('div', 'PuOr', 256);
@@ -29,7 +26,7 @@ for sj = 1:27,
     colidx = dsearchn(colspace', dat.response(sj, 1));
     mycolmap(sj, :) = colors(colidx, :);
 end
-save('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat', 'mycolmap');
+save(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath), 'mycolmap');
 
 hold on;
 for sj = 1:27,

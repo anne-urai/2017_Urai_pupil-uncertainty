@@ -31,7 +31,7 @@ whichLags = 1:3; % lag 1
 
 for lag = whichLags,
     for sj = unique(subjects),
-        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+        data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
             data = data(find(data.sessionnr > 1), :);
 
         % in this case, take out decision effects
@@ -155,7 +155,7 @@ colors = colors([1 3], :);
 stimx2 = 1:nbins;
 
 % split subjects based on their plain history weights
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
 hold on;
 switch grouping

@@ -1,10 +1,11 @@
-function [] =  fig2b_MotionEnergy_Filters()
+function [] =  figS1_MotionEnergy_Filters()
 % show two motionenergy filters to describe the filtering process
 % Anne Urai, 2015
 
 % get a random dataset
-load('~/Data/pupilUncertainty/P17/Behav/P17_s1_2015-02-02_17-47-08.mat');
+load(sprintf('%s/Data/P17/Behav/P17_s1_2015-02-02_17-47-08.mat', mypath));
 close all
+
 % to avoid window UI bugs
 display.dist        = window.dist;
 display.res         = window.res;
@@ -224,7 +225,7 @@ for thistheta = theta,
 end
 
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty_paper/figureS1.pdf'));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS1.pdf', mypath));
 
 end% function end
 

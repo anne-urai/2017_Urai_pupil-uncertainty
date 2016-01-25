@@ -1,12 +1,12 @@
-function [] = fig4b_decisionStrategies_pupilSplit(whichmodulator)
+function [] = figS2_decisionStrategies_pupilSplit()
 
-if ~exist('whichmodulator', 'var'); whichmodulator = 'rt'; end
+close all;
 
 cnt = 1;
 for m = 1:2,
     switch m
         case 1
-            whichMod = 'decision_pupil'
+            whichMod = 'decision_pupil';
         case 2
             whichMod = 'rt';
     end
@@ -17,7 +17,7 @@ for m = 1:2,
     % ========================================================= %
     
     for sj = 1:27,
-        data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+        data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
         
         % make design matrix
         designM = [data.motionstrength ...
@@ -61,8 +61,8 @@ for m = 1:2,
         plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
         plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);
         
-        load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
-        load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', 'plain'));
+        load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
         
         for sj = 1:27,
             h = ploterr(grandavg.logistic(sj, u, 3), grandavg.logistic(sj, u, 4), ...
@@ -113,4 +113,4 @@ for m = 1:2,
     cnt = cnt + 1;
 end
 
-print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategies_byPupil.pdf'));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf'));

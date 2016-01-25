@@ -11,8 +11,8 @@ hold on;
 plot([-1 1], [-1 1], 'color', 'k', 'linewidth', 0.5);
 plot([-1 1], [1 -1], 'color', 'k', 'linewidth', 0.5);
 
-load('~/Data/pupilUncertainty/GrandAverage/sjcolormap.mat');
-load(sprintf('~/Data/pupilUncertainty/GrandAverage/historyweights_%s.mat', whichmodulator));
+load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
 
 for sj = 1:27,
     h = ploterr(dat.response(sj, 1), dat.stimulus(sj, 1), ...
@@ -51,4 +51,4 @@ set(gca, 'xtick', -maxlim:maxlim:maxlim, 'ytick', -maxlim:maxlim:maxlim);
 xlabel('Choice weight'); ylabel('Stimulus weight');
 box on; axis square;
 
-%print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/fig4c_decisionStrategies.pdf'));
+end
