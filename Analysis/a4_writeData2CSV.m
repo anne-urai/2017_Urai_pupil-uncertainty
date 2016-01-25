@@ -8,7 +8,7 @@ function [] = a4_writeData2CSV()
 % Anne Urai, 2015
 
 % we already have all the info we need in the grandaverage file
-load('~/Data/pupilUncertainty/GrandAverage/pupilgrandaverage.mat');
+load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
 subjects = 1:length(pupilgrandavg.timelock);
 for sj = (subjects),
@@ -34,8 +34,7 @@ for sj = (subjects),
     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
     
-    % peak of error vs correct betas across the group is at 640 ms after
-    % feedback
+    % peak of error vs correct betas across the group is at 640 ms after feedback
     % so for the scalar, we take 515 - 765ms after fb
     feedbackPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time > 0.515 & pupilgrandavg.timelock{sj}(4).lock.time < 0.765 ) ), 3));
@@ -56,7 +55,7 @@ for sj = (subjects),
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
     
-    writetable(t, sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     disp(['finished sj ' num2str(sj)]);
     alldat{find(sj==subjects)} = newtrl;
@@ -74,7 +73,7 @@ if length(subjects) > 5,
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
     
-    writetable(t, sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_allsj.csv'));
+    writetable(t, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 end
 
 end

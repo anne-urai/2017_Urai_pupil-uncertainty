@@ -1,12 +1,13 @@
 %% instead of csv files, write text files that are in the format the Fr?nd toolbox needs
-cd ~/Dropbox/code/serial-dependencies/data
+cd(sprintf('%s/Code/serial-dependencies/data/', mypath);
 
 figure; clear;
 subjects = 1:27;
+
 for sj = subjects,
     disp(sj);
     % use files with cleaner pupil data
-    data = readtable(sprintf('~/Data/pupilUncertainty/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     % remove first session
     data = data(find(data.sessionnr > 1), :);
@@ -27,14 +28,7 @@ for sj = subjects,
     % 16.11, use abs(motionstrength) because the toolbox will multiply with
     % stim identity again
     % newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0)];
-    
-    % evidence strength
-    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
-        abs(data.motionstrength)];
-    
-    dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
-        newdat,'delimiter','\t','precision',4);
-    
+
     % no modulatrion
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0)];
     
@@ -76,7 +70,6 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_pupil-rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
- 
      % decision pupil projected out of rt
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
         zscore(projectout(data.rt, data.decision_pupil))];
@@ -91,5 +84,11 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_baselinepupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
+    % evidence strength
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        abs(data.motionstrength)];
+    
+    dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
     
 end

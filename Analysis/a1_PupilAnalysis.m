@@ -10,23 +10,10 @@ function a1_PupilAnalysis(sj)
 % if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
 
-% add paths and fieldtrip
-clf; clc;
-addpath(genpath('~/code/pupilUncertainty'));
-addpath('~/Documents/fieldtrip/');
-ft_defaults;
-
-pathname = '~/Data/pupilUncertainty';
-cd(pathname);
-
 % subject specific folder call P01, with one session S1-S6 containing all
 % the pupil files
+cd(sprintf('%s/Data/P%02d/', mypath, sj));
 
-cd(sprintf('%s/P%02d/', pathname, sj));
-delete *eyeclean*.mat
-delete *.log
-delete *.png
-clear sessions;
 % check which sessions to use
 s = dir('S*');
 s = {s(:).name};
@@ -34,7 +21,7 @@ for i = 1:length(s), sessions(i) = str2num(s{i}(2)); end
 
 for session = unique(sessions),
     
-    cd([sprintf('%s/P%02d/', pathname, sj) 'S' num2str(session)]);
+    cd([sprintf('%s/Data/P%02d/', pathname, sj) 'S' num2str(session)]);
     delete *.png
     
     % ==================================================================
@@ -113,29 +100,12 @@ for session = unique(sessions),
         data = blink_regressout(data, blinksmp, saccsmp, 1, addBackSlowDrift);
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', pathname, sj, session, block), 'pdf');
         
-        if addBackSlowDrift,
-            
-            % ==================================================================
-            % compute percent signal change rather than zscore
-            % median is less sensitive to outliers
-            % ==================================================================
-            
-            pupildat    = data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:);
-            medianpupil = median(pupildat);
-            
-            % normalize
-            pupiltimecourse = (pupildat - medianpupil) ./ medianpupil * 100; % normalize
-            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = pupiltimecourse; % put back in
-            
-        else
-            
-            % ==================================================================
-            % zscore since we work with the bandpassed signal
-            % ==================================================================
-            
-            data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = ...
-                zscore(data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:));
-        end
+        % ==================================================================
+        % zscore since we work with the bandpassed signal
+        % ==================================================================
+        
+        data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = ...
+            zscore(data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:));
         
         % ==================================================================
         % make channels with blinks and saccades
@@ -207,7 +177,7 @@ end
 % ==================================================================
 
 % check if the full dataset is not there yet
-cd(sprintf('%s/P%02d/', pathname, sj));
+cd(sprintf('%s/Data/P%02d/', pathname, sj));
 eyelinkfiles = dir(sprintf('P%02d*_eyeclean.mat', sj));
 
 % make sure these are in the right order!
@@ -222,7 +192,7 @@ eyelinkfiles        = eyelinkfiles(sortidx);
 
 cfg = [];
 cfg.inputfile = {eyelinkfiles.name};
-cfg.outputfile = sprintf('%s/P%02d_alleye.mat', pathname, sj);
+cfg.outputfile = sprintf('%s/Data/P%02d_alleye.mat', pathname, sj);
 ft_appenddata(cfg);
 
 end

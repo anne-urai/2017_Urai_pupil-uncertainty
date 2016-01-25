@@ -1,10 +1,11 @@
 % 
 
+% first, make sure this path matches the place where the data are stored
 global mypath;
 mypath = '~/Desktop/newPupilUncertainty';
 cd mypath;
 
-% first, make sure we have all the code we need
+% add the code folder
 addpath('/Code');
 
 % install fieldtrip - see http://www.fieldtriptoolbox.org 

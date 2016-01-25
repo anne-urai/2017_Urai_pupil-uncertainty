@@ -188,7 +188,6 @@ if plotme,
             cnt = cnt + 1;
         end
     end
-%    print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_alldata.pdf', sj));
 end
 
 % ==================================================================
@@ -330,7 +329,6 @@ if plotme,
     ph = boundedline(1:size(fulltimelock.mn, 2), fulltimelock.mn', ...
         permute(fulltimelock.std, [2 3 1]) ./ 4, 'cmap', cols, 'alpha');
     hold on;
-   % print(gcf, '-dpdf', sprintf('~/Data/HD1/pupilUncertainty/Figures/P%02d_timecourse.pdf', sj));
 end
 
 % ==================================================================

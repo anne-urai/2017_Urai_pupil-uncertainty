@@ -12,7 +12,7 @@ gr1 = [0.2 0.2 0.2];
 gr2 = [0.6 0.6 0.6];
 
 % sigma from datas
-data = readtable(sprintf('%s/CSV/2ifc_data_allsj.csv', mypath));
+data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 b = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
 
 if 0,
