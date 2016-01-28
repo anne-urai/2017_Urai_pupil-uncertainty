@@ -2,11 +2,11 @@
 
 % first, make sure this path matches the place where the data are stored
 global mypath;
-mypath = '~/Desktop/newPupilUncertainty';
+mypath = '~/Data/pupilUncertainty';
 cd(mypath);
 
 % add the code folder
-cd('Code/Analysis');
+addpath('~/Dropbox/Code/pupilUncertainty/Analysis');
 
 % optional: get my Tools folder here https://github.com/anne-urai/Tools and
 % add this to your path as well - or, manually get those functions that

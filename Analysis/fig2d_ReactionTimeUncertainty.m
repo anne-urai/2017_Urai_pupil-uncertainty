@@ -5,6 +5,7 @@ function [] = fig2d_ReactionTimeUncertainty()
 global mypath;
 
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+% data.rt = log(data.rt+0.1); % could do this...
 
 nbins               = 6; 
 data.xval           = abs(data.motionstrength);
@@ -81,10 +82,10 @@ for co = 1:2,
 end
 
 % set(gca, 'box', 'off', 'tickdir', 'out', 'xtick', cohs);
-xlabel('Task difficulty');
+xlabel('Evidence');
 ylabel('Reaction time (s)');
-ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
-xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'hard', 'medium', 'easy' });
+%ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
+xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
 axis square;
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
 %legend('Error','Correct'); legend boxoff;

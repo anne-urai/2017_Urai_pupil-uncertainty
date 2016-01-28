@@ -38,6 +38,7 @@ end
 [~, pvals(2)] = ttest(bwMat(theseSj, 2));
 [~, pvals(3)] = ttest(bwMat(theseSj, 3));
 [~, pvals(4)] = ttest(bwMat(theseSj, 4));
+disp(pvals);
 
 hold on;
 barcolors = colors([9 9 3 1], :);
@@ -64,4 +65,5 @@ set(gca, 'xtick', 1:4, ...
     'xaxislocation', 'top');
 ylabel({'Modulation weights'});
 axis square;
+
 end

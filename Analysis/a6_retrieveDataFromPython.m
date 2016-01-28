@@ -3,8 +3,7 @@ function a6_retrieveDataFromPython(whichmodulator)
 % read in the python-generated mat files and do some plots!
 
 global mypath;
-
-clear; close all; clc;
+close all; clc;
 subjects = 1:27;
 nlags = 7;
 lags = 1:7;
@@ -31,13 +30,8 @@ for sj = subjects,
     % ============================================ %
     % ======= model WITH pupil term =========== %
     % ============================================ %
-    try
-        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
-        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
-    catch
-        warning('skipping participant %02d', sj);
-        continue;
-    end
+    load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
+    load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
     
     switch whichmodulator
         case 'plain'
@@ -202,17 +196,21 @@ for sj = subjects,
             % ============================================ %
             % 5. permutation testing
             % ============================================ %
-            
-            subplot(3,3,7);
-            histogram(permutation_wh(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
-            axis tight; box off;
-            pval = length(find(permutation_wh(:, 1) > model_w_hist.loglikelihood)) ./ length(permutation_wh(:, 1));
-            prc95 = prctile(permutation_wh(:, 1), 97.5);
-            plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
-            plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r');
-            xlabel('logLikelihood history');
-            dat.historyPval(sj) = pval;
-            
+    end
+    
+    subplot(3,3,7);
+    histogram(permutation_wh(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
+    axis tight; box off;
+    pval = length(find(permutation_wh(:, 1) > model_w_hist.loglikelihood)) ./ length(permutation_wh(:, 1));
+    prc95 = prctile(permutation_wh(:, 1), 97.5);
+    plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
+    plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r');
+    xlabel('logLikelihood history');
+    dat.historyPval(sj) = pval;
+    
+    switch whichmodulator
+        case 'plain'
+        otherwise
             % now for the pupil
             subplot(3,3,8);
             histogram(permutation_hmod(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
@@ -230,7 +228,8 @@ for sj = subjects,
             sp = subplot(3,3,9);
             spos = get(sp, 'position'); set(lh, 'position', spos, 'box', 'off'); axis off
     end
-    print(gcf, '-dpdf', sprintf('%s/Figures/serial/historykernels_%s_sj%02d.pdf', mypath, whichmodulator, sj));
+    
+    print(gcf, '-dpdf', sprintf('%s/Figures/historykernels_%s_sj%02d.pdf', mypath, whichmodulator, sj));
     
 end
 
