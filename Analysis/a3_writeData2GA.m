@@ -10,7 +10,7 @@ subjects = 1:27;
 for sj = fliplr(subjects),
     tic;
     
-    clearvars -except sj subjects alldat pupilgrandavg;
+    clearvars -except sj subjects alldat pupilgrandavg mypath;
     % choose between 2 and 3
     load(sprintf('%s/Data/P%02d_alleye.mat', mypath, sj));
     
@@ -126,6 +126,14 @@ for sj = fliplr(subjects),
     data        = ft_selectdata(cfg, data);
     
     % ==================================================================
+    % REMOVE THE FIRST SESSION
+    % ==================================================================
+    
+    cfg         = [];
+    cfg.trials  = find(data.trialinfo(:, 14) > 1);
+    data        = ft_selectdata(cfg, data);
+    
+    % ==================================================================
     % use subfunction to get all the pupil info we're interested in
     % ==================================================================
     
@@ -163,9 +171,9 @@ end
 % ==================================================================
 
 disp('saving timelock...');
-cd mypath/Data;
-mkdir GrandAverage;
-savefast('%s/Data/GrandAverage/pupilgrandaverage.mat', 'pupilgrandavg');
+cd(sprintf('%s/Data', mypath));
+if ~exist('GrandAverage', 'dir'), mkdir GrandAverage; end
+savefast(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath), 'pupilgrandavg');
 
 end
 
@@ -344,9 +352,9 @@ trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
 % lastly, take the final 100 ms of each trial
 % ==================================================================
 
-endoftrlscalar = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
-    end-(0.1*data.fsample):end), 3));
-trialinfo(:, 4) = endoftrlscalar;
+% endoftrlscalar = squeeze(nanmean(timelock(4).lock.trial(:, pupilchan, ...
+%     end-(0.1*data.fsample):end), 3));
+% trialinfo(:, 4) = endoftrlscalar;
 
 % check this all went well
 assert(~any(isnan(trialinfo(:))));

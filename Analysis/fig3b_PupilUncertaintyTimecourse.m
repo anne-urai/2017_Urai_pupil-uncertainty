@@ -18,7 +18,6 @@ warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % instead of binning, use regression beta across samples
-% 16.08.2015, do this only for the response and feedback parts
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cols = linspecer(4); cols = cols([2 3 1], :); % red green blue
@@ -133,13 +132,13 @@ end
 for whichbeta = whichBetas2plot,
     
     % GRAND average
-    sp = subplot(5,3,7+3*(whichbeta-1));
+    % sp = subplot(5,3,7+3*(whichbeta-1));
     
     % line to indicate zero
     plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.1);
     
     hold on;
-    ph = boundedline(1:size(grandavg.beta, 3), squeeze(nanmean(grandavg.beta(:, :, :, whichbeta)))', ...
+    boundedline(1:size(grandavg.beta, 3), squeeze(nanmean(grandavg.beta(:, :, :, whichbeta)))', ...
         permute(squeeze(nanstd(grandavg.beta(:, :, :, whichbeta))) / sqrt(length(subjects)), [2 3 1]), ...
         'cmap', cols);
     axis tight; ylims = get(gca, 'ylim');
@@ -210,7 +209,7 @@ for whichbeta = whichBetas2plot,
             ylabel('Intercept');
         case 2
             ylabel('Task difficulty');
-            ylim([-0.15 0.08]);
+            ylim([-0.2 0.08]);
             %  set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
         case 3

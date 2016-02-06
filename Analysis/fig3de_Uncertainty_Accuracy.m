@@ -63,7 +63,7 @@ for sj = unique(subjects),
     
     disp(sj);
     % get all the data
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', sj));
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     % divide into low and high pupil bins
     puptrls{1} = find(data.decision_pupil < quantile(data.decision_pupil, 0.5));

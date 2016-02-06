@@ -62,8 +62,12 @@ def load_data_file ( filename, header=False, detection=False):
     nCols = np.shape(cdata)
     if nCols[1] == 6:
             modulatory      = True
+    elif nCols[1] == 7: 
+        # put two modulatory terms into the same model 
+            doublemodulatory = True
     elif nCols[1] == 5:
             modulatory      = False # the default
+            doublemodulatory = False
     
     # make the design matrix out of this data
     data = column.ColumnData (

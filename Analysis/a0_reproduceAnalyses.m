@@ -35,9 +35,12 @@ a3_writeData2GA;
 a4_writeData2CSV;
 
 %% reproduce figure 1, 2, and 3
-fig1ab_Model;
+fig1ab_Model; 
+close all;
 fig2_overview;
+close all;
 fig3_overview;
+close all;
 
 %% run the python model with modulatory term
 % write away text files that have the format Python needs

@@ -18,7 +18,7 @@ grandavg.ypts = nan(length(subjects), length(allcohs));
 
 for sj = unique(subjects),
     
-    disp(sj);
+    % disp(sj);
     % get all the data
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
@@ -86,7 +86,7 @@ end
 function [thisfit] = Psychometric_Logistic(dat, doBootstrap, grid)
 %% fit a logistic psychometric function
 
-fprintf('this dataset has %d trials  ', height(dat));
+% fprintf('this dataset has %d trials  ', height(dat));
 
 % define the functions used for fitting
 logistic = @(coh, bias, sensitivity, lower, upper) lower+(1-lower-upper)*(1./(1+exp(-1*(sensitivity).*(coh-bias))));
@@ -116,7 +116,7 @@ end
 % FIT LOGISTIC
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-disp('fitting logistic...');
+% disp('fitting logistic...');
 
 % function evaluation params
 options                 = optimset('Display', 'notify') ;

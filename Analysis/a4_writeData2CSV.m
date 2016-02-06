@@ -15,7 +15,7 @@ subjects = 1:length(pupilgrandavg.timelock);
 for sj = (subjects),
     tic;
     
-    clearvars -except sj subjects alldat pupilgrandavg;
+    clearvars -except sj subjects alldat pupilgrandavg mypath;
     
     % ==================================================================
     % get trialinfo as it is

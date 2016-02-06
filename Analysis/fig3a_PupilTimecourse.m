@@ -50,7 +50,7 @@ end
 % SPLIT BY CORR VS ERROR AND DIFFICULTY
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear; subjects = 1:27;
+clearvars -except mypath; subjects = 1:27;
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 
 % get all data

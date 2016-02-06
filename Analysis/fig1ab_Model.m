@@ -188,7 +188,7 @@ xlim([-0.5 max(stimlevs)]);
 set(gca, 'ytick', [0:0.25:1]);
 set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 
-cd mypath; mkdir Figures;
+cd(mypath); mkdir Figures;
 print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));
 
 end
