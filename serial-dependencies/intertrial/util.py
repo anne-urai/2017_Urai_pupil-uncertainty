@@ -62,16 +62,18 @@ def load_data_file ( filename, header=False, detection=False):
     nCols = np.shape(cdata)
     if nCols[1] == 6:
             modulatory      = True
+            doublemodulatory = False
     elif nCols[1] == 7: 
         # put two modulatory terms into the same model 
             doublemodulatory = True
+            modulatory = False
     elif nCols[1] == 5:
             modulatory      = False # the default
             doublemodulatory = False
     
     # make the design matrix out of this data
     data = column.ColumnData (
-           cdata, impulse_responses=h, threshold=detection, ground_truth=None, modulation=modulatory)
+           cdata, impulse_responses=h, threshold=detection, ground_truth=None, modulation=modulatory, doublemodulation=doublemodulatory)
 
     conditions = np.unique ( cdata[:,1] )
 
@@ -100,7 +102,7 @@ def load_data_file ( filename, header=False, detection=False):
 
 ############################## analyze data ##############################
 
-def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15), storeopt=False, modulation=False):
+def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15), storeopt=False, modulation=False, doublemodulation=False):
     """Search for starting values
 
     :Parameters:
@@ -110,8 +112,6 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
             coarse starting values
         *pm*
             increments or decrements
-            
-        # AEU ToDo: if d.h, make sure this spits out 3 models, one without history, one with history but without modulation, and one with both
     """
 
     logging.info ( "Initial preoptimization" )
@@ -141,12 +141,32 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
         
         # add those same weights + modulatory terms to the hmod model
         Mhmod.w = np.concatenate ( (Mhmod.w,np.zeros(15,'d')) )
-        Mhmod.X = X # here, something goes wrong!
+        Mhmod.X = X 
         
         # to check that the sizes work
         print "X",np.shape(X)
         print "Mwh",Mwh.w,np.shape(Mwh.X)
         print "Mhmod",Mhmod.w,np.shape(Mhmod.X)
+    
+    elif doublemodulation:        
+        Mhmod = model.history_model ( r, X[:,:hf0],
+            applythreshold=applythreshold,
+            w0=w0,
+            lm=0.1, hf0=hf0, emiter=100 )
+            
+        # add the history weights to the model with just history
+        Mwh.w = np.concatenate ( (Mwh.w,np.zeros(6,'d')) )
+        Mwh.X = copy.copy(X) 
+        Mwh.X = Mwh.X[:,:-3] # only the part that has no modulation
+        
+        # add those same weights + modulatory terms to the hmod model
+        Mhmod.w = np.concatenate ( (Mhmod.w,np.zeros(24,'d')) )
+        Mhmod.X = X 
+        
+        # to check that the sizes work
+        print "X",np.shape(X)
+        print "Mwh",Mwh.w,np.shape(Mwh.X)
+        print "Mhmod",Mhmod.w,np.shape(Mhmod.X)    
         
     else:
         Mwh.w = np.concatenate ( (Mwh.w,np.zeros(6,'d')) )
@@ -165,7 +185,7 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
             p0[0] *= lm;
             p0[-1] = 1-p0[0]-p0[1]
 
-            if modulation:
+            if modulation or doublemodulation:
                 M_ = model.history_model ( r, X,
                         applythreshold=applythreshold,
                         w0=w0, p0=p0, nu0=M0.nu,
@@ -174,11 +194,17 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
                     logging.info ( "  *model chosen for history + modulation*" )
                     Mhmod = M_
                     whind = i
-
-                M_ = model.history_model ( r, X[:,:-2],
-                    applythreshold=applythreshold,
-                    w0=w0, p0=p0, nu0=M0.nu,
-                    lm=0.1, hf0=hf0, verbose=True, emiter=300, storeopt=storeopt )
+                
+                if modulation:
+                    M_ = model.history_model ( r, X[:,:-2],
+                        applythreshold=applythreshold,
+                        w0=w0, p0=p0, nu0=M0.nu,
+                        lm=0.1, hf0=hf0, verbose=True, emiter=300, storeopt=storeopt )
+                elif doublemodulation:
+                    M_ = model.history_model ( r, X[:,:-3],
+                        applythreshold=applythreshold,
+                        w0=w0, p0=p0, nu0=M0.nu,
+                        lm=0.1, hf0=hf0, verbose=True, emiter=300, storeopt=storeopt )        
                 if Mwh.loglikelihood < M_.loglikelihood:
                     logging.info ( "  *model chosen for history*" )
                     Mwh = M_
@@ -245,10 +271,22 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
     else:
         dnh = d.__class__( d.fname, ) # reload the data without history
         dnh.modulation = False
+        dnh.doublemodulation = False
         
     if d.modulation:
         dhmod = copy.copy(d) # this includes everything
         dhmod.modulation = True
+        dhmod.doublemodulation = False
+        
+        # the data with history, but without modulation
+        dwh = copy.copy(d)
+        dwh = dwh.__class__( dwh.fname, dwh.h, False, None, False ) 
+        dwh.modulation = False
+        
+    elif d.doublemodulation:
+        dhmod = copy.copy(d) # this includes everything
+        dhmod.modulation = False
+        dhmod.doublemodulation = True
         
         # the data with history, but without modulation
         dwh = copy.copy(d)
@@ -265,20 +303,20 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
     print "d", np.shape(d.X), np.shape(d.r)
     print "dnh", np.shape(dnh.X), np.shape(dnh.r)
     print "dwh", np.shape(dwh.X), np.shape(dwh.r)
-    if d.modulation:
+    if d.modulation or d.doublemodulation:
         print "dhmod", np.shape(dhmod.X), np.shape(dhmod.r)
     # here, the sizes seem OK
 
-    Mnh,Mwh,Mhmod = search_for_start ( d.r, d.X, w0, d.th_features, d.hf0, storeopt=True, modulation=d.modulation)
+    Mnh,Mwh,Mhmod = search_for_start ( d.r, d.X, w0, d.th_features, d.hf0, storeopt=True, modulation=d.modulation, doublemodulation=d.doublemodulation)
     logging.info ( "likelihood for independent responses: %g" % (Mnh.loglikelihood,) )
     logging.info ( "likelihood for history model: %g" % (Mwh.loglikelihood,) )
-    if d.modulation:    
+    if d.modulation or d.doublemodulation:    
         logging.info ( "likelihood for modulation + history model: %g" % (Mhmod.loglikelihood,) )
 
-    # here, the Mwh.X has the wrong shape!
+    # check the shape of the design matrix
     print "nh",Mnh.w,Mnh.pi,np.shape(Mnh.X)
     print "wh",Mwh.w,Mwh.pi,np.shape(Mwh.X)
-    if d.modulation:
+    if d.modulation or d.doublemodulation:
         print "hmod",Mhmod.w,Mhmod.pi,np.shape(Mhmod.X)
 
     print 'start monte carlo'
@@ -287,18 +325,18 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
         
         # now, dhmod has too few columns
         
-        if d.modulation:
+        if d.modulation or d.doublemodulation:
             print 'permuting with modulation'
             r_,X_ = dhmod.permutation () # permute the whole thing
         else:
             r_,X_ = dwh.permutation () # permute the whole thing
 
         Mnh_perm, Mwh_perm, Mhmod_perm = search_for_start ( r_, X_,
-                w0, d.th_features, d.hf0, modulation=d.modulation)
+                w0, d.th_features, d.hf0, modulation=d.modulation, doublemodulation=d.doublemodulation)
 
         # Set the states of the random number generators to the same values to get the exact same sequence of random numbers
         dnh.rng.set_state ( dwh.rng.get_state () ) 
-        if d.modulation:
+        if d.modulation or d.doublemodulation:
             dhmod.rng.set_state ( dwh.rng.get_state () ) 
     
         logging.info ( "Permutation without history" )
@@ -319,7 +357,7 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
             Mwh_perm.nu, verbose=logging.root.level<20,
             hf0=dwh.hf0, applythreshold=Mwh.applythreshold ) )
        
-        if d.modulation:
+        if d.modulation or d.doublemodulation:
             logging.info ( "Permutation with history and modulatory interaction" )
             perm_collector = statistics.EvaluationCollector (
                 Mhmod, easy, difficult )
@@ -334,7 +372,7 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
                 hf0=dhmod.hf0, applythreshold=Mhmod.applythreshold ) )
 
         logging.info ( "Bootstrap" )
-        if d.modulation:
+        if d.modulation or d.doublemodulation:
             kcollector = statistics.Kernel_and_Slope_Collector (
                     dhmod.h, dhmod.hf0, slopeindex=range(1,dhmod.hf0) )
             bootstrap   = pl.array ( statistics.mcsimulation (
@@ -352,13 +390,13 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
                 verbose=logging.root.level<20,
                 hf0=dwh.hf0, applythreshold=Mwh.applythreshold ) )
                 
-    else:
+    else: # dont permute anything
         permutation_wh  = None
         permutation_nh  = None
         permutation_hmod = None
         bootstrap       = None
 
-    if d.modulation:
+    if d.modulation or d.doublemodulation:
         results = {
             'model_nohist': Mnh,
             'model_w_hist': Mwh,

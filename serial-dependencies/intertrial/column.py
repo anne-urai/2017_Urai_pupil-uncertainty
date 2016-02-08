@@ -22,7 +22,7 @@ import history
 import numpy as np
 
 class ColumnData ( history.DataSet ):
-    def __init__ ( self, data, impulse_responses=None, threshold=False, ground_truth=None, modulation=False):
+    def __init__ ( self, data, impulse_responses=None, threshold=False, ground_truth=None, modulation=False, doublemodulation=False):
         """A data set consisting of multiple columns of data
 
         :Parameters:
@@ -92,6 +92,7 @@ class ColumnData ( history.DataSet ):
         self.__data       = data
         self.fname        = data
         self.modulation   = modulation
+        self.doublemodulation   = doublemodulation
         self.__construct_design ( )
         self.__threshold  = threshold
         self.__th_features = []
@@ -122,6 +123,19 @@ class ColumnData ( history.DataSet ):
                              
             # then construct designM again
             C = ColumnData ( data, self.h, self.__threshold, ground_truth=None, modulation=self.modulation )
+            return C.r,C.X
+            
+        elif self.doublemodulation:
+            """Permute both of the modulatory regressors independently of one another"""
+            data = self.__data.copy()
+            for condition in self.__conditions:
+                cond_idx = data[:,1] == condition
+                these_data = data[cond_idx,-2:] # get the pupil and RT values
+                np.random.shuffle(these_data)
+                data[cond_idx,-2:] = these_data
+                             
+            # then construct designM again
+            C = ColumnData ( data, self.h, self.__threshold, ground_truth=None, doublemodulation=self.doublemodulation )
             return C.r,C.X
             
         else:    
@@ -196,6 +210,9 @@ class ColumnData ( history.DataSet ):
             
             if self.modulation:
                 pupil = these_data[:,5] # modulatory
+            elif self.doublemodulation:
+                pupil = these_data[:,5] # modulatory 1, in this case pupil
+                reactiontime = these_data[:,6] # modulatory 2, in this case rt   
             
             x_ = np.zeros ( (ntrials_this_block,1+nconditions) )
             x_[:,0] = 1.
@@ -212,6 +229,13 @@ class ColumnData ( history.DataSet ):
                 p_ = np.zeros ( z.shape )
                 p_z = np.zeros ( z.shape ) 
                 p_r = np.zeros ( z.shape )
+            elif self.doublemodulation: # initialize main and interaction terms for both modulators
+                p_ = np.zeros ( z.shape )
+                p_z = np.zeros ( z.shape ) 
+                p_r = np.zeros ( z.shape )    
+                rt_ = np.zeros ( z.shape )
+                rt_z = np.zeros ( z.shape ) 
+                rt_r = np.zeros ( z.shape )
             
             # loop over the nr of lags
             for i in xrange ( len(z) ):
@@ -220,8 +244,15 @@ class ColumnData ( history.DataSet ):
                 
                 if self.modulation:
                     p_[i] = pupil[i] # no coding needed, this is a continuous measure
-                    p_z[i] = z_[i]*pupil[i] # interaction per lab
+                    p_z[i] = z_[i]*pupil[i] # interaction per lag
                     p_r[i] = r_[i]*pupil[i]
+                elif self.doublemodulation:
+                    p_[i] = pupil[i] # no coding needed, this is a continuous measure
+                    p_z[i] = z_[i]*pupil[i] # interaction per lag
+                    p_r[i] = r_[i]*pupil[i]    
+                    rt_[i] = reactiontime[i] # no coding needed, this is a continuous measure
+                    rt_z[i] = z_[i]*reactiontime[i] # interaction per lag
+                    rt_r[i] = r_[i]*reactiontime[i]
                 
             # convolve each set of nlag regressors with the exponential history kernels    
             hr = history.history_features ( self.h, r_ )
@@ -232,21 +263,43 @@ class ColumnData ( history.DataSet ):
                 hp = history.history_features ( self.h, p_ )
                 hpr = history.history_features ( self.h, p_r )
                 hpz = history.history_features ( self.h, p_z ) 
-            
+            elif self.doublemodulation:
+                # main and interaction terms as well
+                hp = history.history_features ( self.h, p_ )
+                hpr = history.history_features ( self.h, p_r )
+                hpz = history.history_features ( self.h, p_z )
+                hrt = history.history_features ( self.h, rt_ )
+                hrtr = history.history_features ( self.h, rt_r )
+                hrtz = history.history_features ( self.h, rt_z )
+                
             # now concatenate all columns into a design matrix
             if not hr is None:
                 x_ = np.c_[x_,hr]
             if not hz is None:
                 x_ = np.c_[x_,hz]
                 
+            # append all the interaction regressors    
             if self.modulation:
                 if not hp is None:
                     x_ = np.c_[x_,hp]
                 if not hpr is None:
                     x_ = np.c_[x_,hpr]    
                 if not hpz is None:
-                   x_ = np.c_[x_,hpz]
-                
+                    x_ = np.c_[x_,hpz]
+            if self.doublemodulation:
+                if not hp is None:
+                    x_ = np.c_[x_,hp]
+                if not hpr is None:
+                    x_ = np.c_[x_,hpr]    
+                if not hpz is None:
+                    x_ = np.c_[x_,hpz]
+                if not hrt is None: # also the RT regressors
+                    x_ = np.c_[x_,hrt]
+                if not hrtr is None:
+                    x_ = np.c_[x_,hrtr]    
+                if not hrtz is None:
+                    x_ = np.c_[x_,hrtz]    
+                       
             # how often was the subject correct?    
             correct = z_==r_
             performance = np.mean ( correct )
@@ -254,9 +307,6 @@ class ColumnData ( history.DataSet ):
             y.append ( r )
             x.append ( x_ )
             p.append ( performance+np.zeros ( r.shape ) )
-            
-            # display the design matrix!
-            # print(x)
 
         self.__X = np.concatenate ( x, 0 )
         self.__r = np.concatenate ( y, 0 )
