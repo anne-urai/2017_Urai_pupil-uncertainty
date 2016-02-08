@@ -5,9 +5,7 @@ function [] = fig2d_ReactionTimeUncertainty()
 global mypath;
 
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-% data.rt = log(data.rt+0.1); % could do this...
-
-nbins               = 6; 
+nbins               = 6;
 data.xval           = abs(data.motionstrength);
 data.rpebin         = nan(size(data.xval)); % preallocate
 
@@ -53,28 +51,18 @@ end
 
 % PLOT
 % use nice shades of red and green
-cols = linspecer(3); cols = cols(2:3, :);
+colors = cbrewer('qual', 'Set1', 8);
+cols = colors([1 3], :);
 
 hold on;
 for co = 1:2,
-    if co == 1,
-        h = ploterr(squeeze(nanmean(grandavg.rpeMean(:, co, :))), ...
-            squeeze(nanmean(grandavg.rt.data(:, co, :))),...
-            squeeze(nanstd(grandavg.rpeMean(:, co, :))) / sqrt(length(subjects)), ...
-            squeeze(nanstd(grandavg.rt.data(:, co, :))) / sqrt(length(subjects)), ...
-            'k-', 'hhxy', 0.0011);
-        set(h(1), 'color', cols(co, :), ...
-            'markerfacecolor', cols(co, :),  'markersize', 3);
-    elseif co == 2,
-        h = ploterr(squeeze(nanmean(grandavg.rpeMean(:, co, :))), ...
-            squeeze(nanmean(grandavg.rt.data(:, co, :))),...
-            squeeze(nanstd(grandavg.rpeMean(:, co, :))) / sqrt(length(subjects)), ...
-            squeeze(nanstd(grandavg.rt.data(:, co, :))) / sqrt(length(subjects)), ...
-            'k-', 'hhxy', 0.0011);
-        set(h(1), 'color', cols(co, :), ...
-            'markerfacecolor', cols(co, :),  'markersize', 12, 'marker', '.');
-    end
-    
+    h = ploterr(squeeze(nanmean(grandavg.rpeMean(:, co, :))), ...
+        squeeze(nanmean(grandavg.rt.data(:, co, :))),...
+        squeeze(nanstd(grandavg.rpeMean(:, co, :))) / sqrt(length(subjects)), ...
+        squeeze(nanstd(grandavg.rt.data(:, co, :))) / sqrt(length(subjects)), ...
+        'k-', 'abshhxy', 0);
+    set(h(1), 'color', cols(co, :), ...
+        'markerfacecolor', cols(co, :),  'markersize', 12, 'marker', '.');
     set(h(1), 'color', cols(co, :), ...
         'markerfacecolor', cols(co, :));
     set(h(2), 'color', cols(co, :) + 0.05);
@@ -84,17 +72,15 @@ end
 % set(gca, 'box', 'off', 'tickdir', 'out', 'xtick', cohs);
 xlabel('Evidence');
 ylabel('Reaction time (s)');
-%ylim([0.3 0.7]); set(gca, 'ytick', [0.3 0.5 0.7]);
+ylim([0.25 0.65]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
 xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
 axis square;
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-%legend('Error','Correct'); legend boxoff;
 
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
 
 subplot(4,6,23);
-
 % slopes
 slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
 [~, pvalE_interc, ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
@@ -108,12 +94,13 @@ bf10 = t1smpbf(stat.tstat,27);
 hold on;
 bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
 bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
-errorbar(1:2, mean(slopes), std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 'none', 'LineStyle', 'none');
+
+ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 'none', 'abshhxy', 0);
 xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
     [] , 'ydir', 'normal', 'xticklabelrotation', 0);
 
-axis tight; 
-set(gca, 'xticklabel', {'Error', 'Correct'}); 
+axis tight;
+set(gca, 'xticklabel', {'Error', 'Correct'});
 ylabel('Beta evidence');
 sigstar({[1 2]}, pvalD_interc);
 sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);

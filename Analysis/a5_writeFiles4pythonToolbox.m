@@ -1,9 +1,8 @@
 %% instead of csv files, write text files that are in the format the Fruend toolbox needs
 
 global mypath;
-cd(sprintf('%s/Code/serial-dependencies/data/', mypath));
-
-figure; clear;
+% cd(sprintf('%s/Code/serial-dependencies/data/', mypath));
+cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/');
 subjects = 1:27;
 
 for sj = subjects,
@@ -91,6 +90,13 @@ for sj = subjects,
         abs(data.motionstrength)];
     
     dlmwrite(sprintf('2ifc_evidence_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
+    % double modulation: decision pupil and rt
+    % log-transform RT, make sure this doesn't include zero!
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        zscore(data.decision_pupil) zscore(log(data.rt+0.1))];
+    dlmwrite(sprintf('2ifc_pupil+rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
 end

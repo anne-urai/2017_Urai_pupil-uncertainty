@@ -172,12 +172,11 @@ end
 plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.5);
 
 for r = [1 2],
-    errorbar(stimx2, ...
+    ploterr(stimx2, ...
         squeeze(nanmean(grandavg.logistic(theseSj, r, :, 1))),   ...
-        squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), ...
-        '.-', 'color', colors(r, :), 'markersize', 12);
+        squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), [], ...
+        '.-', 'color', colors(r, :), 'markersize', 12, 'abshhxy', 0);
     stimx2 = stimx2 - 0.05;
-    
 end
 
 axis tight; axis square;
@@ -200,7 +199,7 @@ text(2.5, 0.52, 'choice A', 'color', colors(2, :), 'horizontalalignment', 'cente
 text(2.5, 0.48, 'current', 'color', colors(1, :), 'horizontalalignment', 'center');
 text(2.5, 0.47, 'choice B', 'color', colors(1, :), 'horizontalalignment', 'center');
 
-ylim([0.465 .545]);
+ylim([0.465 .545]);s
 set(gca, 'ytick', [0.47 0.5 0.53]);
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 

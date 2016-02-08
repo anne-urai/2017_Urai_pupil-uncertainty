@@ -24,12 +24,23 @@ dat.incorrect_pupil = nan(27, nlags);
 dat.historyPval = nan(27, 1);
 dat.modulationPval = nan(27, 1);
 
+% for model with 2 modulatory terms
+switch whichmodulator
+    case 'pupil+rt'
+        dat.rt = nan(27, nlags);
+        dat.response_rt = nan(27, nlags);
+        dat.stimulus_rt = nan(27, nlags);
+        dat.correct_rt = nan(27, nlags);
+        dat.incorrect_rt = nan(27, nlags);
+end
+
 for sj = subjects,
     clf;
     
     % ============================================ %
     % ======= model WITH pupil term =========== %
     % ============================================ %
+    
     load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
     load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
     
@@ -67,8 +78,8 @@ for sj = subjects,
     stimwci(:, 1) = stimw - stimwci(:, 1); stimwci(:, 2) = stimwci(:, 2) - stimw;
     
     % ============================================ %
-    % 1. plot the history kernels for resp and stim (blue/yellow as Fr?nd)
-    subplot(3,3,1); hold on;
+    % 1. plot the history kernels for resp and stim (blue/yellow as Fruend)
+    subplot(4,4,1); hold on;
     bh = boundedline(lags, stimw, stimwci, lags, respw, respwci, 'cmap', colors([2 4], :), 'alpha');
     legend(bh, 'stimulus', 'response'); legend boxoff;
     xlim([0.5 nlags+0.5]);
@@ -92,7 +103,7 @@ for sj = subjects,
     errorwci = prctile(errorboot, [2.5, 97.5])';
     errorwci(:, 1) = errorw - errorwci(:, 1); errorwci(:, 2) = errorwci(:, 2) - errorw;
     
-    subplot(3,3,2);
+    subplot(4,4,2);
     bh =  boundedline(lags, correctw, correctwci, lags, errorw, errorwci, 'cmap', colors([3 1], :), 'alpha');
     legend(bh, 'correct', 'error'); legend boxoff;
     xlim([0.5 nlags+0.5]);
@@ -101,29 +112,39 @@ for sj = subjects,
     dat.incorrect(sj, :) = errorw;
     
     % ============================================ %
-    % 3. plot the psychometric functions for each session
-    % get the data structure for this
+    % 5. permutation testing
     % ============================================ %
     
-    clear yfit
-    for cond = 1:6,
-        bias = model_h_mod.w(1);
-        slope = model_h_mod.w(1+cond);
-        
-        % glmval and plot the curve
-        x = [-.3:0.001:0.3];
-        yfit(:, cond) = glmval([bias slope]', x,'logit');
-    end
-    subplot(3,3,3);
-    set(groot,'defaultAxesColorOrder',parula(10))
-    plot(x, yfit);
-    box off; xlim([-0.3 0.3]);
-    xlabel('Stimulus'); ylabel('P(respA) over sessions');
+    subplot(4,4,3);
+    histogram(permutation_wh(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
+    axis tight; box off;
+    pval = length(find(permutation_wh(:, 1) > model_w_hist.loglikelihood)) ./ length(permutation_wh(:, 1));
+    prc95 = prctile(permutation_wh(:, 1), 97.5);
+    plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
+    plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r');
+    xlabel('logLikelihood history');
+    dat.historyPval(sj) = pval;
     
     switch whichmodulator
         case 'plain'
-        otherwise % only do when we ran a modulatory model
+        otherwise
+            % now for the pupil
+            subplot(4,4,4);
+            histogram(permutation_hmod(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
+            box off;
+            pval = length(find(permutation_hmod(:, 1) > model_h_mod.loglikelihood)) ./ length(permutation_hmod(:, 1));
+            if pval < 0.05, color = 'r'; else color = 'b'; end
+            prc95 = prctile(permutation_hmod(:, 1), 97.5);
+            pl(1) = plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
+            pl(2) = plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r'); % history loglik
+            pl(3) = plot([model_h_mod.loglikelihood model_h_mod.loglikelihood], [0 max(get(gca, 'ylim'))], 'b');
+            xlabel('logLikelihood modulation');
+            dat.modulationPval(sj) = pval;
             
+            lh = legend(pl, {'95th percentile', 'loglik history-only', 'loglik history*pupil'});
+            sp = subplot(3,3,9);
+            spos = get(sp, 'position'); set(lh, 'position', spos, 'box', 'off'); axis off
+
             % ============================================ %
             % 3. the pure pupil weights
             % ============================================ %
@@ -135,9 +156,9 @@ for sj = subjects,
             pupilwci = prctile(pupilboot, [2.5, 97.5])';
             pupilwci(:, 1) = pupilw - pupilwci(:, 1); pupilwci(:, 2) = pupilwci(:, 2) - pupilw;
             
-            subplot(3,3,6); hold on;
+            subplot(4,4,7); hold on;
             bh = boundedline(lags, pupilw, pupilwci, 'cmap', colors(5, :));
-            legend(bh, whichmodulator); legend boxoff;
+            %legend(bh, whichmodulator); legend boxoff;
             xlim([0.5 nlags+0.5]);
             
             dat.pupil(sj, :) = pupilw;
@@ -163,9 +184,9 @@ for sj = subjects,
             pupilstimwci(:, 1) = pupilstimw - pupilstimwci(:, 1); pupilstimwci(:, 2) = pupilstimwci(:, 2) - pupilstimw;
             
             % 1. plot the history kernels for resp and stim (blue/yellow as Fr?nd)
-            subplot(3,3,4); hold on;
+            subplot(4,4,5); hold on;
             bh = boundedline(lags, pupilstimw, pupilstimwci, lags, pupilrespw, pupilrespwci, 'cmap', colors([2 4], :), 'alpha');
-            legend(bh, [whichmodulator '*stimulus'], [whichmodulator '*response']); legend boxoff;
+            %legend(bh, [whichmodulator '*stimulus'], [whichmodulator '*response']); legend boxoff;
             xlim([0.5 nlags+0.5]);
             ylabel('Interaction');
             
@@ -183,52 +204,87 @@ for sj = subjects,
             pupilerrorwci = prctile(pupilerrorboot, [2.5, 97.5])';
             pupilerrorwci(:, 1) = pupilerrorw - pupilerrorwci(:, 1); pupilerrorwci(:, 2) = pupilerrorwci(:, 2) - pupilerrorw;
             
-            subplot(3,3,5);
+            subplot(4,4,6);
             bh =  boundedline(lags, pupilcorrectw, pupilcorrectwci, lags, pupilerrorw, pupilerrorwci, 'cmap', colors([3 1], :), 'alpha');
-            legend(bh, [whichmodulator '*correct'], [whichmodulator '*error']); legend boxoff;
+            %legend(bh, [whichmodulator '*correct'], [whichmodulator '*error']); legend boxoff;
             xlim([0.5 nlags+0.5]);
             
             dat.correct_pupil(sj, :) = pupilcorrectw;
             dat.incorrect_pupil(sj, :) = pupilerrorw;
-            
-            suplabel(sprintf('P%02d', sj), 't');
-            
-            % ============================================ %
-            % 5. permutation testing
-            % ============================================ %
     end
-    
-    subplot(3,3,7);
-    histogram(permutation_wh(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
-    axis tight; box off;
-    pval = length(find(permutation_wh(:, 1) > model_w_hist.loglikelihood)) ./ length(permutation_wh(:, 1));
-    prc95 = prctile(permutation_wh(:, 1), 97.5);
-    plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
-    plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r');
-    xlabel('logLikelihood history');
-    dat.historyPval(sj) = pval;
     
     switch whichmodulator
-        case 'plain'
-        otherwise
-            % now for the pupil
-            subplot(3,3,8);
-            histogram(permutation_hmod(:, 1), 'EdgeColor', 'none', 'facecolor', [0.8 0.8 0.8]); hold on;
-            box off;
-            pval = length(find(permutation_hmod(:, 1) > model_h_mod.loglikelihood)) ./ length(permutation_hmod(:, 1));
-            if pval < 0.05, color = 'r'; else color = 'b'; end
-            prc95 = prctile(permutation_hmod(:, 1), 97.5);
-            pl(1) = plot([prc95 prc95], [0 max(get(gca, 'ylim'))], 'k');
-            pl(2) = plot([model_w_hist.loglikelihood model_w_hist.loglikelihood], [0 max(get(gca, 'ylim'))], 'r'); % history loglik
-            pl(3) = plot([model_h_mod.loglikelihood model_h_mod.loglikelihood], [0 max(get(gca, 'ylim'))], 'b');
-            xlabel('logLikelihood modulation');
-            dat.modulationPval(sj) = pval;
+        case 'pupil+rt', % add RT
             
-            lh = legend(pl, {'95th percentile', 'loglik history-only', 'loglik history*pupil'});
-            sp = subplot(3,3,9);
-            spos = get(sp, 'position'); set(lh, 'position', spos, 'box', 'off'); axis off
+            % ============================================ %
+            % 3. the pure RT weights
+            % ============================================ %
+            
+            rtw = model_h_mod.w(hf0+hlen*5:hf0+hlen*6-1);
+            rtw = h * rtw;
+            rtboot = bootstrap_corr(:, nlags*5+1:nlags*6);
+            
+            rtwci = prctile(rtboot, [2.5, 97.5])';
+            rtwci(:, 1) = rtw - rtwci(:, 1); rtwci(:, 2) = rtwci(:, 2) - rtw;
+            
+            subplot(4,4,11); hold on;
+            bh = boundedline(lags, rtw, rtwci, 'cmap', colors(5, :));
+            %legend(bh, whichmodulator); legend boxoff;
+            xlim([0.5 nlags+0.5]);
+            
+            dat.rt(sj, :) = rtw;
+            
+            % ============================================ %
+            % 4. RT * history weights
+            % ============================================ %
+            
+            rtrespw = model_h_mod.w(hf0+hlen*6:hf0+hlen*7-1);
+            rtstimw = model_h_mod.w(hf0+hlen*7:hf0+hlen*8-1);
+            
+            % project back into lag space
+            rtrespw = h * rtrespw;
+            rtstimw = h * rtstimw;
+            
+            % also get error bars, multiply bootstrapped values with slope too
+            rtrespboot = bootstrap_corr(:, nlags*6+1:nlags*7);
+            rtstimboot = bootstrap_corr(:, nlags*7+1:nlags*8);
+            
+            rtrespwci = prctile(rtrespboot, [2.5, 97.5])';
+            rtrespwci(:, 1) = rtrespw - rtrespwci(:, 1); rtrespwci(:, 2) = rtrespwci(:, 2) - rtrespw;
+            rtstimwci = prctile(rtstimboot, [2.5, 97.5])';
+            rtstimwci(:, 1) = rtstimw - rtstimwci(:, 1); rtstimwci(:, 2) = rtstimwci(:, 2) - rtstimw;
+            
+            % 1. plot the history kernels for resp and stim (blue/yellow as Fr?nd)
+            subplot(4,4,9); hold on;
+            bh = boundedline(lags, rtstimw, rtstimwci, lags, rtrespw, rtrespwci, 'cmap', colors([2 4], :), 'alpha');
+            %legend(bh, [whichmodulator '*stimulus'], [whichmodulator '*response']); legend boxoff;
+            xlim([0.5 nlags+0.5]);
+            ylabel('Interaction');
+            
+            dat.response_rt(sj, :) = rtrespw;
+            dat.stimulus_rt(sj, :) = rtstimw;
+            
+            % 2. same thing, but for correct and error (green/red)
+            rtcorrectw = rtstimw + rtrespw;
+            rterrorw   = -rtstimw + rtrespw;
+            rtcorrectboot = rtstimboot + rtrespboot;
+            rterrorboot = -rtstimboot + rtrespboot;
+            
+            rtcorrectwci = prctile(rtcorrectboot, [2.5, 97.5])';
+            rtcorrectwci(:, 1) = rtcorrectw - rtcorrectwci(:, 1); rtcorrectwci(:, 2) = rtcorrectwci(:, 2) - rtcorrectw;
+            rterrorwci = prctile(rterrorboot, [2.5, 97.5])';
+            rterrorwci(:, 1) = rterrorw - rterrorwci(:, 1); rterrorwci(:, 2) = rterrorwci(:, 2) - rterrorw;
+            
+            subplot(4,4,10);
+            bh =  boundedline(lags, rtcorrectw, rtcorrectwci, lags, rterrorw, rterrorwci, 'cmap', colors([3 1], :), 'alpha');
+            %legend(bh, [whichmodulator '*correct'], [whichmodulator '*error']); legend boxoff;
+            xlim([0.5 nlags+0.5]);
+            
+            dat.correct_rt(sj, :) = rtcorrectw;
+            dat.incorrect_rt(sj, :) = rterrorw;
     end
     
+    suplabel(sprintf('P%02d', sj), 't');
     print(gcf, '-dpdf', sprintf('%s/Figures/historykernels_%s_sj%02d.pdf', mypath, whichmodulator, sj));
     
 end

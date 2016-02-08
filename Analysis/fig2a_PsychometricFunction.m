@@ -73,8 +73,8 @@ hold on;
 % then the datapoints, with standard deviation
 p = ploterr(100*squeeze(nanmean(grandavg.xpts)), squeeze(nanmean(grandavg.ypts)), ...
     100*squeeze(nanstd(grandavg.xpts)), ...
-    squeeze(nanstd(grandavg.ypts)) , 'k.', 'hhxy', 0.00000000000000000000000001);
-p(1).MarkerSize = 8; p(1).Color = 'w';
+    squeeze(nanstd(grandavg.ypts)) , 'k.', 'abshhxy', 0);
+p(1).MarkerSize = 8; p(1).Color = 'k';
 box off; axis tight; set(gca, 'ytick', [0 0.5 1], 'xtick', [-30 -15 0 15 30]);
 axis square;
 xlabel('delta motion coherence'); ylabel('% response ''stronger''');

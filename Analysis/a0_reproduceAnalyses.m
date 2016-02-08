@@ -2,7 +2,7 @@
 
 % first, make sure this path matches the place where the data are stored
 global mypath;
-mypath = '~/Data/pupilUncertainty';
+mypath = '/Users/anne/Data/pupilUncertainty';
 cd(mypath);
 
 % add the code folder
@@ -49,9 +49,10 @@ a5_writeFiles4pythonToolbox;
 % this is easiest to run from the terminal. With Python 2.7 installed, go
 % to the folder mypath/Code/serial-dependencies 
 cd(sprintf('%s/Code/serial-dependencies', mypath));
+cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/');
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
-mods = {'plain', 'pupil-rt', 'rt-pupil', 'feedbackpupil', 'fb-decpupil'};
+mods = {'plain', 'pupil+rt'}; %, 'feedbackpupil', 'fb-decpupil'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
 
 for m = 1:length(mods),
@@ -63,7 +64,7 @@ end
 %% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
 for m = 1:length(mods),
-    a6_retrieveDataFromPython(whichmodulator);
+    a6_retrieveDataFromPython(mods{m});
 end
 
 %% reproduce figure 4

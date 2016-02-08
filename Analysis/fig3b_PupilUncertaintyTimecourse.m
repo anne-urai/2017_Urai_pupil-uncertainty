@@ -20,7 +20,8 @@ warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
 % instead of binning, use regression beta across samples
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-cols = linspecer(4); cols = cols([2 3 1], :); % red green blue
+colors = cbrewer('qual', 'Set1', 9);
+cols = colors([1 3 9], :); % red green grey
 
 if plotIndividual, figure; end
 for sj = unique(subjects),
@@ -31,7 +32,7 @@ for sj = unique(subjects),
     tl = cat(2, ...
         squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, pupilchan, :)), ...
         squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, pupilchan, :)), ...
-    squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)), ...
+        squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)), ...
         squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :)));
     
     % do the same for the gazepos, x and y
@@ -209,7 +210,7 @@ for whichbeta = whichBetas2plot,
             ylabel('Intercept');
         case 2
             ylabel('Task difficulty');
-            ylim([-0.2 0.08]);
+            ylim([-0.18 0.08]);
             %  set(gca, 'ytick', -0.3:0.1:.1);
             % xlabel('Time (ms)');
         case 3
@@ -330,87 +331,43 @@ l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k', 'LineStyle', '-', 'LineW
 
 end
 
-function [] = plotLines_respFb(respdata, resptp, fbdata, fbtp)
-
-xticks = []; xlabels = {};
-
-for t = 1:length(resptp),
-    xticks = [xticks  dsearchn(respdata.time', resptp(t))];
-    if resptp(t) == 0,
-        xlabels = [xlabels 'Response'];
-    else
-        xlabels = [xlabels resptp(t)* 1000];
-    end
-end
-
-for t = 1:length(fbtp),
-    xticks = [xticks length(respdata.time) + dsearchn(fbdata.time', fbtp(t))];
-    if fbtp(t) == 0,
-        xlabels = [xlabels 'Feedback'];
-    else
-        xlabels = [xlabels fbtp(t)* 1000];
-    end
-end
-
-set(gca, 'XTick', xticks, 'XTickLabel', xlabels, ...
-    'XTickLabelRotation', -45, 'tickdir', 'out', 'box', 'off');
-
-% add white lines to indicate transitions between intervals
-x = length(respdata.time) +.5;
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'w', 'LineStyle', '-', 'LineWidth', 2);
-
-% add dotted  black lines to indicate event onset
-x = dsearchn(respdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k','LineStyle', '-', 'LineWidth', 0.1);
-x =  length(respdata.time) + dsearchn(fbdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k', 'LineStyle', '-', 'LineWidth', 0.1);
-
-end
-
 function stat = clusterStat(data1, data2, nsubj)
 
-if 1,
-    % do cluster stats across the group
-    cfgstats                  = [];
-    cfgstats.method           = 'montecarlo'; % permutation test
-    cfgstats.statistic        = 'ft_statfun_depsamplesT'; % dependent samples ttest
-    
-    % do cluster correction
-    cfgstats.correctm         = 'cluster';
-    cfgstats.clusteralpha     = 0.05;
-    % cfgstats.clusterstatistic = 'maxsize'; % weighted cluster mass needs cfg.wcm_weight...
-    % cfgstats.minnbchan        = 1; % average over chans
-    cfgstats.tail             = 0; % two-tailed!
-    cfgstats.clustertail      = 0; % two-tailed!
-    cfgstats.alpha            = 0.025;
-    cfgstats.numrandomization = 1000; % make sure this is large enough
-    cfgstats.randomseed       = 1; % make the stats reproducible!
-    
-    % use only our preselected sensors for the time being
-    cfgstats.channel          = 'EyePupil';
-    
-    % specifies with which sensors other sensors can form clusters
-    cfgstats.neighbours       = []; % only cluster over data and time
-    
-    design = zeros(2,2*nsubj);
-    for i = 1:nsubj,  design(1,i) = i;        end
-    for i = 1:nsubj,  design(1,nsubj+i) = i;  end
-    design(2,1:nsubj)         = 1;
-    design(2,nsubj+1:2*nsubj) = 2;
-    
-    cfgstats.design   = design;
-    cfgstats.uvar     = 1;
-    cfgstats.ivar     = 2;
-    
-    stat      = ...
-        ft_timelockstatistics(cfgstats, ...
-        data1, data2);
-else
-    % to do quick plotting tests, dont permute
-    for s = 1:size(data1.individual, 3),
-        stat.mask(s) = ttest(data1.individual(:, :, s), data2.individual(:, :, s));
-    end
-end
+% do cluster stats across the group
+cfgstats                  = [];
+cfgstats.method           = 'montecarlo'; % permutation test
+cfgstats.statistic        = 'ft_statfun_depsamplesT'; % dependent samples ttest
+
+% do cluster correction
+cfgstats.correctm         = 'cluster';
+cfgstats.clusteralpha     = 0.05;
+% cfgstats.clusterstatistic = 'maxsize'; % weighted cluster mass needs cfg.wcm_weight...
+% cfgstats.minnbchan        = 1; % average over chans
+cfgstats.tail             = 0; % two-tailed!
+cfgstats.clustertail      = 0; % two-tailed!
+cfgstats.alpha            = 0.025;
+cfgstats.numrandomization = 1000; % make sure this is large enough
+cfgstats.randomseed       = 1; % make the stats reproducible!
+
+% use only our preselected sensors for the time being
+cfgstats.channel          = 'EyePupil';
+
+% specifies with which sensors other sensors can form clusters
+cfgstats.neighbours       = []; % only cluster over data and time
+
+design = zeros(2,2*nsubj);
+for i = 1:nsubj,  design(1,i) = i;        end
+for i = 1:nsubj,  design(1,nsubj+i) = i;  end
+design(2,1:nsubj)         = 1;
+design(2,nsubj+1:2*nsubj) = 2;
+
+cfgstats.design   = design;
+cfgstats.uvar     = 1;
+cfgstats.ivar     = 2;
+
+stat      = ...
+    ft_timelockstatistics(cfgstats, ...
+    data1, data2);
 
 end
 

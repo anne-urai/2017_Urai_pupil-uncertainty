@@ -126,7 +126,7 @@ for sj = fliplr(subjects),
     data        = ft_selectdata(cfg, data);
     
     % ==================================================================
-    % REMOVE THE FIRST SESSION
+    % REMOVE THE FIRST SESSION, get rid of residual learning effects
     % ==================================================================
     
     cfg         = [];
