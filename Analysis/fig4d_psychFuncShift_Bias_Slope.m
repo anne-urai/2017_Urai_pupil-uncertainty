@@ -50,8 +50,7 @@ for sj = unique(subjects),
     
     % get an overall logistic fit for normalization
     grandavg.overallLogistic(sj, :) = glmfit(data.motionstrength, ...
-        data.resp, ...
-        'binomial','link','logit');
+        data.resp, 'binomial','link','logit');
     
     % previous response
     resps = [0 1];

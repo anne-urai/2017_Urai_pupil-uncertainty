@@ -64,7 +64,7 @@ end
 %% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
 for m = 1:length(mods),
-    a6_retrieveDataFromPython(mods{m});
+    a6_retrieveDataFromPython2(mods{m});
 end
 
 %% reproduce figure 4
