@@ -60,7 +60,7 @@ parser.add_option ( "-s", "--silent",
         action="store_true",
         help="Silent mode -- don't show any status messages" )
 parser.add_option ( "-n", "--number-of-samples",
-        default=10,
+        default=1000,
         type="int",
         help="number of samples for monte carlo procedures" )
 parser.add_option ( "-r", "--hide-results",
@@ -70,7 +70,7 @@ parser.add_option ( "-g", "--graphics-path",
         default="figures",
         help="path where the graphical output should be stored" )
 parser.add_option ( "-p", "--data-path",
-        default="/Users/anne/Data/pupilUncertainty/Data/serialmodel",
+        default=os.path.expanduser("~/Data/pupilUncertainty/Data/serialmodel/"),
         help="path where the data output should be stored" )
 parser.add_option ( "-t", "--detection",
         action="store_true",
@@ -90,9 +90,8 @@ if opts.silent:
 data,w0,plotinfo = util.load_data_file ( args[0], header=opts.header, detection=opts.detection)
 
 # Check for directories
-currentpath = os.path.expanduser("~/")
-if not os.path.exists (os.path.join ( currentpath,"Data/serial/sim_backup")):
-    os.mkdir (os.path.join ( currentpath,"Data/serial/sim_backup"))
+if not os.path.exists (opts.data_path):
+    os.mkdir (opts.data_path)
     
 # write away the data and results to a matlab file for easier plotting
 logging.info ( "Writing data to mat file" )
