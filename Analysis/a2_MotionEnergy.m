@@ -6,10 +6,15 @@ function [] =  a2_MotionEnergy(sj)
 %
 % Anne Urai, 2015
 
+if ischar(sj), sj = str2double(sj); end
+
 global mypath;
+mypath = '~/Data/pupilUncertainty';
+
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
 cd(sprintf('%s/Data/P%02d/', mypath, sj));
+system(sprintf('touch P%02d_motionEstarted.log', sj));
 
 clear sessions;
 % check which sessions to use
@@ -26,6 +31,9 @@ for session = sessions,
     mdat.stim     = single(nan(10, 50));
     mdat.response = single(nan(10, 50));
     mdat.correct  = single(nan(10, 50));
+    
+    trllength       = 18;
+    mdat.timecourse = single(nan(10,50,2,2,trllength)); % block trl int theta time
     
     % ==================================================================
     % some subjects didnt do all blocks, manually correct
@@ -67,7 +75,7 @@ for session = sessions,
         % get the files we need
         % ==================================================================
         
-        clearvars -except subjects sj sessions session blocks iblock blockidx blockcnt mdat
+        clearvars -except subjects sj sessions session blocks iblock blockidx blockcnt mdat mypath
         begin = tic;
         
         if sj > 14,
@@ -389,8 +397,7 @@ for session = sessions,
                     motionenergy(int, find(thistheta == theta), :) = single(sqrt(squeeze(sum(sum(energy)))))';
                     
                 end % theta
-                
-            end
+            end %int
             
             % ==================================================================
             % TRANSFORM FILTER TIMECOURSES INTO SINGLE-TRIAL SCALARS
@@ -412,6 +419,9 @@ for session = sessions,
                 % compute a scalar motionstrength measure
                 mdat.strength(blockcnt, trial)  = mdat.int2(blockcnt, trial) - mdat.int1(blockcnt, trial) ;
                 
+                % save the full timecourse as well
+                mdat.timecourse(blockcnt, trial, :, :, 1:cfg.validsize(3)) = motionenergy;
+                
             else
                 
                 % take the difference between the two intervals for this trial
@@ -428,6 +438,9 @@ for session = sessions,
                 
                 % compute a scalar motionstrength measure
                 mdat.strength(iblock, trial)  = mdat.int2(iblock, trial) - mdat.int1(iblock, trial) ;
+                
+                % save the full timecourse as well
+                mdat.timecourse(iblock, trial, :, :, 1:cfg.validsize(3)) = motionenergy;
                 
             end
         end % trial
@@ -458,6 +471,8 @@ for session = sessions,
     
     save(sprintf('%s/Data/MotionEnergy/motionenergy_P%02d_s%d.mat', mypath, sj, session), '-mat', 'mdat');
 end
+
+system(sprintf('touch P%02d_motionEfinished.log', sj));
 
 end% function end
 
