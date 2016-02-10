@@ -40,7 +40,7 @@ text(0.36, .05, 'stay', 'rotation', 270, 'fontsize', fz);
 text(-0.36, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
 
 % layout
-maxlim = 0.4;
+maxlim = 0.5;
 xlim([-maxlim maxlim]); ylim([-maxlim maxlim]);
 maxlim = 0.4;
 set(gca, 'xtick', -maxlim:maxlim:maxlim, 'ytick', -maxlim:maxlim:maxlim);

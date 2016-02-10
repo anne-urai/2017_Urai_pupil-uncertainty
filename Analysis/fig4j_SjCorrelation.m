@@ -33,7 +33,7 @@ end
 text(0.5, -0.15, sprintf('r = %.3f', rho));
 text(0.5, -0.2, sprintf('p < %.3f', pval));
 ylim([-.25 .25]); set(gca, 'ytick', [-.2 0 0.2]);
-xlim([-0.45 0.45]); set(gca, 'xtick', [-.4 0 0.4]);
+xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
 
 bf10 = corrbf(rho,27);
 text(0.5, -0.25, sprintf('bf10 = %.3f', bf10));

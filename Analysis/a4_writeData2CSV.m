@@ -31,6 +31,10 @@ for sj = (subjects),
     data.fsample    = 100; % make sure we use the resampled frequency from the pupilAnalysis
     pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(4).lock.label, 'EyePupil')==1);
     
+    % around the decision peak
+    earlyDecisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, ...
+        find(pupilgrandavg.timelock{sj}(3).lock.time > 0 & pupilgrandavg.timelock{sj}(3).lock.time < 1 ) ), 3));
+    
     % 250 ms before feedback
     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
@@ -44,7 +48,7 @@ for sj = (subjects),
         end-(0.1*data.fsample):end), 3));
     
     % put together
-    newtrl = [newtrl decisionPupil feedbackPupil endofTrlPupil];
+    newtrl = [newtrl decisionPupil feedbackPupil endofTrlPupil earlyDecisionPupil];
     
     % ==================================================================
     % write to csv for each individual
@@ -54,7 +58,7 @@ for sj = (subjects),
         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
         'resp', 'rt', 'correct', 'correctM', ...
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
+        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
     
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
@@ -72,7 +76,7 @@ if length(subjects) > 5,
         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
         'resp', 'rt', 'correct', 'correctM', ...
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil'});
+        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
     
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 end

@@ -46,11 +46,12 @@ for m = 1:2,
                     trls = find(data.(whichMod) > uncQs(u-1) & data.(whichMod) < uncQs(u));
             end
             
-            [b] = glmfit(designM(trls, :), data.resp(trls), ...
+            [b, dev, stats] = glmfit(designM(trls, :), data.resp(trls), ...
                 'binomial','link','logit');
             
             % save betas
             grandavg.logistic(sj, u, :) = b;
+            grandavg.logisticSE(sj, u, :) = stats.se;
             
         end
     end
@@ -67,11 +68,11 @@ for m = 1:2,
         
         for sj = 1:27,
             h = ploterr(grandavg.logistic(sj, u, 3), grandavg.logistic(sj, u, 4), ...
-                [], ...
-                [], '.', 'abshhxy', 0);
-            set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :));
-            %  set(h(2), 'color', mycolmap(sj, :), 'linewidth', 0.5);
-            % set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
+                grandavg.logisticSE(sj, u, 3), ...
+                grandavg.logisticSE(sj, u, 4), '.', 'abshhxy', 0);
+            set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :), 'markersize', 8);
+            set(h(2), 'color', mycolmap(sj, :), 'linewidth', 0.5);
+            set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
         end
         
         % also show the mean
@@ -114,4 +115,4 @@ for m = 1:2,
     cnt = cnt + 1;
 end
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf'));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));

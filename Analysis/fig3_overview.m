@@ -16,13 +16,14 @@ clc;
 subjects = 1:27; 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
+    %subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
     [grandavg.pearson(sj), grandavg.pearsonpval(sj)] = corr(data.decision_pupil, data.rt, 'type', 'pearson');
 end
 
 % check across the group
-suplabel('Pupil response', 'x'); suplabel('RT', 'y');
-disp(mean(grandavg.pearson))
-disp(min(grandavg.pearson))
-disp(max(grandavg.pearson))
-disp(length(find(grandavg.pearsonpval < 0.05)))
+fprintf('pupil RT correlation, mean %f, min %f, max %f. nr of subjects with significant correlation: %d. \n', ...
+    mean(grandavg.pearson), min(grandavg.pearson), max(grandavg.pearson), length(find(grandavg.pearsonpval < 0.05)))
+
+%% rsquare for regresson models
+load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath));
+fprintf('R squared across regression samples: mean %f, std %d \n', mean(grandavg.rsq(:)), std(grandavg.rsq(:)));

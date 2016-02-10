@@ -1,7 +1,7 @@
 function fig4c_psychFuncShift_Bias_byResp(whichmodulator, nbins)
 global mypath;
 
-if ~exist('whichmodulator', 'var'); whichmodulator = 'evidence'; end
+if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('grouping', 'var'); grouping = 'all'; end
 
 % plot both the effect of pupil on overall repetition bias and show that

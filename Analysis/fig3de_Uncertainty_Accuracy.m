@@ -10,7 +10,7 @@ fitIndividual = false;
 for sj = unique(subjects),
     
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-
+    
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
         divideintobins(data.decision_pupil, data.correct, nbins);
@@ -114,12 +114,13 @@ bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', '
 bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
 errorbar(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))),  ...
     squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), '.k');
+assert(1==0);
 
 % do ttest on regression coefficients
-[~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 1), grandavg.betas(:, 1, 2));
+[~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 2), grandavg.betas(:, 2, 2));
 xlim([0.5 2.5]); box off;
-mysigstar([1 2], [1 1], pval(3)); 
-ylim([0.4 1.1]); 
+mysigstar([1 2], [1 1], pval(3));
+ylim([0.4 1.1]);
 set(gca, 'ytick', [0.5 1]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
 ylabel('Current trial slope');
