@@ -4,9 +4,6 @@ function [] = fig3c_PupilUncertaintyCorrelation()
 
 global mypath;
 
-RTstratification    = true; % include RT in the model, do stratification on bins
-% RTbinsize           = 0.01; % the larger the binsize, the more trials we can keep (in seconds)
-
 % get all data
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
@@ -20,7 +17,7 @@ data.rpebin = nan(size(data.xval));
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fields      = {'decision_pupil', };
+fields      = {'decision_pupil'};
 for f = 1:length(fields),
     
     grandavg.(fields{f}).data = nan(length(subjects), 2, nbins);
@@ -34,60 +31,24 @@ for f = 1:length(fields),
             % FIT BETAS ON THE FULL MODEL, NOT BINNED
             trls = find(data.subjnr == sj & data.correct == corr);
             
-            if RTstratification,
-                % include RT as a regressor
-                mdl = fitlm([zscore(data.xval(trls)) zscore(data.rt(trls))],  ...
-                    zscore(data.(fields{f})(trls)));
-            else
-                % dont include RT as a regressor?
-                mdl = fitlm(([zscore(data.xval(trls))]),  ...
-                    (data.(fields{f})(trls)));
-            end
+            % include RT as a regressor
+            mdl = fitlm([zscore(data.xval(trls)) zscore(log(data.rt(trls)+0.1))],  ...
+                zscore(data.(fields{f})(trls)));
             
             % SAVE BETAS FOR THIS PARTICIPANT
             grandavg.(fields{f}).regline(find(sj==subjects), find(corr==cors), :) = ...
                 mdl.Coefficients.Estimate;
             
-            % PRE-STRATIFY THE RT DISTRIBUTIONS
-            if 0,
-                if RTstratification && f == 1,
-                    
-                    tmpdata = data;
-                    % DIVIDE INTO BINS OF EXPECTED REWARD
-                    tmpdata.rpebin(trls) = quantileIdx(data.xval(trls), nbins);
-                    
-                    for coh = cohs,
-                        trls = find(tmpdata.subjnr==sj & tmpdata.correct==corr & tmpdata.rpebin==coh);
-                        rts{coh} = tmpdata.rt(trls);
-                    end
-                    
-                    % get indices we want to keep for each distribution
-                    [idx_keep, idx_reject] = commonDistributions(RTbinsize, rts);
-                    
-                    % now select this specific subset of data
-                    for coh = cohs,
-                        trls = find(tmpdata.subjnr==sj & tmpdata.correct==corr & tmpdata.rpebin==coh);
-                        tmpdata(trls(idx_reject{coh}), :) = [];
-                        fprintf('sj %d, coh %d, corr %d, removing %d trials \n', sj, coh, corr, numel(idx_reject{coh}));
-                    end
-                else
-                    tmpdata = data;
-                end
-            else
-                tmpdata = data;
-                
-            end
-            
             % RATHER THAN DISCRETE CATEGORIES, BIN BY motionenergy
             clear trls;
-            trls = find(tmpdata.subjnr==sj & tmpdata.correct==corr);
+            trls = find(data.subjnr==sj & data.correct==corr);
             
             % get the mean pupil dilation out
             [grandavg.xMean(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.(fields{f}).data(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.xStd(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.(fields{f}).wgt(find(sj==subjects), find(corr==cors), :)] = ...
-                divideintobins(tmpdata.xval(trls), tmpdata.(fields{f})(trls), nbins);
+                divideintobins(data.xval(trls), data.(fields{f})(trls), nbins);
             
         end
     end
@@ -123,33 +84,34 @@ for f = 1:length(fields),
     end
     
     if f == length(fields),
-        xlabel('Evidence strength');
+        xlabel('Evidence');
     else
         set(gca, 'xticklabel', []);
     end
     
-    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strpng'});
-    ylim([0.2 0.65]); set(gca, 'ytick', 0.2:0.2:0.8);
+    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
+    ylim([0.15 0.65]); set(gca, 'ytick', 0.2:0.2:0.8);
     ylabel('Pupil response (z)');
-    set(gca, 'xcolor', 'k', 'ycolor', 'k');
-    axis square; 
+    axis square;
     
     % make a barplot
     subplot(4,4,6);
     hold on;
-    bar(1, mean(slopes(:, 1)), 'facecolor', cols(1, :), 'edgecolor', 'none', 'barwidth', 0.4);
-    bar(2, mean(slopes(:, 2)), 'facecolor', cols(2, :), 'edgecolor', 'none', 'barwidth', 0.4);
-    h = errorbar(1:2, squeeze(mean(slopes)), squeeze(std(slopes)) / sqrt(length(subjects)), 'k', 'Marker', 'none', 'LineStyle', 'none');
-    s1 = sigstar({[1 1]}, pval(1), 0); set(s1(2), 'position', [1 0.01 0]);
-    s1 = sigstar({[2 2]}, pval(2), 0); set(s1(2), 'position', [2 -0.01 0]);
-    s1 = sigstar({[1 2]}, pval(3), 0);
-    
-    xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
-        [] , 'ydir', 'normal', 'xticklabelrotation', 0);
-    ylim([-0.05 0.05]);
+    bar(1, mean(slopes(:, 1)), 'facecolor', cols(1, :), 'edgecolor', 'none', 'barwidth', 0.8);
+    bar(2, mean(slopes(:, 2)), 'facecolor', cols(2, :), 'edgecolor', 'none', 'barwidth', 0.8);
+    h = ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k.', 'abshhxy', 0);
+    set(h(1), 'marker', 'none');
+
+    mysigstar([1], [0.02 0.02], pval(1));
+    mysigstar([2], [-0.02 -0.02], pval(2));
+    mysigstar([1 2], [0.05 0.05], pval(3));
     axis square;
     
-    box off;
+    xlim([0.1 4.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
+        [] , 'ydir', 'normal', 'xticklabelrotation', 0, 'ytick', [-0.05 0 0.05]);
+    ylim([-0.06 0.05]);
+    
+    box off; axis square;
     if f == length(fields),
         set(gca, 'xtick', 1:2, 'xticklabel', {'Error', 'Correct'});
     else

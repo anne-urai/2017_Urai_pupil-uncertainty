@@ -4,7 +4,7 @@ function [] = fig2d_ReactionTimeUncertainty()
 
 global mypath;
 
-data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+data                = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 nbins               = 6;
 data.xval           = abs(data.motionstrength);
 data.rpebin         = nan(size(data.xval)); % preallocate
@@ -27,11 +27,9 @@ for sj = subjects,
         % FIT BETAS ON THE FULL MODEL, NOT BINNED
         trls = find(data.subjnr == sj & data.correct == corr);
         
-        % dont include RT as a regressor?
-        mdl = fitlm(([abs(data.motionstrength(trls))]),  ...
-            (data.rt(trls)));
-        
-        % SAVE BETAS FOR THIS PARTICIPANT
+        % USE EVIDENCE STRENGTH TO PREDICT log(RT)
+        mdl = fitlm(zscore(abs(data.motionstrength(trls))),  ...
+            zscore(log(data.rt(trls)+0.1)));
         grandavg.rt.regline(find(sj==subjects), find(corr==cors), :) = ...
             mdl.Coefficients.Estimate;
         
@@ -61,10 +59,8 @@ for co = 1:2,
         squeeze(nanstd(grandavg.rpeMean(:, co, :))) / sqrt(length(subjects)), ...
         squeeze(nanstd(grandavg.rt.data(:, co, :))) / sqrt(length(subjects)), ...
         'k-', 'abshhxy', 0);
-    set(h(1), 'color', cols(co, :), ...
-        'markerfacecolor', cols(co, :),  'markersize', 12, 'marker', '.');
-    set(h(1), 'color', cols(co, :), ...
-        'markerfacecolor', cols(co, :));
+    set(h(1), 'color', cols(co, :), 'markersize', 12, 'marker', '.');
+    set(h(1), 'color', cols(co, :));
     set(h(2), 'color', cols(co, :) + 0.05);
     set(h(3), 'color', cols(co, :) + 0.05);
 end
@@ -72,10 +68,10 @@ end
 % set(gca, 'box', 'off', 'tickdir', 'out', 'xtick', cohs);
 xlabel('Evidence');
 ylabel('Reaction time (s)');
-ylim([0.25 0.65]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
-xlim([0 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
+ylim([0.25 0.61]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
+xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
 axis square;
-set(gca, 'xcolor', 'k', 'ycolor', 'k');
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
@@ -92,19 +88,18 @@ bf10 = t1smpbf(stat.tstat,27);
 
 % slopes
 hold on;
-bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
-bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'w', 'BarWidth', 0.4);
-
-ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k', 'Marker', 'none', 'abshhxy', 0);
-xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
-    [] , 'ydir', 'normal', 'xticklabelrotation', 0);
-
-axis tight;
-set(gca, 'xticklabel', {'Error', 'Correct'});
+bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'none', 'BarWidth', 0.8);
+bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'none', 'BarWidth', 0.8);
+h = ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k.', 'abshhxy', 0);
+set(h(1), 'marker', 'none');
+axis square;
+set(gca, 'xtick', [1 2], 'xticklabel', {'error', 'correct'}, 'ytick', [-1:0.1:1]);
 ylabel('Beta evidence');
-sigstar({[1 2]}, pvalD_interc);
-sigstar({[1,1], [2,2]}, [pvalE_interc pvalC_interc]);
-set(gca, 'xcolor', 'k', 'ycolor', 'k');
-ylim([-0.05 0.08]);
+mysigstar([1 2], [0.1 0.1], pvalD_interc);
+mysigstar([1], [0.01 0.01], pvalE_interc);
+mysigstar([2], [-0.1 -0.1], pvalC_interc);
+
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+ylim([-0.3 0.1]); xlim([0.1 4.5]); 
 
 end

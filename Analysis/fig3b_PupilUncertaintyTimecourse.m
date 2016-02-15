@@ -2,9 +2,6 @@ function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
 global mypath;
-
-% settings
-% how to get rid of a possible RT confound?
 RTstratification    = true; % 2. add RT as a predictor in designM
 doStats             = true; % permutation statistics across the group - this takes a while!
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
@@ -61,10 +58,10 @@ for sj = unique(subjects),
         thistabledat = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
         trls = find(thistabledat(:, 8) == cors(c));
         
-        % add RT as another predictor
+        % add log(RT) as another predictor
         if RTstratification,
             designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
-                zscore(thistabledat(trls, 6))];
+                zscore(log(thistabledat(trls, 6)+0.1))];
         else % dont include RT
             designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ];
         end
@@ -131,19 +128,15 @@ else
 end
 
 for whichbeta = whichBetas2plot,
-    
-    % GRAND average
-    % sp = subplot(5,3,7+3*(whichbeta-1));
-    
-    % line to indicate zero
-    plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.1);
+        % line to indicate zero
+    plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.2);
     
     hold on;
     boundedline(1:size(grandavg.beta, 3), squeeze(nanmean(grandavg.beta(:, :, :, whichbeta)))', ...
         permute(squeeze(nanstd(grandavg.beta(:, :, :, whichbeta))) / sqrt(length(subjects)), [2 3 1]), ...
         'cmap', cols);
-    axis tight; ylims = get(gca, 'ylim');
-    yval = min(ylims)-0.2*(ylims(2)-ylims(1));
+    axis tight; 
+    ylim([-0.1 0.1]); yval = -0.11;
     thisax = gca;
     
     hold on;
@@ -152,6 +145,17 @@ for whichbeta = whichBetas2plot,
         pupilgrandavg.timelock{1}(2).lock, [0], ...
         pupilgrandavg.timelock{1}(3).lock, [0 1], ...
         pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
+    
+    % indicate the grey area we use for getting single-trial scalars
+    xticks = get(gca, 'xtick');
+    finalx = xticks(5);
+    startx = xticks(5) - (0.25* (xticks(6)-xticks(5)));
+    a = area(startx:finalx-1, ...
+        ones(1, finalx-startx) * max(get(gca, 'ylim')), ...
+        min(get(gca, 'ylim')));
+    a.FaceColor = [0.9 0.9 0.9];
+    a.EdgeColor = 'none';
+    a.ShowBaseLine = 'off';
     
     if doStats, % skip stats for the intercept
         % on this, do cluster based permutation testing over the time
@@ -188,40 +192,10 @@ for whichbeta = whichBetas2plot,
             stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
             p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
         end
-        
-        % also a shaded area to indicate which part we will use for the
-        % statistical comparison
-        if plotAll,
-            xticks = get(gca, 'xtick');
-            a = area(signific(1):xticks(3), ones(1, length(signific(1):xticks(3))) * max(get(gca, 'ylim')), ...
-                min(get(gca, 'ylim')));
-            a.FaceColor = [0.9 0.9 0.9];
-            a.EdgeColor = 'none';
-        end
     end
     
-    if whichbeta < whichBetas2plot(end),
-        set(gca, 'xticklabel', []);
-    end
-    
-    switch whichbeta
-        case 1
-            % set(gca, 'ytick', [-6:2:8]);
-            ylabel('Intercept');
-        case 2
-            ylabel('Task difficulty');
-            ylim([-0.18 0.08]);
-            %  set(gca, 'ytick', -0.3:0.1:.1);
-            % xlabel('Time (ms)');
-        case 3
-            ylabel('Reaction time');
-            %  set(gca, 'ytick', -.5:0.5:1);
-            % xlabel('Time (ms)');
-        case 4
-            ylabel('Gaze x');
-        case 5
-            ylabel('Gaze y');
-    end
+    ylabel('Beta evidence');
+    ylim([-0.18 0.1]);
     
     if whichbeta == whichBetas2plot(end) && doStats,
         hold on;
@@ -229,9 +203,9 @@ for whichbeta = whichBetas2plot,
         lh = legend(ph2); % make t
         lh.String = {'\color[rgb]{0.915294117647059,0.281568627450980,0.287843137254902} error', ...
             '\color[rgb]{0.441568627450980,0.749019607843137,0.432156862745098} correct', ...
-            '\color[rgb]{0.363921568627451,0.575529411764706,0.748392156862745} error v correct'};
+            '\color[rgb]{0.600000000000000,0.600000000000000,0.600000000000000} error v correct'};
         
-        lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .15;
+        lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .1;
         set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
     end
 end
@@ -239,95 +213,6 @@ end
 if doStats
     save(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath), 'stat');
 end
-
-% ==================================================================
-% show the canonical pupil IRF as well
-% ==================================================================
-
-if 0,
-    w = 10.1; tmax = 0.930; % from Hoeks and Levelt
-    
-    % Erlang gamma function from Hoeks and Levelt, Wierda
-    t = 0:1/(100):2;
-    irf =  (t.^w .* exp(-t.*w ./ tmax));
-    
-    subplot(6,4,1);
-    plot(t, irf);
-    set(gca, 'box', 'off', 'tickdir', 'out', 'yticklabel', []);
-    set(gca, 'ytick', get(gca, 'ylim'));
-    xlabel('Time (s)'); ylabel({'Impulse'; 'response'});
-    offsetAxes;
-    % title('Canonical pupil IRF');
-    print(gcf, '-dpdf', sprintf('~/Dropbox/Figures/uncertainty/pupilIRF.pdf'));
-    
-end
-end
-
-% ==================================================================
-% layout, plots lines to indicate event onset
-% ==================================================================
-function [] = plotLines(refdata, reftp, stimdata, stimtp, respdata, resptp, fbdata, fbtp)
-
-xticks = []; xlabels = {};
-for t = 1:length(reftp),
-    xticks = [xticks dsearchn(refdata.time', reftp(t))];
-    if reftp(t) == 0,
-        xlabels = [xlabels 'Stimulus 1'];
-    else
-        xlabels = [xlabels reftp(t) * 1000];
-    end
-end
-
-for t = 1:length(stimtp),
-    xticks = [xticks length(refdata.time) + dsearchn(stimdata.time', stimtp(t))];
-    if stimtp(t) == 0,
-        xlabels = [xlabels 'Stimulus 2'];
-    else
-        xlabels = [xlabels stimtp(t)* 1000];
-    end
-end
-
-for t = 1:length(resptp),
-    xticks = [xticks length(refdata.time) + length(stimdata.time) + ...
-        dsearchn(respdata.time', resptp(t))];
-    if resptp(t) == 0,
-        xlabels = [xlabels 'Response'];
-    else
-        xlabels = [xlabels resptp(t)* 1000];
-    end
-end
-
-for t = 1:length(fbtp),
-    xticks = [xticks length(refdata.time) + length(stimdata.time) + ...
-        length(respdata.time) + dsearchn(fbdata.time', fbtp(t))];
-    if fbtp(t) == 0,
-        xlabels = [xlabels 'Feedback'];
-    else
-        xlabels = [xlabels fbtp(t)* 1000];
-    end
-end
-
-set(gca, 'XTick', xticks, 'XTickLabel', xlabels, ...
-    'XTickLabelRotation', -45, 'tickdir', 'out', 'box', 'off');
-
-% add white lines to indicate transitions between intervals
-x = length(refdata.time)+.5;
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'w', 'LineStyle', '-', 'LineWidth', 2);
-x = length(refdata.time) + length(stimdata.time) +.5;
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'w', 'LineStyle', '-', 'LineWidth', 2);
-x = length(refdata.time) + length(stimdata.time) + length(respdata.time) +.5;
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'w', 'LineStyle', '-', 'LineWidth', 2);
-
-% add dotted  black lines to indicate event onset
-x = dsearchn(refdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k', 'LineStyle', '-', 'LineWidth', 0.1);
-x = length(refdata.time) + dsearchn(stimdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k', 'LineStyle', '-', 'LineWidth', 0.1);
-x = length(refdata.time) + length(stimdata.time) + dsearchn(respdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k','LineStyle', '-', 'LineWidth', 0.1);
-x = length(refdata.time) + + length(stimdata.time) + ...
-    length(respdata.time) + dsearchn(fbdata.time', 0);
-l = line([x x], get(gca, 'YLim')); set(l, 'Color', 'k', 'LineStyle', '-', 'LineWidth', 0.1);
 
 end
 

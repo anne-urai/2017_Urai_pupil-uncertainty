@@ -1,4 +1,4 @@
-function [grandavg] = fig5_pupil_bias(nbins)
+function [grandavg] = fig5_pupil_bias()
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 global mypath;
@@ -45,7 +45,6 @@ for p = 1:length(pupfields),
             laggedtrls(removeTrls) = [];
             trls(removeTrls) = [];
             
-            
             thisdat = data(laggedtrls, :);
             
             % fit on all the trials, dont average beforehand!
@@ -58,14 +57,10 @@ for p = 1:length(pupfields),
             
             [beta,dev,stats] = glmfit(x, [y ones(size(y))], ...
                 'binomial','link','logit');
-            % newx = -3:0.01:3;
-            % yfit = glmval(beta, newx,'logit');
-            % plot(newx, yfit,'-', 'color', cols(b, :));
             
             % also save the curve itself
             grandavg.betas(sj, b, :) = beta;
-            % grandavg.yfit(sj, b, :) = yfit;
-            
+
             % also get the individual d prime
             % use 0 (for weaker motion answer) instead of -1
             resp = thisdat.resp; resp(resp==-1) = 0;

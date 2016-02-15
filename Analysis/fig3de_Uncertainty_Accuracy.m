@@ -43,11 +43,10 @@ boundedline(1:nbins, nanmean(grandavg.acc), ...
 
 xlabel('Pupil response');
 ylabel({'Percent correct'});
-axis tight; axis square;
+axis square;
 set(gca, 'ytick', [60:5:80]);
 set(gca, 'xtick', [1 nbins/2 nbins], 'xticklabel', {'low', 'medium', 'high'});
-%offsetAxes;
-box off; ylim([65 80]);
+box off; ylim([65 80]); xlim([0 nbins]);
 
 % do stats on these logistic betas
 [h, p, ci, stats] = ttest(grandavg.b(:, end));
@@ -60,9 +59,7 @@ subjects = 1:27;
 grandavg.betas = nan(length(subjects), 2, 2);
 
 for sj = unique(subjects),
-    
-    disp(sj);
-    % get all the data
+        % get all the data
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     % divide into low and high pupil bins
@@ -110,15 +107,15 @@ end
 % make sure I actually plot the bar graph here to reproduce figure 3!
 subplot(4,8,16);
 hold on;
-bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
-bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
-errorbar(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))),  ...
-    squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), '.k');
-assert(1==0);
+bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.8);
+bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.8);
+h = ploterr(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))), ...
+    [], squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), 'k.', 'abshhxy', 0);
+set(h(1), 'marker', 'none');
 
 % do ttest on regression coefficients
 [~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 2), grandavg.betas(:, 2, 2));
-xlim([0.5 2.5]); box off;
+xlim([0 2.5]); box off;
 mysigstar([1 2], [1 1], pval(3));
 ylim([0.4 1.1]);
 set(gca, 'ytick', [0.5 1]);

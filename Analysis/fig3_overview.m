@@ -3,7 +3,7 @@
 
 global mypath;
 
-subplot(4,4,1); fig3a_PupilTimecourse;
+subplot(4,4,1); fig3a_PupilTimecourse(0);
 subplot(4,4,3); fig3b_PupilUncertaintyTimecourse;
 
 subplot(4,4,5); fig3c_PupilUncertaintyCorrelation;
@@ -11,11 +11,20 @@ subplot(4,4,7); fig3de_Uncertainty_Accuracy;
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
 
+%%
+figure;
+subplot(3,3,1); fig3f_pupilDprimeCriterionTimecourse(1);
+subplot(3,3,4); fig3f_pupilDprimeCriterionTimecourse(0);
+print(gcf, '-dpdf', sprintf('%s/Figures/pupilBiasSensitivity.pdf', mypath));
+
+
 %% not in figure, but compute the correlation between RT and pupil values for each SJ
 clc;
 subjects = 1:27; 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    data.rt = zscore(log(data.rt + 0.1));
+    
     %subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
     [grandavg.pearson(sj), grandavg.pearsonpval(sj)] = corr(data.decision_pupil, data.rt, 'type', 'pearson');
 end
