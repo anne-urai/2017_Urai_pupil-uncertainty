@@ -35,7 +35,6 @@ a3_writeData2GA;
 a4_writeData2CSV;
 
 %% reproduce figure 1, 2, and 3
-fig1ab_Model;
 close all;
 fig2_overview;
 close all;
@@ -69,11 +68,11 @@ for m = 1:length(mods),
 end
 
 %% reproduce figure 4
-fig4_overview;
+fig3_overview;
 
 %% also reproduce the supplementary figures
-figS1_MotionEnergy_Filters;
-figS2_decisionStrategies_pupilSplit;
+figS1_Model;
+figS2_MotionEnergy_Filters;
 figS3_feedbackpupil;
 
 % there you go! get in touch if you have any further questions.

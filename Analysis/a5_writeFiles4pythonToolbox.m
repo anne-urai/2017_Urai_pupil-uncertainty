@@ -2,7 +2,7 @@
 
 global mypath;
 % cd(sprintf('%s/Code/serial-dependencies/data/', mypath));
-cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/');
+cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/data/');
 subjects = 1:27;
 
 for sj = subjects,
@@ -38,7 +38,7 @@ for sj = subjects,
     % feedback pupil
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
         zscore(data.feedback_pupil)];
-    dlmwrite(sprintf('2ifc_feedbackpupil_sj%02d.txt', sj), ...
+    dlmwrite(sprintf('2ifc_fbpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
     % feedback pupil with decision pupil in the model

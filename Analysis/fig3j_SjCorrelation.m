@@ -5,14 +5,10 @@ global mypath;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
-
-
 % or without errorbars
 scatter(dat.response(:, 1), dat.(['response_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
 
 [rho, pval] = corr(dat.response(:, 1), dat.(['response_' whichmodulator])(:, 1), 'type', 'pearson');
-max(abs(dat.response(:, 1)))
-max(abs(dat.(['response_' whichmodulator])(:, 1)))
 if pval < 0.05,
    lsline;
 end
@@ -49,8 +45,7 @@ switch whichmodulator
         x = dat.response(:, 1);
         y1 = dat.response_pupil(:, 1);
         y2 = dat.response_rt(:, 1);
-        [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000);
+        [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000)
 end
-set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 end

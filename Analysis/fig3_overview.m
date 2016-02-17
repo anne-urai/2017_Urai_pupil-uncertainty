@@ -1,38 +1,32 @@
-% replicates figure 3
-% Anne Urai, 2015
+% figure 4 overview
 
 global mypath;
 
-subplot(4,4,1); fig3a_PupilTimecourse(0);
-subplot(4,4,3); fig3b_PupilUncertaintyTimecourse;
-
-subplot(4,4,5); fig3c_PupilUncertaintyCorrelation;
-subplot(4,4,7); fig3de_Uncertainty_Accuracy;
-
-print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
-
-%%
+close;
 figure;
-subplot(3,3,1); fig3f_pupilDprimeCriterionTimecourse(1);
-subplot(3,3,4); fig3f_pupilDprimeCriterionTimecourse(0);
-print(gcf, '-dpdf', sprintf('%s/Figures/pupilBiasSensitivity.pdf', mypath));
+%s/Data/serialmodel
+% top row pure history effects
+subplot(441); fig3a_FruendKernels('plain');
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+
+subplot(442); fig3b_decisionStrategies('plain');
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+
+% middle row
+nbins = 3;
+subplot(445); fig3c_psychFuncShift_Bias_byResp('pupil', nbins);
+subplot(446); fig3d_psychFuncShift_Bias_Slope('pupil', nbins);
+
+subplot(4,4,7); fig3c_psychFuncShift_Bias_byResp('rt', nbins); 
+subplot(4,4,8); fig3d_psychFuncShift_Bias_Slope('rt', nbins);
+
+% bottom row - unique variance of pupil and RT
+subplot(4,4,9); fig3hi_HistoryPupil_Bar('pupil', 'all');
+subplot(4,4,10); fig3hi_HistoryPupil_Bar('rt', 'all');
+
+subplot(4,4,11); fig3j_SjCorrelation('pupil');
+subplot(4,4,12); fig3j_SjCorrelation('rt');
+
+print(gcf, '-dpdf', sprintf('%s/Figures/figure4.pdf', mypath));
 
 
-%% not in figure, but compute the correlation between RT and pupil values for each SJ
-clc;
-subjects = 1:27; 
-for sj = unique(subjects),
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    data.rt = zscore(log(data.rt + 0.1));
-    
-    %subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
-    [grandavg.pearson(sj), grandavg.pearsonpval(sj)] = corr(data.decision_pupil, data.rt, 'type', 'pearson');
-end
-
-% check across the group
-fprintf('pupil RT correlation, mean %f, min %f, max %f. nr of subjects with significant correlation: %d. \n', ...
-    mean(grandavg.pearson), min(grandavg.pearson), max(grandavg.pearson), length(find(grandavg.pearsonpval < 0.05)))
-
-%% rsquare for regresson models
-load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath));
-fprintf('R squared across regression samples: mean %f, std %d \n', mean(grandavg.rsq(:)), std(grandavg.rsq(:)));

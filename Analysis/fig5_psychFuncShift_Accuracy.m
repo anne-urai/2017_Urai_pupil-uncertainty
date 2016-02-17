@@ -1,4 +1,4 @@
-function fig4d_psychFuncShift_Accuracy(whichmodulator, nbins, correctness)
+function fig5_psychFuncShift_Accuracy(whichmodulator, nbins, correctness)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -32,6 +32,31 @@ lag = 1;
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     data = data(find(data.sessionnr > 1), :);
+    
+    % find their individual 70% correct threshold
+    xrange          = abs(data.motionstrength);
+    yrange          = data.correct;
+    [newx, newy]    = divideintobins(xrange, yrange, 10);
+    % cumulative normal at 0.5
+    ft              = fittype( @(b, s, x) 0.5 * (1 + erf( (abs(x-b)/(s * sqrt(2))))));
+    fitobj          = fit(xrange, yrange, ft);
+    % fit this to these data
+    sortedx         = sort(xrange);
+    yval            = feval(fitobj, sortedx);
+    threshold       = sortedx(dsearchn(yval, 0.6));
+    
+    
+    % find their individual 70% correct threshold
+    xrange          = abs(data.motionstrength);
+    yrange          = data.correct;
+    [newx, newy]    = divideintobins(xrange, yrange, 10);
+    % cumulative normal at 0.5
+    ft              = fittype( @(b, s, x) 0.5 * (1 + erf( (abs(x-b)/(s * sqrt(2))))));
+    fitobj          = fit(xrange, yrange, ft);
+    % fit this to these data
+    sortedx         = sort(xrange);
+    yval            = feval(fitobj, sortedx);
+    threshold       = sortedx(dsearchn(yval, 0.6));
     
     % in this case, take out decision effects
     switch whichmodulator
@@ -71,9 +96,6 @@ for sj = unique(subjects),
     removeTrls = data.blocknr(laggedtrls) ~= data.blocknr(trls);
     laggedtrls(removeTrls) = [];
     trls(removeTrls) = [];
-    
-    % fit logistic regression
-    thisdat = data(laggedtrls, :);
     
     %% split into pupil bins
     if nbins > 2,
@@ -115,9 +137,9 @@ for sj = unique(subjects),
         
         % fit logistic regression
         thisdat = data(laggedtrls, :);
-        
+    
         % save betas
-        grandavg.accuracy(sj, u, lag, :) = nanmean(thisdat.correct);
+        grandavg.accuracy(sj, u, lag, :) = nanmean(thisdat.correct(thisdat.motionstrength < threshold));
         
     end % uncertainty bin
 end % sj

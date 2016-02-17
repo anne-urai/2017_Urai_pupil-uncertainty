@@ -190,7 +190,7 @@ set(gca, 'ytick', [0:0.25:1]);
 set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 
 cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
-print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS1.pdf', mypath));
 
 end
 

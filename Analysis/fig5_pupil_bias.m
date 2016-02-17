@@ -6,7 +6,7 @@ nbins = 3;
 cnt = 1;
 %% fit logistic slope on high vs low pupil bins
 
-pupfields = {'earlydecision_pupil', 'decision_pupil'};
+pupfields = {'rt'};
 for p = 1:length(pupfields),
     
     subjects = 1:27;
@@ -16,11 +16,19 @@ for p = 1:length(pupfields),
         % get all the data
         data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
         
-        pupQs = quantile(data.(pupfields{p}), nbins - 1);
-        % divide into low and high pupil bins
-        % puptrls{1} = find(data.(pupfields{p}) < quantile(data.(pupfields{p}), 0.5));
-        % puptrls{2} = find(data.(pupfields{p}) > quantile(data.(pupfields{p}), 0.5));
+        % find their individual 70% correct threshold
+        xrange          = abs(data.motionstrength);
+        yrange          = data.correct;
+        [newx, newy]    = divideintobins(xrange, yrange, 10);
+        % cumulative normal at 0.5
+        ft              = fittype( @(b, s, x) 0.5 * (1 + erf( (abs(x-b)/(s * sqrt(2))))));
+        fitobj          = fit(xrange, yrange, ft);
+        % fit this to these data
+        sortedx         = sort(xrange);
+        yval            = feval(fitobj, sortedx);
+        threshold       = sortedx(dsearchn(yval, 0.6));
         
+        pupQs = quantile(data.(pupfields{p}), nbins - 1);
         for b = 1:nbins,
             
             switch b
@@ -57,66 +65,56 @@ for p = 1:length(pupfields),
             
             [beta,dev,stats] = glmfit(x, [y ones(size(y))], ...
                 'binomial','link','logit');
-            
-            % also save the curve itself
             grandavg.betas(sj, b, :) = beta;
-
-            % also get the individual d prime
-            % use 0 (for weaker motion answer) instead of -1
-            resp = thisdat.resp; resp(resp==-1) = 0;
-            stim = thisdat.stim; stim(stim==-1) = 0;
             
-            hit  = length(find(resp(find(stim == 1))==1)) / length(resp(find(stim == 1)));
-            fa   = length(find(resp(find(stim == 0))==1)) / length(resp(find(stim == 0)));
-            
-            grandavg.dprime(sj, b) = norminv(hit) - norminv(fa);
-            
-            % see if there is a difference in the actual stimulus as well
-            grandavg.difficulty(sj, b) = mean(abs(thisdat.motionstrength));
+            % save the accuracy
+            grandavg.accuracy(sj, b) = nanmean(thisdat.correct(thisdat.motionstrength < threshold));
         end
     end
     
     % make sure I actually plot the bar graph here to reproduce figure 3!
     subplot(4,4,cnt); cnt = cnt + 1;
-    hold on;
-    bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
-    bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
-    bar(3, mean(grandavg.betas(:, 3, 2)), 'facecolor', [0.2 0.2 0.3], 'edgecolor', 'none', 'barwidth', 0.4);
-    
-    errorbar(1:nbins, squeeze(nanmean(grandavg.betas(:, :, 2))),  ...
-        squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), '.k');
+    errorbar(1:nbins, squeeze(nanmean(grandavg.accuracy)),  ...
+        squeeze(std(grandavg.accuracy)) / sqrt(length(subjects)), '.k-', 'markersize', 12);
     
     % do ttest on regression coefficients
-    [~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 2), grandavg.betas(:, end, 2));
+    [~, pval(3), ~, stat] = ttest(grandavg.accuracy(:, 1), grandavg.accuracy(:, end));
     xlim([0.5 nbins+0.5]); box off;
-    mysigstar([1 nbins], [1 1], pval(3));
-    ylim([0.4 1.1]);
-    set(gca, 'ytick', [0.5 1]);
+    mysigstar([1 nbins], [0.74 0.74], pval(3));
+    set(gca, 'ytick', [0.68 0.7 0.72 0.74]);
+    ylim([0.68 0.74]);
     xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
-    ylabel('Next trial slope');
-    title(pupfields{p}, 'interpreter', 'none');
-    set(gca, 'xcolor', 'k', 'ycolor', 'k');
+    ylabel('Next trial P(correct)');
     
-    %% absolute bias as a function of pupil!
+    %%  bias as a function of pupil!
     subplot(4,4,cnt); cnt = cnt + 1;
-    hold on;
-    absb = abs(squeeze(grandavg.betas(:, :, 1)));
-    bar(1, mean(absb(:, 1)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.4);
-    bar(2, mean(absb(:, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.4);
-    bar(3, mean(absb(:, 3)), 'facecolor', [0.2 0.2 0.2], 'edgecolor', 'none', 'barwidth', 0.4);
-    
-    errorbar(1:3, squeeze(nanmean(absb)),  ...
-        squeeze(std(absb)) / sqrt(length(subjects)), '.k');
-    
+    absb = squeeze(grandavg.betas(:, :, 1));
+    errorbar(1:nbins, squeeze(nanmean(absb)),  ...
+        squeeze(std(absb)) / sqrt(length(subjects)), '.k-', 'markersize', 12);
     % do ttest on regression coefficients
     [~, pval(3), ~, stat] = ttest(absb(:, 1), absb(:, end));
     xlim([0.5 nbins+0.5]); box off;
-    mysigstar([1 nbins], [0.45 0.45], pval(3));
-    ylim([0.1 0.5]);
+    bf10 = t1smpbf(stat.tstat,27)
+    disp(1/bf10)
+    mysigstar([1 nbins], [0.1 0.1], pval(3));
+    ylim([-0.12 0.12]); set(gca, 'ytick', [-0.1 0 0.1]);
     xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
-    ylabel('Next bias size');
-    title(pupfields{p}, 'interpreter', 'none');
-    set(gca, 'xcolor', 'k', 'ycolor', 'k');
+    ylabel('Next trial bias');
+    
+    %% absolute bias as a function of pupil!
+    subplot(4,4,cnt); cnt = cnt + 1;
+    absb = abs(squeeze(grandavg.betas(:, :, 1)));
+    errorbar(1:nbins, squeeze(nanmean(absb)),  ...
+        squeeze(std(absb)) / sqrt(length(subjects)), '.k-', 'markersize', 12);
+    % do ttest on regression coefficients
+    [~, pval(3), ~, stat] = ttest(absb(:, 1), absb(:, end));
+    bf10 = t1smpbf(stat.tstat,27)
+    disp(1/bf10)
+    xlim([0.5 nbins+0.5]); box off;
+    mysigstar([1 nbins], [0.4 0.4], pval(3));
+    ylim([0.2 0.41]); set(gca, 'ytick', [0.2 0.3 0.4]);
+    xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
+    ylabel('Next trial |bias|');
     
 end
 

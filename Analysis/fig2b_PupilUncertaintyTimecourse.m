@@ -2,7 +2,6 @@ function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
 global mypath;
-RTstratification    = true; % 2. add RT as a predictor in designM
 doStats             = true; % permutation statistics across the group - this takes a while!
 plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main evidence strength regressor
@@ -59,12 +58,8 @@ for sj = unique(subjects),
         trls = find(thistabledat(:, 8) == cors(c));
         
         % add log(RT) as another predictor
-        if RTstratification,
-            designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
-                zscore(log(thistabledat(trls, 6)+0.1))];
-        else % dont include RT
-            designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ];
-        end
+        designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
+            zscore(log(thistabledat(trls, 6)+0.1))];
         
         % regress for each sample
         for s = 1:size(tl, 2),

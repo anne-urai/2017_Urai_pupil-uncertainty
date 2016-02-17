@@ -1,4 +1,4 @@
-function fig4hi_HistoryPupil_Bar(whichmodulator, grouping)
+function fig3hi_HistoryPupil_Bar(whichmodulator, grouping)
 if ~exist('grouping', 'var'); grouping = 'all'; end
 global mypath;
 
@@ -13,31 +13,18 @@ load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 % ============================================ %
 
 colors = cbrewer('qual', 'Set1', 9);
-bwMat = cat(3, [dat.(['response_' whichmodulator])(:, 1) dat.(['stimulus_' whichmodulator])(:, 1) ...
-    dat.(['correct_' whichmodulator])(:, 1) dat.(['incorrect_' whichmodulator])(:, 1)]);
+bwMat = cat(3, [dat.(['response_' whichmodulator])(:, 1) dat.(['stimulus_' whichmodulator])(:, 1)]);
 
 % split subgroups by plain weights
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
-switch grouping
-    case 'all'
-        theseSj = 1:27;
-        repeaters = find(dat.response(:, 1) > 0);
-        alternators = find(dat.response(:, 1) < 0);
-        idx = 1:4;
-    case 'switch'
-        theseSj = find(dat.response(:, 1) < 0);
-        idx = [1 3 4];
-    case 'repeat'
-        theseSj = find(dat.response(:, 1) > 0);
-        idx = [1 3 4];
-end
+theseSj = 1:27;
+idx = 1:2;
 
 % p values
 [~, pvals(1)] = ttest(bwMat(theseSj, 1));
 [~, pvals(2)] = ttest(bwMat(theseSj, 2));
-[~, pvals(3)] = ttest(bwMat(theseSj, 3));
-[~, pvals(4)] = ttest(bwMat(theseSj, 4));
+[~, pvals(3)] = ttest(bwMat(theseSj, 1), bwMat(theseSj, 2));
 disp(pvals);
 
 hold on;
@@ -49,15 +36,18 @@ for i = idx,
         std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)), 'k', 'abshhxy', 0);
     set(h(1), 'marker', 'none');
     % add significance star
-    
     if mean(bwMat(theseSj, i)) < 0,
         yval = min(bwMat(theseSj, i)) - 1*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)));
     else
         yval = mean(bwMat(theseSj, i)) + 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)));
     end
-    yval = -0.12;
+    yval = -0.1;
     mysigstar(find(idx==i), yval, pvals(i), barcolors(i, :));
 end
+
+yval = -0.12;
+% sigstar between the two
+mysigstar([1 2], yval, pvals(3), barcolors(i, :));
 
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
