@@ -23,7 +23,8 @@
 cd $PBS_O_WORKDIR
 chmod g=wx $PBS_JOBNAME
 
-for ((i=1; i<=16; i++)) ; do
+#for ((i=1; i<=16; i++)) ; do
+for i in 3 6 7 8 14 15 16 19 20 21; do
 (
                       filename=$(printf "$HOME/Dropbox/code/pupilUncertainty/serial-dependencies/data/2ifc_%s_sj%02d.txt" $whichFile $i); # get the name based on the input argument
                       python2.7 analysis.py -fr -n1000 $filename; # force rerun and dont plot

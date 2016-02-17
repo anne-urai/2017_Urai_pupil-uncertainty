@@ -1,4 +1,4 @@
-function fig4c_psychFuncShift_Bias_byResp(whichmodulator, nbins)
+function fig3c_psychFuncShift_Bias_byResp(whichmodulator, nbins)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -11,9 +11,9 @@ hold on;
 switch whichmodulator
     case 'pupil'
         whichMod = 'decision_pupil';
-    case 'feedbackpupil'
+    case 'fbpupil'
         whichMod = 'feedback_pupil';
-    case 'fb-decpupil'
+    case 'fb+decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
     case 'rt'
@@ -37,7 +37,7 @@ for lag = whichLags,
 
         % in this case, take out decision effects
         switch whichmodulator
-            case 'fb-decpupil'
+            case 'fb+decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
             case 'pupil-rt',
                 data.decision_pupil = projectout(data.decision_pupil, data.rt);

@@ -2,7 +2,7 @@
 
 % first, make sure this path matches the place where the data are stored
 global mypath;
-mypath = '~/Data/pupilUncertainty';
+mypath = '/Users/anne/Data/pupilUncertainty';
 cd(mypath);
 
 % add the code folder
@@ -51,18 +51,17 @@ cd(sprintf('%s/Code/serial-dependencies', mypath));
 cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/');
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
-mods = {'plain', 'pupil+rt', 'feedbackpupil', 'fb+decpupil'};
+mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
 
 for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fr -n1000 -p "%s/Data/serialmodel" $filename; sleep 5; done', mypath)]);
+        sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 % important: if you want the quick and dirty version without accurate errorbars, change -n1000 to n-10.
 
 %% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
-mods = {'plain', 'pupil+rt'};
 for m = 1:length(mods),
     a6_retrieveDataFromPython(mods{m});
 end

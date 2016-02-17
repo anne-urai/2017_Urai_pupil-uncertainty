@@ -83,7 +83,7 @@ for p = 1:length(pupfields),
     mysigstar([1 nbins], [0.74 0.74], pval(3));
     set(gca, 'ytick', [0.68 0.7 0.72 0.74]);
     ylim([0.68 0.74]);
-    xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
+    xlabel(pupfields{p}); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
     ylabel('Next trial P(correct)');
     
     %%  bias as a function of pupil!
@@ -98,7 +98,7 @@ for p = 1:length(pupfields),
     disp(1/bf10)
     mysigstar([1 nbins], [0.1 0.1], pval(3));
     ylim([-0.12 0.12]); set(gca, 'ytick', [-0.1 0 0.1]);
-    xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
+    xlabel(pupfields{p}); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
     ylabel('Next trial bias');
     
     %% absolute bias as a function of pupil!
@@ -113,7 +113,7 @@ for p = 1:length(pupfields),
     xlim([0.5 nbins+0.5]); box off;
     mysigstar([1 nbins], [0.4 0.4], pval(3));
     ylim([0.2 0.41]); set(gca, 'ytick', [0.2 0.3 0.4]);
-    xlabel('Pupil response'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
+    xlabel(pupfields{p}); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
     ylabel('Next trial |bias|');
     
 end

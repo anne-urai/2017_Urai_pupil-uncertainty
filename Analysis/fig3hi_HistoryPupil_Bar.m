@@ -1,12 +1,20 @@
-function fig3hi_HistoryPupil_Bar(whichmodulator, grouping)
-if ~exist('grouping', 'var'); grouping = 'all'; end
+function fig3hi_HistoryPupil_Bar(whichmodulator)
 global mypath;
 
 % ============================================ %
 % bargraphs for previous response and response * pupil regressors
 % ============================================ %
 
-load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+switch whichmodulator
+    case 'pupil'
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+    case 'rt'
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+    otherwise
+        load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
+        whichmodulator = 'pupil'; % use the first modulatory term
+end
+
 
 % ============================================ %
 % barweb matrix
@@ -42,12 +50,12 @@ for i = idx,
         yval = mean(bwMat(theseSj, i)) + 2*(std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)));
     end
     yval = -0.1;
-    mysigstar(find(idx==i), yval, pvals(i), barcolors(i, :));
+    mysigstar(find(idx==i), yval, pvals(i));
 end
 
 yval = -0.12;
 % sigstar between the two
-mysigstar([1 2], yval, pvals(3), barcolors(i, :));
+mysigstar([1 2], yval, pvals(3));
 
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);

@@ -3,11 +3,11 @@
 
 global mypath;
 
-subplot(444); fig2a_PsychometricFunction;
+subplot(444); fig1a_PsychometricFunction;
 
-subplot(446); fig2b_MotionEnergy_Timecourse;
-subplot(447); fig2b_MotionEnergy_Probability;
+subplot(446); fig1b_MotionEnergy_Timecourse;
+subplot(447); fig1b_MotionEnergy_Probability;
 
-subplot(4,4,14); fig2d_ReactionTimeUncertainty;
+subplot(4,4,14); fig1d_ReactionTimeUncertainty;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figure2.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));

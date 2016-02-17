@@ -3,18 +3,18 @@
 
 global mypath;
 
-subplot(4,4,1); fig3a_PupilTimecourse(0);
-subplot(4,4,3); fig3b_PupilUncertaintyTimecourse;
+subplot(4,4,1); fig2a_PupilTimecourse(0);
+subplot(4,4,3); fig2b_PupilUncertaintyTimecourse;
 
-subplot(4,4,5); fig3c_PupilUncertaintyCorrelation;
-subplot(4,4,7); fig3de_Uncertainty_Accuracy;
+subplot(4,4,5); fig22c_PupilUncertaintyCorrelation;
+subplot(4,4,7); fig2de_Uncertainty_Accuracy;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figure2.pdf', mypath));
 
 %%
 figure;
-subplot(3,3,1); fig3f_pupilDprimeCriterionTimecourse(1);
-subplot(3,3,4); fig3f_pupilDprimeCriterionTimecourse(0);
+subplot(3,3,1); fig2f_pupilDprimeCriterionTimecourse(1);
+subplot(3,3,4); fig2f_pupilDprimeCriterionTimecourse(0);
 print(gcf, '-dpdf', sprintf('%s/Figures/pupilBiasSensitivity.pdf', mypath));
 
 
@@ -34,5 +34,5 @@ fprintf('pupil RT correlation, mean %f, min %f, max %f. nr of subjects with sign
     mean(grandavg.pearson), min(grandavg.pearson), max(grandavg.pearson), length(find(grandavg.pearsonpval < 0.05)))
 
 %% rsquare for regresson models
-load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath));
+load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath));s
 fprintf('R squared across regression samples: mean %f, std %d \n', mean(grandavg.rsq(:)), std(grandavg.rsq(:)));

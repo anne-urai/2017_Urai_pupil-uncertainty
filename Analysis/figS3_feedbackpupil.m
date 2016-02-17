@@ -2,7 +2,7 @@
 global mypath;
 
 lagGroups = 1;
-mods = {'feedbackpupil', 'fb-decpupil'}; %, 'pupil-rt', 'feedbackpupil', 'fb-decpupil'};
+mods = {'fbpupil', 'fb+decpupil'}; %, 'pupil-rt', 'feedbackpupil', 'fb-decpupil'};
 nbins = 3;
 close;
 figure;
@@ -11,27 +11,25 @@ for m = 1:length(mods),
     whichmodulator = mods{m};
     
     % middle row
-    subplot(4,4,(m-1)*8+1); fig4c_psychFuncShift_Bias_byResp(whichmodulator, 'all', nbins); % todo
+    subplot(4,4,(m-1)*8+1); fig3c_psychFuncShift_Bias_byResp(whichmodulator, nbins); % todo
     set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
     
-    subplot(4,4,(m-1)*8+2); fig4d_psychFuncShift_Bias(whichmodulator, 'all', nbins, []);
-    % subplot(446); fig4d_psychFuncShift_Bias(lagGroups, whichmodulator, 'all', 0);
+    subplot(4,4,(m-1)*8+2); fig3d_psychFuncShift_Bias_Slope(whichmodulator, nbins, []);
     set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
     
-    subplot(4,4,(m-1)*8+3); fig4d_psychFuncShift_Slope(whichmodulator, 'all', [], nbins);
-    %  subplot(447); fig4e_psychFuncShift_Slope(lagGroups, whichmodulator, 'all', 0);
-    set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+    %subplot(4,4,(m-1)*8+3); fig3d_psychFuncShift_Slope(whichmodulator, [], nbins);
+   % set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
     
-    subplot(4,8,(m-1)*16+7); fig4hi_HistoryPupil_Bar(whichmodulator, 'all');
+    subplot(4,8,(m-1)*16+7); fig3hi_HistoryPupil_Bar(whichmodulator);
     % set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
     
     switch m
         case 1
             suplabel('Post-feedback pupil response', 'x');
         case 2
-            suplabel('Residual post-feedback - pre-feedback pupil responses', 'x');
+            suplabel('Decision pupil included as covariate', 'x');
     end
     
 end
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS3.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));

@@ -27,6 +27,6 @@ subplot(4,4,10); fig3hi_HistoryPupil_Bar('rt', 'all');
 subplot(4,4,11); fig3j_SjCorrelation('pupil');
 subplot(4,4,12); fig3j_SjCorrelation('rt');
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figure4.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
 
 

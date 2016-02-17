@@ -1,4 +1,4 @@
-function fig4d_psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
+function fig3d_psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -10,9 +10,9 @@ warning('error', 'stats:glmfit:PerfectSeparation');
 switch whichmodulator
     case 'pupil'
         whichMod = 'decision_pupil';
-    case 'feedbackpupil'
+    case 'fbpupil'
         whichMod = 'feedback_pupil';
-    case 'fb-decpupil'
+    case 'fb+decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
     case 'rt'
@@ -35,7 +35,7 @@ for sj = unique(subjects),
     
     % in this case, take out decision effects
     switch whichmodulator
-        case 'fb-decpupil'
+        case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'pupil-rt',
             data.decision_pupil = projectout(data.decision_pupil, data.rt);
