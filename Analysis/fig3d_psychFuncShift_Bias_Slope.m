@@ -92,7 +92,6 @@ for sj = unique(subjects),
         
         % uncertainty bins
         for u = 1:nbins,
-            
             switch u
                 case 1
                     trls = find(data.resp == resps(r) & data.(whichMod) < uncQs(u));
@@ -171,7 +170,6 @@ grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, 1, :), 4));
 
 grandavgBias = grandavg;
 
-
 %% now for slope
 
 for sj = unique(subjects),
@@ -180,7 +178,7 @@ for sj = unique(subjects),
     
     % in this case, take out decision effects
     switch whichmodulator
-        case 'fb-decpupil'
+        case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'pupil-rt',
             data.decision_pupil = projectout(data.decision_pupil, data.rt);

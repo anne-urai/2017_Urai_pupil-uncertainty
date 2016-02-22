@@ -3,7 +3,6 @@
 % first, make sure this path matches the place where the data are stored
 global mypath;
 mypath = '/Users/anne/Data/pupilUncertainty';
-cd(mypath);
 
 % add the code folder
 addpath('~/Dropbox/Code/pupilUncertainty/Analysis');

@@ -67,12 +67,10 @@ setup.increments         = [-1 1];
 % use script from %Brooks, J.L. (2012). Counterbalancing for serial order carryover effects in 
 % experimental condition orders. Psychological Methods.
 % to counterbalance and randomize the order of responses
-
 for b = 1:setup.nblocks,
-    increm = carryoverCounterbalance(2,1,1+setup.ntrials/4,0); % 2 conditions, 1st order counterbalancing,
+    increm = carryoverCounterbalance(2, 1, 1+setup.ntrials/4, 0); % 2 conditions, 1st order counterbalancing,
     increm(increm==2) = -1; % instead of condition nr 2, code for the -1 increment
     assert(length(increm)>=setup.ntrials, 'counterbalancing failed, not enough repetitions');
-    
     setup.increment(b,:) = increm(1:setup.ntrials); % cut off the last repetitions if needed
 end
 

@@ -1,8 +1,9 @@
-function fig3c_psychFuncShift_Bias_byResp(whichmodulator, nbins)
+function fig3c_psychFuncShift_Bias_byResp(whichmodulator, nbins, correctness)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
-if ~exist('grouping', 'var'); grouping = 'all'; end
+if ~exist('correctness', 'var'); correctness = []; end
+if ~exist('nbins', 'var'); nbins = 3; end
 
 % plot both the effect of pupil on overall repetition bias and show that
 % this is symmetrical for both previous choices
@@ -59,8 +60,12 @@ for lag = whichLags,
         resps = [0 1];
         for r = 1:2,
             
-            % select for response and correctness
-            trls = find(data.resp == resps(r));
+            if isempty(correctness),
+                % select for response and correctness
+                trls = find(data.resp == resps(r));
+            else
+                trls = find(data.resp == resps(r) & data.correct == correctness);
+            end
             
             laggedtrls = trls+lag;
             % exclude trials at the end of the block
@@ -159,22 +164,12 @@ stimx2 = 1:nbins;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
 hold on;
-switch grouping
-    
-    case 'all'
-        theseSj = 1:27;
-    case 'repeat'
-        theseSj = find(dat.response(:, 1) > 0);
-    case 'switch'
-        theseSj = find(dat.response(:, 1) < 0);
-end
-
 plot([1 nbins], [0.5 0.5], 'k', 'linewidth', 0.5);
 
 for r = [1 2],
     h = ploterr(stimx2, ...
-        squeeze(nanmean(grandavg.logistic(theseSj, r, :, 1))), [], ...
-        squeeze(nanstd(grandavg.logistic(theseSj, r, :, 1))) ./ sqrt(length(theseSj)), ...
+        squeeze(nanmean(grandavg.logistic(:, r, :, 1))), [], ...
+        squeeze(nanstd(grandavg.logistic(:, r, :, 1))) ./ sqrt(27), ...
         'abshhxy', 0);
     set(h(1), 'marker', '.', 'color', colors(r, :), 'markersize', 12);
     set(h(2), 'color', colors(r, :));    

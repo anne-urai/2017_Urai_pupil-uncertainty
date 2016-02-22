@@ -60,10 +60,8 @@ mysigstar([1 2], yval, pvals(3));
 ylims = get(gca, 'ylim');
 set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);
 ylim([-0.12 0.02]); set(gca, 'ytick', [-0.1:0.1:0]);
-set(gca, 'xtick', 1:4, ...
-    'xticklabel', {'resp', 'stim', 'correct', 'incorrect'}, 'xticklabelrotation', 0, ...
-    'xaxislocation', 'top');
+set(gca, 'xtick', 1:4, 'xticklabel', [], 'xaxislocation', 'top');
 ylabel({whichmodulator; 'modulation weights'});
-axis square;
+% axis square;
 
 end

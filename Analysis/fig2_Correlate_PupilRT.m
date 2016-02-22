@@ -24,3 +24,26 @@ disp(max(grandavg.pearson))
 disp(length(find(grandavg.pearsonpval < 0.05)))
 
 
+%%
+
+subjects = 1:5;
+    figure; cnt = 1;
+for sj = unique(subjects),
+
+    data = readtable(sprintf('~/Data/pupilUncertainty/Data/CSV/2ifc_data_sj%02d.csv', sj));
+    for session = unique(data.sessionnr)',
+        
+        subplot(5,5,cnt); cnt= cnt +1;
+        
+        trlId = nan(10, 50);
+        for block = 1:10,
+            for trl = 1:50,
+                try
+                trlId(block, trl) = data.stim(data.sessionnr == session & data.blocknr == block & data.trialnr == trl);
+                end
+            end
+        end
+        colormap hot; imagesc(trlId);
+    end
+end
+
