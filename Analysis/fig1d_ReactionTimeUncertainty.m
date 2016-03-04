@@ -1,13 +1,9 @@
-function [] = fig2d_ReactionTimeUncertainty()
+function [] = fig1d_ReactionTimeUncertainty()
 % plot RT as a function of |motionstrength|, to show that the pattern
 % follows model predictions of uncertainty
 
 global mypath;
-
-data                = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 nbins               = 6;
-data.xval           = abs(data.motionstrength);
-data.rpebin         = nan(size(data.xval)); % preallocate
 
 % can try this also with all subjects
 subjects = 1:27;
@@ -20,16 +16,26 @@ grandavg.rt.data = nan(length(subjects), 2, nbins);
 
 for sj = subjects,
     
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    
+    % normalization etc
+    data.motionstrength = (abs(data.motionstrength));
+    
+    % project pupil out of RT so that we are sure these effects are independent
+    data.cleanRt = projectout(data.rt, zscore(data.decision_pupil));
+    assert(isreal(data.cleanRt));
+    
     % loop over error and correct
     cors = [0 1];
     for corr = cors,
         
         % FIT BETAS ON THE FULL MODEL, NOT BINNED
-        trls = find(data.subjnr == sj & data.correct == corr);
+        trls = find(data.correct == corr);
         
         % USE EVIDENCE STRENGTH TO PREDICT log(RT)
-        mdl = fitlm(zscore(abs(data.motionstrength(trls))),  ...
-            zscore(log(data.rt(trls)+0.1)));
+        % add pupil into the design matrix
+        mdl = fitlm([data.motionstrength(trls) zscore(data.decision_pupil(trls))],  ...
+            zscore(log(data.rt(trls) + 0.1)));
         grandavg.rt.regline(find(sj==subjects), find(corr==cors), :) = ...
             mdl.Coefficients.Estimate;
         
@@ -41,9 +47,8 @@ for sj = subjects,
         [grandavg.rpeMean(find(sj==subjects), find(corr==cors), :), ...
             grandavg.rt.data(find(sj==subjects), find(corr==cors), :), ...
             grandavg.rpeStd(find(sj==subjects), find(corr==cors), :), ...
-            grandavg.rt.wgt(find(sj==subjects), find(corr==cors), :) ] = ...
-            divideintobins(data.xval(trls), data.rt(trls), nbins);
-        
+            grandavg.rt.wgt(find(sj==subjects), find(corr==cors), :)] = ...
+            divideintobins(data.motionstrength(trls), data.rt(trls), nbins);
     end
 end
 
@@ -65,7 +70,6 @@ for co = 1:2,
     set(h(3), 'color', cols(co, :) + 0.05);
 end
 
-% set(gca, 'box', 'off', 'tickdir', 'out', 'xtick', cohs);
 xlabel('Evidence');
 ylabel('Reaction time (s)');
 ylim([0.25 0.61]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
@@ -95,11 +99,11 @@ set(h(1), 'marker', 'none');
 axis square;
 set(gca, 'xtick', [1 2], 'xticklabel', {'error', 'correct'}, 'ytick', [-1:0.1:1]);
 ylabel('Beta evidence');
-mysigstar([1 2], [0.1 0.1], pvalD_interc);
-mysigstar([1], [0.01 0.01], pvalE_interc);
-mysigstar([2], [-0.1 -0.1], pvalC_interc);
+mysigstar([1 2], [0.15 0.15], pvalD_interc); % difference
+mysigstar(1, 0.02, pvalE_interc);
+mysigstar(2, -0.08, pvalC_interc);
 
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-ylim([-0.3 0.1]); xlim([0.1 4.5]); 
+ylim([-0.18 0.18]); xlim([0.1 4.5]); 
 
 end

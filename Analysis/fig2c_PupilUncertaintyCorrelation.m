@@ -1,4 +1,4 @@
-function [] = fig3c_PupilUncertaintyCorrelation()
+function [] = fig2c_PupilUncertaintyCorrelation()
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
@@ -24,6 +24,14 @@ for f = 1:length(fields),
     
     for sj = subjects,
         
+        data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+        
+        % normalization etc
+        data.motionstrength = (abs(data.motionstrength));
+        
+        % project RT out of the pupil
+        data.decision_pupilClean = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+        
         % loop over error and correct
         cors = [0 1];
         for corr = cors,
@@ -32,7 +40,7 @@ for f = 1:length(fields),
             trls = find(data.subjnr == sj & data.correct == corr);
             
             % include RT as a regressor
-            mdl = fitlm([zscore(data.xval(trls)) zscore(log(data.rt(trls)+0.1))],  ...
+            mdl = fitlm([zscore(data.motionstrength(trls)) zscore(log(data.rt(trls)+0.1))],  ...
                 zscore(data.(fields{f})(trls)));
             
             % SAVE BETAS FOR THIS PARTICIPANT
@@ -48,8 +56,7 @@ for f = 1:length(fields),
                 grandavg.(fields{f}).data(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.xStd(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.(fields{f}).wgt(find(sj==subjects), find(corr==cors), :)] = ...
-                divideintobins(data.xval(trls), data.(fields{f})(trls), nbins);
-            
+                divideintobins(data.motionstrength(trls), data.(fields{f})(trls), nbins);
         end
     end
     

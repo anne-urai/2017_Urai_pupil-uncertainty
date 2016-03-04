@@ -25,6 +25,11 @@ switch whichmodulator
         whichMod = 'evidence';
 end
 
+
+% =========================================== %
+% BIAS - ITERATE OVER TWO RESPONSES
+% =========================================== %
+
 subjects = 1:27;
 clear grandavg;
 lag = 1;
@@ -56,36 +61,13 @@ for sj = unique(subjects),
     resps = [0 1];
     for r = 1:2,
         
-        if isempty(correctness),
-            % select for response and correctness
-            trls = find(data.resp == resps(r));
-        else
-            trls = find(data.resp == resps(r) & data.correct == correctness);
-        end
-        
-        % fit an overall bias term
-        laggedtrls = trls+lag;
-        % exclude trials at the end of the block
-        if any(laggedtrls > size(data, 1)),
-            trls(laggedtrls > size(data, 1)) = [];
-            laggedtrls(laggedtrls > size(data, 1)) = [];
-        end
-        
-        % remove trials that dont match in block nr
-        removeTrls = data.blocknr(laggedtrls) ~= data.blocknr(trls);
-        laggedtrls(removeTrls) = [];
-        trls(removeTrls) = [];
-        
-        % fit logistic regression
-        thisdat = data(laggedtrls, :);
-        
-        % get an overall logistic fit
-        grandavg.respBiasNoPupilSplit(sj, r, lag, :) = glmfit(thisdat.motionstrength, thisdat.resp, ...
-            'binomial','link','logit');
-        
-        %% split into pupil bins
+        % split into pupil bins
         if nbins > 2,
-            uncQs = quantile(data.(whichMod)(data.resp == resps(r)), nbins - 1);
+            if ~isempty(correctness),
+                uncQs = quantile(data.(whichMod)(data.resp == resps(r) & data.correct == correctness), nbins - 1);
+            else
+                uncQs = quantile(data.(whichMod)(data.resp == resps(r)), nbins - 1);
+            end
         elseif nbins == 2,
             uncQs = median(data.(whichMod)(data.resp == resps(r)));
         end
@@ -102,8 +84,8 @@ for sj = unique(subjects),
                         data.(whichMod) > uncQs(u-1) & data.(whichMod) < uncQs(u));
             end
             
-            % take subset
             if ~isempty(correctness),
+                % continue with a subset of trials
                 trls = intersect(trls, find(data.correct == correctness));
             end
             
@@ -119,7 +101,6 @@ for sj = unique(subjects),
             % remove trials that dont match in block nr
             removeTrls = data.blocknr(laggedtrls) ~= data.blocknr(trls);
             laggedtrls(removeTrls) = [];
-            trls(removeTrls) = [];
             
             % fit logistic regression
             thisdat = data(laggedtrls, :);
@@ -128,7 +109,7 @@ for sj = unique(subjects),
                 b = glmfit(thisdat.motionstrength, thisdat.resp, ...
                     'binomial','link','logit');
             catch
-                warning('putting zero in betas!');
+                warning('putting nan in betas!');
                 b = nan(size(b));
             end
             
@@ -167,10 +148,11 @@ grandavg.logisticRep = (resp1 + resp2) ./ 2;
 
 grandavg.logisticRep = squeeze(nanmean(grandavg.logisticRep(:, :, 1), 3));
 grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, 1, :), 4));
-
 grandavgBias = grandavg;
 
-%% now for slope
+% =========================================== %
+% SLOPE - DO NOT ITERATE OVER TWO RESPONSES   %
+% =========================================== %
 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
@@ -188,16 +170,16 @@ for sj = unique(subjects),
             data.evidence = abs(data.motionstrength);
     end
     
-    % outcome vector need to be 0 1 for logistic regression
+    % outcome vector needs to be 0 1 for logistic regression
     data.resp(data.resp == -1) = 0;
-    
-    % get an overall logistic fit
-    grandavg.overallLogistic(sj, :) = glmfit(data.motionstrength, data.resp, ...
-        'binomial','link','logit');
     
     % previous response
     if nbins > 2,
-        uncQs = quantile(data.(whichMod), nbins - 1);
+        if ~isempty(correctness),
+            uncQs = quantile(data.(whichMod)(data.correct == correctness), nbins - 1);
+        else
+            uncQs = quantile(data.(whichMod), nbins - 1);
+        end
     elseif nbins == 2,
         uncQs = median(data.(whichMod));
     end
@@ -215,12 +197,13 @@ for sj = unique(subjects),
         end
         
         if ~isempty(correctness),
-            % only use correct trials!
+            % continue with a subset of trials
             trls = intersect(trls, find(data.correct == correctness));
         end
         
         % with this selection, take the trials after that
         laggedtrls = trls+lag;
+        
         % exclude trials at the end of the block
         if any(laggedtrls > size(data, 1)),
             trls(laggedtrls > size(data, 1)) = [];
@@ -234,12 +217,8 @@ for sj = unique(subjects),
         
         % fit logistic regression
         thisdat = data(laggedtrls, :);
-        
-        [b] = glmfit(thisdat.motionstrength, thisdat.resp, ...
+        grandavg.logistic(sj, u, lag, :) = glmfit(thisdat.motionstrength, thisdat.resp, ...
             'binomial','link','logit');
-        
-        % save betas
-        grandavg.logistic(sj, u, lag, :) = b;
         
     end % uncertainty bin
 end % sj
@@ -264,23 +243,24 @@ p2.Color = [0.4 0.4 0.4];
 % Use HOLD and ERRORBAR, passing axes handles to the functions.
 hold(ax(1), 'on');
 errorbar(ax(1), x, mean(y1), std(y1) ./sqrt(27), ...
-     '.-', 'color', 'k', 'markerfacecolor', 'k', 'markersize', 12);
- 
+    '.-', 'color', 'k', 'markerfacecolor', 'k', 'markersize', 12);
+
 set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'}, 'ylim', [0.48 0.56], 'ytick', [0.49 0.51 0.53], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off');
 % low vs high
 [~, pval] = ttest(y1(:, 1), y1(:, end));
+disp(pval);
 mysigstar([1 nbins], [0.53 0.53], pval, 'k', 'down');
 axis(ax(1), 'square');
 
-% second errorbar
+% second errorbar, grey
 hold(ax(2), 'on');
 errorbar(ax(2), x, mean(y2), std(y2) ./sqrt(27), ...
-     '.-', 'color', [0.4 0.4 0.4], 'markerfacecolor', [0.4 0.4 0.4], 'markersize', 12);
+    '.-', 'color', [0.4 0.4 0.4], 'markerfacecolor', [0.4 0.4 0.4], 'markersize', 12);
 
 set(ax(2), 'xlim', [0.5 nbins+0.5], 'ylim', [0.40 0.9], 'ytick', [0.8 0.9], ...
-     'xcolor', 'k', 'ycolor', [0.4 0.4 0.4], 'linewidth', 0.5, 'box', 'off');
+    'xcolor', 'k', 'ycolor', [0.4 0.4 0.4], 'linewidth', 0.5, 'box', 'off');
 axis(ax(2), 'square');
 [~, pval] = ttest(y2(:, 1), y2(:, end));
 mysigstar([1 nbins], [0.9 0.9], pval, [0.4 0.4 0.4], 'down');

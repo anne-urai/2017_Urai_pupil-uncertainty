@@ -6,7 +6,7 @@ global mypath;
 subplot(4,4,1); fig2a_PupilTimecourse(0);
 subplot(4,4,3); fig2b_PupilUncertaintyTimecourse;
 
-subplot(4,4,5); fig22c_PupilUncertaintyCorrelation;
+subplot(4,4,5); fig2c_PupilUncertaintyCorrelation;
 subplot(4,4,7); fig2de_Uncertainty_Accuracy;
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure2.pdf', mypath));

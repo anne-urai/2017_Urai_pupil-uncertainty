@@ -14,7 +14,7 @@ set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 
 % set correctness to 1 to see the same figures but only based on trials
 % after a correct response 
-correctness = []; % empty means both correct and error trials will be used
+correctness = []; % empty; both correct and error trials will be used
 nbins = 3;
 
 subplot(445); fig3c_psychFuncShift_Bias_byResp('pupil', nbins, correctness);
@@ -44,3 +44,48 @@ for sj = 1:length(pupilgrandavg.timelock),
 end
 timebetweenResp = cat(1, timebetweenResp{:});
 median(timebetweenResp); % long-tailed distribution, so mean is biased
+
+
+%% check that bias or RT does not change following uncertainty
+fig3z_biasRT;
+
+%% compute the actual stimulus transition probabilites
+
+for sj = 1:27,
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    
+    trldiff = diff(data.trialnr);
+    blockdiff = diff(data.blocknr);
+    transitions = (trldiff ~= 1 | blockdiff ~= 0);
+    transitions = [0; transitions];
+    data.transitions = transitions;
+    
+    % loop over the data
+    transitions = [1; find(data.transitions == 1); length(data.transitions)];
+    transitionprobability{sj} = nan(1, length(transitions)-1);
+    
+    for b = 1:length(transitions)-1,
+        thisdat = data(transitions(b) : transitions(b+1)-1, :);
+        if height(thisdat) == 50,
+            transitionprobability{sj}(b) = mean((abs(diff(thisdat.stim)) > 0));
+        end
+    end
+    meantransprob(sj) = nanmean(transitionprobability{sj});
+end
+
+% correlate with fruend stimulus weights
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
+
+plot(meantransprob, dat.response(:, 1), 'o');
+[rho, pval] = corr(meantransprob', dat.response(:, 1))
+bf10 = corrbf(rho,27)
+
+%%
+close;
+for sj = 1:27,
+        data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+[newx, newy, stdx, stdy] = divideintobins(abs(data.motionstrength), zscore(data.decision_pupil), 20);
+subplot(5,6,sj); plot(newx, newy, 'o'); axis tight; box off;
+lsline; 
+end
+

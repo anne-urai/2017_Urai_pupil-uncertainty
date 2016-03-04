@@ -33,11 +33,10 @@ a3_writeData2GA;
 % timecourses
 a4_writeData2CSV;
 
-%% reproduce figure 1, 2, and 3
+%% reproduce figure 1 and 2
+fig1_overview;
 close all;
 fig2_overview;
-close all;
-fig3_overview;
 close all;
 
 %% run the python model with modulatory term

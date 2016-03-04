@@ -1,4 +1,4 @@
-function [grandavg] = fig3de_Uncertainty_Accuracy(nbins)
+function [grandavg] = fig2de_Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 global mypath;
@@ -16,10 +16,7 @@ for sj = unique(subjects),
         divideintobins(data.decision_pupil, data.correct, nbins);
     
     % do a logistic regression
-    x = [zscore(abs(data.motionstrength)) zscore(data.decision_pupil) ];
-    x(data.trialnr < 2, :) = nan;
-    
-    [b] = glmfit(x, data.correct, ...
+    b = glmfit(zscore(data.decision_pupil), data.correct, ...
         'binomial','link','logit');
     
     % save for later
@@ -83,7 +80,6 @@ for sj = unique(subjects),
             'binomial','link','logit');
         newx = -3:0.01:3;
         yfit = glmval(beta, newx,'logit');
-        % plot(newx, yfit,'-', 'color', cols(b, :));
         
         % also save the curve itself
         grandavg.betas(sj, b, :) = beta;
