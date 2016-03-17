@@ -1,4 +1,4 @@
-function [] = fig4b_decisionStrategies(whichmodulator)
+function [] = decisionStrategies(whichmodulator)
 % decision strategy space
 
 global mypath;
@@ -27,6 +27,10 @@ h = ploterr(mean(mean(dat.response(:, 1), 2)), mean(mean(dat.stimulus(:, 1), 2))
 set(h(1), 'markeredgecolor', 'k', 'markerfacecolor', 'w', 'markersize', 4);
 set(h(2), 'color', 'k');
 set(h(3), 'color', 'k');
+
+% mark the example subject
+hold on;
+plot(dat.response(10, 1), dat.stimulus(10, 1), 'ok', 'markersize', 4);
 
 % start with text
 fz = 6;

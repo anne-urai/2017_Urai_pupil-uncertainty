@@ -1,4 +1,4 @@
-function fig3d_psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
+function psychFuncShift_Bias_Slope(whichmodulator, nbins, correctness)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -17,12 +17,6 @@ switch whichmodulator
         whichMod = 'feedback_pupil';
     case 'rt'
         whichMod = 'rt';
-    case 'pupil-rt';
-        whichMod = 'decision_pupil';
-    case 'baselinepupil'
-        whichMod = 'baseline_pupil';
-    case 'evidence'
-        whichMod = 'evidence';
 end
 
 
@@ -42,12 +36,10 @@ for sj = unique(subjects),
     switch whichmodulator
         case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
-        case 'pupil-rt',
-            data.decision_pupil = projectout(data.decision_pupil, data.rt);
-        case 'baselinepupil'
-            data.baseline_pupil = circshift(data.baseline_pupil, -1);
-        case 'evidence'
-            data.evidence = abs(data.motionstrength);
+        case 'pupil',
+            data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+        case 'rt'
+            data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
     end
     
     % outcome vector need to be 0 1 for logistic regression
@@ -159,15 +151,14 @@ for sj = unique(subjects),
     data = data(find(data.sessionnr > 1), :);
     
     % in this case, take out decision effects
+    % in this case, take out decision effects
     switch whichmodulator
         case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
-        case 'pupil-rt',
-            data.decision_pupil = projectout(data.decision_pupil, data.rt);
-        case 'baselinepupil'
-            data.baseline_pupil = circshift(data.baseline_pupil, -1);
-        case 'evidence'
-            data.evidence = abs(data.motionstrength);
+        case 'pupil',
+            data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+        case 'rt'
+            data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
     end
     
     % outcome vector needs to be 0 1 for logistic regression
@@ -249,7 +240,8 @@ set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'}, 'ylim', [0.48 0.56], 'ytick', [0.49 0.51 0.53], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off');
 % low vs high
-[~, pval] = ttest(y1(:, 1), y1(:, end));
+[~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
+disp(stats);
 disp(pval);
 mysigstar([1 nbins], [0.53 0.53], pval, 'k', 'down');
 axis(ax(1), 'square');
@@ -265,16 +257,14 @@ axis(ax(2), 'square');
 [~, pval] = ttest(y2(:, 1), y2(:, end));
 mysigstar([1 nbins], [0.9 0.9], pval, [0.4 0.4 0.4], 'down');
 
-ax(1).YLabel.String = 'Next trial P(repeat)';
-ax(2).YLabel.String = 'Next trial slope';
+ax(1).YLabel.String = 'P(repeat)';
+ax(2).YLabel.String = 'Slope';
 
 switch whichMod
     case 'decision_pupil'
-        xlabel('Current trial pupil');
-    case 'evidence'
-        xlabel('Current trial evidence');
+        xlabel('Previous trial pupil');
     case 'rt'
-        xlabel('Current trial RT');
+        xlabel('Previous trial RT');
     otherwise
         xlabel(whichmodulator);
 end

@@ -1,4 +1,4 @@
-function [] = fig4j_SjCorrelation(whichmodulator)
+function [] = fig3i_SjCorrelation(whichmodulator)
 % plot correlation between subjects
 
 global mypath;

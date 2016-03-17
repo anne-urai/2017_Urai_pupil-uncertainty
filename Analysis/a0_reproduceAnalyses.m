@@ -34,7 +34,9 @@ a3_writeData2GA;
 a4_writeData2CSV;
 
 %% reproduce figure 1 and 2
-fig1_overview;
+fig1_Model;
+
+fig2_Task;
 close all;
 fig2_overview;
 close all;
@@ -68,7 +70,6 @@ end
 fig3_overview;
 
 %% also reproduce the supplementary figures
-figS1_Model;
 figS2_MotionEnergy_Filters;
 figS3_feedbackpupil;
 

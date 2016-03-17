@@ -1,9 +1,9 @@
-function [] = fig1d_ReactionTimeUncertainty()
+function [] = ReactionTimeUncertainty()
 % plot RT as a function of |motionstrength|, to show that the pattern
 % follows model predictions of uncertainty
 
 global mypath;
-nbins               = 6;
+nbins = 6;
 
 % can try this also with all subjects
 subjects = 1:27;
@@ -80,7 +80,7 @@ set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
 
-subplot(4,6,23);
+subplot(4,4,6);
 % slopes
 slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
 [~, pvalE_interc, ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
@@ -97,8 +97,8 @@ bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'none', 'BarWidt
 h = ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k.', 'abshhxy', 0);
 set(h(1), 'marker', 'none');
 axis square;
-set(gca, 'xtick', [1 2], 'xticklabel', {'error', 'correct'}, 'ytick', [-1:0.1:1]);
-ylabel('Beta evidence');
+set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'}, 'ytick', [-1:0.1:1]);
+ylabel('Beta weight (a.u.)');
 mysigstar([1 2], [0.15 0.15], pvalD_interc); % difference
 mysigstar(1, 0.02, pvalE_interc);
 mysigstar(2, -0.08, pvalC_interc);

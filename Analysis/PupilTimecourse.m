@@ -1,4 +1,4 @@
-function [] = fig2a_PupilTimecourse(plotTotalAverage)
+function [] = PupilTimecourse(plotTotalAverage)
 % show 1. the overall timecourse of the pupil
 % 2. pupil timecourse, split by correct and error into bins of stimulus
 % difficulty

@@ -1,4 +1,4 @@
-function fig3hi_HistoryPupil_Bar(whichmodulator)
+function fig3h_HistoryPupil_Bar(whichmodulator)
 global mypath;
 
 % ============================================ %
@@ -14,7 +14,6 @@ switch whichmodulator
         load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
         whichmodulator = 'pupil'; % use the first modulatory term
 end
-
 
 % ============================================ %
 % barweb matrix

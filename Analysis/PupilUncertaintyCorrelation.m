@@ -1,4 +1,4 @@
-function [] = fig2c_PupilUncertaintyCorrelation()
+function [] = PupilUncertaintyCorrelation()
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
@@ -56,7 +56,7 @@ for f = 1:length(fields),
                 grandavg.(fields{f}).data(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.xStd(find(sj==subjects), find(corr==cors), :), ...
                 grandavg.(fields{f}).wgt(find(sj==subjects), find(corr==cors), :)] = ...
-                divideintobins(data.motionstrength(trls), data.(fields{f})(trls), nbins);
+                divideintobins(data.motionstrength(trls), data.decision_pupilClean(trls), nbins);
         end
     end
     
@@ -96,10 +96,10 @@ for f = 1:length(fields),
         set(gca, 'xticklabel', []);
     end
     
-    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
-    ylim([0.15 0.65]); set(gca, 'ytick', 0.2:0.2:0.8);
-    ylabel('Pupil response (z)');
     axis square;
+    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
+    ylim([0.2 0.61]); set(gca, 'ytick', [0.2 0.4 0.6]);
+    ylabel('Pupil response (z)');
     
     % make a barplot
     subplot(4,4,6);

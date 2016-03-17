@@ -1,4 +1,4 @@
-function [grandavg] = fig2de_Uncertainty_Accuracy(nbins)
+function [grandavg] = Uncertainty_Accuracy(nbins)
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 global mypath;
@@ -7,9 +7,12 @@ if ~exist('nbins', 'var'), nbins = 20; end
 subjects      = 1:27;
 fitIndividual = false;
 
+if 0,
 for sj = unique(subjects),
     
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    % project out RT variability
+    data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
     
     % divide into bins
     [ grandavg.pup(sj, :), grandavg.acc(sj, :), stdx, stdy] = ...
@@ -50,14 +53,17 @@ box off; ylim([65 80]); xlim([0 nbins]);
 text(2, 69, sprintf('b = %.3f', mean(grandavg.b(:, end))));
 text(2, 67, sprintf('p < %.3f', p));
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
+end
 
 %% fit logistic slope on high vs low pupil bins
 subjects = 1:27;
 grandavg.betas = nan(length(subjects), 2, 2);
 
 for sj = unique(subjects),
-        % get all the data
+    % get all the data
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    % project out RT variability
+    data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
     
     % divide into low and high pupil bins
     puptrls{1} = find(data.decision_pupil < quantile(data.decision_pupil, 0.5));
@@ -101,7 +107,6 @@ for sj = unique(subjects),
 end
 
 % make sure I actually plot the bar graph here to reproduce figure 3!
-subplot(4,8,16);
 hold on;
 bar(1, mean(grandavg.betas(:, 1, 2)), 'facecolor', [0.6 0.6 0.6], 'edgecolor', 'none', 'barwidth', 0.8);
 bar(2, mean(grandavg.betas(:, 2, 2)), 'facecolor', [0.4 0.4 0.4], 'edgecolor', 'none', 'barwidth', 0.8);
@@ -109,12 +114,14 @@ h = ploterr(1:2, squeeze(nanmean(grandavg.betas(:, :, 2))), ...
     [], squeeze(std(grandavg.betas(:, :, 2))) / sqrt(length(subjects)), 'k.', 'abshhxy', 0);
 set(h(1), 'marker', 'none');
 
+%cateye(grandavg.betas(:, [1 2], 2), 1:2, [0.6 0.6 0.6; 0.4 0.4 0.4], 0.5);
+
 % do ttest on regression coefficients
 [~, pval(3), ~, stat] = ttest(grandavg.betas(:, 1, 2), grandavg.betas(:, 2, 2));
 xlim([0 2.5]); box off;
-mysigstar([1 2], [1 1], pval(3));
-ylim([0.4 1.1]);
-set(gca, 'ytick', [0.5 1]);
+mysigstar([1 2], [1  1], pval(3));
+ylim([0.5 1]);
+set(gca, 'ytick', [0.5 1 1.5]);
 xlabel('Pupil response'); set(gca, 'xtick', 1:2, 'xticklabel', {'low', 'high'});
 ylabel('Current trial slope');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');

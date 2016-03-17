@@ -1,4 +1,4 @@
-function [] = fig2b_MotionEnergy_Probability()
+function [] = MotionEnergy_Probability()
 % after filtering motionenergy for all subjects, show the distribution of
 % values we get (as a function of nominal coherence level)
 
@@ -44,8 +44,8 @@ assert(isequal(length(unique(stim)), length(find(nansum(n, 2) > 0))), 'spacing n
 colormap hot;
 imagesc(stimlevels, edges, n');
 set(gca, 'ydir', 'normal');
-xlabel({'Stimulus strength (%)'});
-ylabel({'Motion energy (a.u.)'});
+xlabel({'motion coherence (%)'});
+ylabel({'motion energy (a.u.)'});
 
 %offsetAxes
 set(gca, 'tickdir', 'out', 'box', 'off');
@@ -58,13 +58,13 @@ set(gca, 'XAxisLocation','top');
 
 % put a string on top of the colorbar
 % make the colorbar prettier, move to the side
-c = colorbar('Location', 'SouthOutside');
-cpos = c.Position;
-cpos(2) = cpos(2)*0.85; % down
-cpos(4) = 0.6*cpos(4); % thinner
-cpos(1) = cpos(1)*1.06; % to the rigth
-cpos(3) = cpos(3) *0.6; % shorter
-c.Position = cpos;
+c = colorbar('Location', 'EastOutside');
+% cpos = c.Position;
+% cpos(2) = cpos(2)*0.85; % down
+% cpos(4) = 0.6*cpos(4); % thinner
+% cpos(1) = cpos(1)*1.06; % to the rigth
+% cpos(3) = cpos(3) *0.6; % shorter
+% c.Position = cpos;
 c.Box = 'off';
 
 c.Label.String = 'Probability';

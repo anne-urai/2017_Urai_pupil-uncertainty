@@ -1,22 +1,16 @@
 % replicates figure 3
 % Anne Urai, 2015
 
+close all; figure;
 global mypath;
 
-subplot(4,4,1); fig2a_PupilTimecourse(0);
-subplot(4,4,3); fig2b_PupilUncertaintyTimecourse;
+subplot(4,4,1); PupilTimecourse(0);
+subplot(4,4,3); PupilUncertaintyTimecourse;
 
-subplot(4,4,5); fig2c_PupilUncertaintyCorrelation;
-subplot(4,4,7); fig2de_Uncertainty_Accuracy;
+subplot(4,4,5); PupilUncertaintyCorrelation;
+subplot(4,4,7); Uncertainty_Accuracy;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figure2.pdf', mypath));
-
-%%
-figure;
-subplot(3,3,1); fig2f_pupilDprimeCriterionTimecourse(1);
-subplot(3,3,4); fig2f_pupilDprimeCriterionTimecourse(0);
-print(gcf, '-dpdf', sprintf('%s/Figures/pupilBiasSensitivity.pdf', mypath));
-
+print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
 
 %% not in figure, but compute the correlation between RT and pupil values for each SJ
 clc;

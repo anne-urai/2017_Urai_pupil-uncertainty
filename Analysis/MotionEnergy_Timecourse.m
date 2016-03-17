@@ -1,4 +1,4 @@
-function fig2b_MotionEnergy_Timecourse()
+function MotionEnergy_Timecourse()
 % get the full timecourse (fix, s1, delay, s2, resp) of one trial to show
 % fluctuations
 
@@ -271,7 +271,7 @@ else
     
     timeaxis = 0:window.frameDur:length(motionstrength)*window.frameDur;
     plot(timeaxis(1:end-1),motionstrength, 'k');
-    axis tight; xlabel('Time (s)'); ylabel('Motion strength'); box off;
+    axis tight; xlabel('Time from baseline (s)'); ylabel('Motion energy (a.u.)'); box off;
     ylim([-1 11]);
     
 end

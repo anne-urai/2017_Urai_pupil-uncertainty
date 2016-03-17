@@ -1,4 +1,4 @@
-function fig3c_psychFuncShift_Bias_byResp(whichmodulator, nbins, correctness)
+function psychFuncShift_Bias_byResp(whichmodulator, nbins, correctness)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
@@ -19,12 +19,6 @@ switch whichmodulator
         whichMod = 'feedback_pupil';
     case 'rt'
         whichMod = 'rt';
-    case 'pupil-rt';
-        whichMod = 'decision_pupil';
-    case 'baselinepupil'
-        whichMod = 'baseline_pupil';
-    case 'evidence'
-        whichMod = 'evidence';
 end
 
 subjects = 1:27;
@@ -34,18 +28,16 @@ whichLags = 1:3; % lag 1
 for lag = whichLags,
     for sj = unique(subjects),
         data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-            data = data(find(data.sessionnr > 1), :);
-
+        data = data(find(data.sessionnr > 1), :);
+        
         % in this case, take out decision effects
         switch whichmodulator
             case 'fb+decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
-            case 'pupil-rt',
-                data.decision_pupil = projectout(data.decision_pupil, data.rt);
-            case 'baselinepupil'
-                data.baseline_pupil = circshift(data.baseline_pupil, -1);
-            case 'evidence'
-                data.evidence = abs(data.motionstrength);
+            case 'pupil',
+                data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+            case 'rt'
+                data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -178,23 +170,21 @@ end
 
 axis tight; axis square;
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
-ylabel('Next trial P(choice A)');
+ylabel('P(choice = 1)');
 
 switch whichMod
     case 'pupil'
-        xlabel('Current trial pupil');
-    case 'evidence'
-        xlabel('Current trial evidence');
-    otherwise
-        xlabel(whichmodulator);
+        xlabel('Previous trial pupil');
+    case 'rt'
+        xlabel('Previous trial RT');
 end
 
 
-text(2.5, .53, 'current', 'color', colors(2, :), 'horizontalalignment', 'center');
-text(2.5, 0.52, 'choice A', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, .53, 'previous', 'color', colors(2, :), 'horizontalalignment', 'center');
+text(2.5, 0.52, 'choice = 1', 'color', colors(2, :), 'horizontalalignment', 'center');
 
-text(2.5, 0.48, 'current', 'color', colors(1, :), 'horizontalalignment', 'center');
-text(2.5, 0.47, 'choice B', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, 0.48, 'previous', 'color', colors(1, :), 'horizontalalignment', 'center');
+text(2.5, 0.47, 'choice = -1', 'color', colors(1, :), 'horizontalalignment', 'center');
 
 ylim([0.465 .545]);
 set(gca, 'ytick', [0.47 0.5 0.53]);

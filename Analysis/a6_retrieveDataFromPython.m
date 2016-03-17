@@ -58,7 +58,7 @@ for sj = subjects,
         cnt = cnt  + 1;
     end
     
-    % change into correct and error from stimulus and
+    % change into correct and error from stimulus and response
     for w = 1:length(weights2),
         dat.(['correct' weights2{w}])(sj, :) = ...
             dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
@@ -70,6 +70,17 @@ for sj = subjects,
         dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = ...
             -dat.(['stimulus' weights2{w} 'CI'])(sj, :, :) + dat.(['response' weights2{w} 'CI'])(sj, :, :);
     end
+    
+    % add the p value for permutation with history
+    dat.pvalue(sj) = length(find(model_w_hist.loglikelihood < permutation_wh(:, 1))) ./ length(permutation_wh(:, 1));
+end
+
+dat.pvalue = dat.pvalue';
+switch whichmodulator
+    case 'plain'
+        % how many alternators have significant history couplings?
+        altSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) < 0));
+        repSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) > 0));
 end
 
 % save for group plots

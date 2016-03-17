@@ -1,4 +1,4 @@
-function [] = fig3b_PupilUncertaintyTimecourse(plotAll)
+function [] = PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
 global mypath;
