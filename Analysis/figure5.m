@@ -19,15 +19,19 @@ subplot(444); psychFuncShift_Bias_Slope('rt', nbins, correctness);
 print(gcf, '-dpdf', sprintf('%s/Figures/figure5.pdf', mypath));
 
 %%  redo for evidence strength
-nbins = 3;
+nbins = 2;
 
 subplot(441); psychFuncShift_Bias_Slope('evidence', nbins, 1);
 title('Correct trials');
 subplot(442); psychFuncShift_Bias_Slope('evidence', nbins, 0);
 title('Error trials');
+subplot(443); psychFuncShift_Bias_Slope('evidence', nbins, []);
+title('All trials');
 
-subplot(443); psychFuncShift_Bias_Slope('pupil', nbins, 1);
+subplot(445); psychFuncShift_Bias_Slope('rt', nbins, 1);
 title('Correct trials');
-subplot(444); psychFuncShift_Bias_Slope('pupil', nbins, 0);
+subplot(446); psychFuncShift_Bias_Slope('rt', nbins, 0);
 title('Error trials');
+subplot(447); psychFuncShift_Bias_Slope('rt', nbins, []);
+title('All trials');
 
