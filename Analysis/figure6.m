@@ -2,16 +2,16 @@
 
 
 % bottom row - unique variance of pupil and RT
-subplot(4,4,9); fig3h_HistoryPupil_Bar('pupil', 'all');
-subplot(4,4,10); fig3h_HistoryPupil_Bar('rt', 'all');
+subplot(4,4,1); HistoryPupil_Bar('pupil');
+subplot(4,4,2); HistoryPupil_Bar('rt');
+    saveas(gcf, sprintf('~/Dropbox/Meetings/HistoryBar.eps'), 'epsc');
 
-subplot(4,4,11); fig3i_SjCorrelation('pupil');
-subplot(4,4,12); fig3i_SjCorrelation('rt');
+subplot(4,4,11); SjCorrelation('pupil');
+subplot(4,4,12); SjCorrelation('rt');
 
 % show median split for correlation stuff
-subplot(4,4,14); fig3j_MedianSplit('pupil'); 
-subplot(4,4,15); fig3j_MedianSplit('rt'); 
-
+subplot(4,4,14); MedianSplit('pupil'); 
+subplot(4,4,15); MedianSplit('rt'); 
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
 
@@ -30,7 +30,8 @@ median(timebetweenResp); % long-tailed distribution, so mean is biased
 
 
 %% check that bias or RT does not change following uncertainty
-fig3z_biasRT;
+biasRT;
+% these stats are reported in the text, data not shown.
 
 %% compute the actual stimulus transition probabilites
 
@@ -56,12 +57,16 @@ for sj = 1:27,
     meantransprob(sj) = nanmean(transitionprobability{sj});
 end
 
-% correlate with fruend stimulus weights
+% correlate with fruend stimulus and response weights
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
-plot(meantransprob, dat.response(:, 1), 'o');
 [rho, pval] = corr(meantransprob', dat.response(:, 1))
-bf10 = corrbf(rho,27)
+bf10 = corrbf(rho,27);
+disp(1/bf10);
+
+[rho, pval] = corr(meantransprob', dat.stimulus(:, 1))
+bf10 = corrbf(rho,27);
+disp(1/bf10)
 
 %%
 close;

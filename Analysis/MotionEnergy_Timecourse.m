@@ -59,7 +59,6 @@ if ~exist(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath), 'file'),
     end
     
     save(sprintf('%s/Data/MotionEnergy/motionStrength_timecourse.mat', mypath), 'window', 'coord', 'setup', 'dots');
-    clear all; close all; clc;
     load(sprintf('%s/Data/MotionEnergy/motionStrength_timecourse.mat', mypath));
     
     %% RUN THE ACTUAL MOTION ENERGY FILTER ON THIS
@@ -108,7 +107,7 @@ if ~exist(sprintf('%s/Data/MotionEnergy/motionTimecourse.mat', mypath), 'file'),
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     direc                 = dots.direction;
-    counterdir            = dots.direction+90;
+    counterdir            = dots.direction+180;
     if counterdir > 360, counterdir = counterdir - 360; end
     theta                 = [direc counterdir]; % only those two directions
     

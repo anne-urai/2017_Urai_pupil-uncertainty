@@ -19,6 +19,8 @@ switch whichmodulator
         whichMod = 'feedback_pupil';
     case 'rt'
         whichMod = 'rt';
+    case 'evidence'
+        whichMod = 'evidence';
 end
 
 subjects = 1:27;
@@ -38,6 +40,8 @@ for lag = whichLags,
                 data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
             case 'rt'
                 data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
+            case 'evidence'
+                data.evidence = abs(data.motionstrength);
         end
         
         % outcome vector need to be 0 1 for logistic regression

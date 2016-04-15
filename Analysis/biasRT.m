@@ -1,4 +1,4 @@
-function [grandavg] = fig3z_biasRT()
+function [grandavg] = biasRT()
 % plots uncertainty by accuracy both for the modelfits and the pupil
 
 global mypath;
@@ -6,7 +6,7 @@ nbins = 3;
 cnt = 1; clc;
 
 pupfields = {'rt', 'decision_pupil'};
-for p = 1:length(pupfields),
+for p = 1:length(pupfields),a
     
     subjects = 1:27;
     grandavg.betas = nan(length(subjects), nbins, 2);
@@ -72,7 +72,7 @@ for p = 1:length(pupfields),
             
             % save the accuracy
             grandavg.accuracy(sj, b) = nanmean(thisdat.correct);
-    
+            
         end
     end
     
@@ -128,7 +128,7 @@ for p = 1:length(pupfields),
     fprintf('RT, %s, pval %f, bf %f \n', pupfields{p}, pval(3), bf10);
     xlim([0.5 nbins+0.5]); box off;
     mysigstar([1 nbins], [0.4 0.4], pval(3));
-    ylim([0.3 0.6]); 
+    ylim([0.3 0.6]);
     xlabel(pupfields{p}, 'interpreter', 'none'); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
     ylabel('Next trial RT');
     

@@ -52,8 +52,8 @@ for sj = subjects,
         alpha       = 1 - 0.68; % should cover 1 std of the distribution
         thiswci     = prctile(thisboot, [100*alpha/2,100*(1-alpha/2)])';
         
-        %thiswci(:, 1) = thisw - thiswci(:, 1);
-        %thiswci(:, 2) = thiswci(:, 2) - thisw; % relative error
+        thiswci(:, 1) = thisw - thiswci(:, 1);
+        thiswci(:, 2) = thiswci(:, 2) - thisw; % relative error
         dat.([weights1{w} 'CI'])(sj, :, :) = thiswci;
         cnt = cnt  + 1;
     end

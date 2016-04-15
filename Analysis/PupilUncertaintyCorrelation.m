@@ -30,7 +30,7 @@ for f = 1:length(fields),
         data.motionstrength = (abs(data.motionstrength));
         
         % project RT out of the pupil
-        data.decision_pupilClean = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+        data.decision_pupilClean = projectout(data.decision_pupil, (log(data.rt + 0.1)));
         
         % loop over error and correct
         cors = [0 1];
@@ -101,22 +101,58 @@ for f = 1:length(fields),
     ylim([0.2 0.61]); set(gca, 'ytick', [0.2 0.4 0.6]);
     ylabel('Pupil response (z)');
     
+    %% single subject for SH talk
+    clf; subplot(4,4,1)
+    hold on;
+    for co = 1:2,
+        plot(squeeze(grandavg.xMean(:, co, :))', squeeze(grandavg.(fields{f}).data(:, co, :))', ...
+            '.-', 'color', cols(co, :));
+    end
+    axis square;
+    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
+    ylim([-0.2 1.4]);
+    set(gca, 'ytick', 0:0.5:1);
+    ylabel('Pupil response (z)');
+    xlabel('Evidence');
+    saveas(gcf, sprintf('~/Dropbox/Meetings/Pupil.eps'), 'epsc');
+    
+    clf; subplot(4,4,1)
+    
+    % normalize each sj to mean!
+    for sj = subjects,
+        meanRT = grandavg.(fields{f}).data(sj, :, :);
+        grandavg.(fields{f}).data(sj, :, :) = grandavg.(fields{f}).data(sj, :, :) - mean(meanRT(:)) + 0.5;
+    end
+    hold on;
+    for co = 1:2,
+        plot(squeeze(grandavg.xMean(:, co, :))', squeeze(grandavg.(fields{f}).data(:, co, :))', ...
+            '.-', 'color', cols(co, :));
+    end
+    axis square;
+    xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
+    ylim([0 1]);
+    set(gca, 'ytick', 0:0.5:1);
+    ylabel('Normalized pupil (z)');
+    xlabel('Evidence');
+    saveas(gcf, sprintf('~/Dropbox/Meetings/PupilNormalized.eps'), 'epsc');
+    
     % make a barplot
-    subplot(4,4,6);
+    clf;
+    subplot(3,5,1);
     hold on;
     bar(1, mean(slopes(:, 1)), 'facecolor', cols(1, :), 'edgecolor', 'none', 'barwidth', 0.8);
     bar(2, mean(slopes(:, 2)), 'facecolor', cols(2, :), 'edgecolor', 'none', 'barwidth', 0.8);
     h = ploterr(1:2, mean(slopes), [], std(slopes)/ sqrt(length(subjects)), 'k.', 'abshhxy', 0);
     set(h(1), 'marker', 'none');
-
-    mysigstar([1], [0.02 0.02], pval(1));
-    mysigstar([2], [-0.02 -0.02], pval(2));
-    mysigstar([1 2], [0.05 0.05], pval(3));
-    axis square;
+    plot(slopes', '.k-', 'linewidth', 0.2);
     
-    xlim([0.1 4.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
-        [] , 'ydir', 'normal', 'xticklabelrotation', 0, 'ytick', [-0.05 0 0.05]);
-    ylim([-0.06 0.05]);
+    mysigstar(1, 0.17, pval(1));
+    mysigstar(2, -0.17, pval(2));
+    mysigstar([1 2], 0.2, pval(3));
+    % axis square;
+    
+    xlim([0.5 2.5]); set(gca, 'tickdir', 'out', 'xtick', 1:2, 'xticklabel', ...
+        [] , 'ydir', 'normal', 'xticklabelrotation', 0, 'ytick', [-0.2 0 0.2]);
     
     box off; axis square;
     if f == length(fields),
@@ -126,6 +162,7 @@ for f = 1:length(fields),
     end
     % add sigstars
     ylabel('Beta weights (a.u.)');
+    saveas(gcf, sprintf('~/Dropbox/Meetings/PupilBetas.eps'), 'epsc');
     
 end
 set(gca, 'xcolor', 'k', 'ycolor', 'k');

@@ -1,4 +1,4 @@
-function [] = fig3i_SjCorrelation(whichmodulator)
+function [] = SjCorrelation(whichmodulator)
 % plot correlation between subjects
 
 global mypath;
@@ -42,10 +42,15 @@ switch whichmodulator
         xlabel('Choice weight');
         
         % between subject stuff
-        x = dat.response(:, 1);
         y1 = dat.response_pupil(:, 1);
         y2 = dat.response_rt(:, 1);
-        [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000)
+        x = dat.response(:, 1);
+        
+        % one way, parametric Steiger's test
+        [rddiff,cilohi,p] = rddiffci(corr(x, y1), corr(x, y2), corr(y1, y2), 27, 0.05);
+        
+        % second way, nonparametric permutation
+        [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000);
 end
 
 end

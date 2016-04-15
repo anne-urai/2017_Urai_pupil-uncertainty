@@ -4,6 +4,7 @@ global mypath;
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('correctness', 'var'); correctness = []; end
 if ~exist('nbins', 'var'); nbins = 3; end
+lag = 1; % look at 1 trial in the past
 
 warning('error', 'stats:glmfit:PerfectSeparation');
 
@@ -17,8 +18,9 @@ switch whichmodulator
         whichMod = 'feedback_pupil';
     case 'rt'
         whichMod = 'rt';
+    case 'evidence'
+        whichMod = 'evidence';
 end
-
 
 % =========================================== %
 % BIAS - ITERATE OVER TWO RESPONSES
@@ -26,20 +28,23 @@ end
 
 subjects = 1:27;
 clear grandavg;
-lag = 1;
 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    data = data(find(data.sessionnr > 1), :);
+    data = data((data.sessionnr > 1), :); % get rid of residual learning effects
     
-    % in this case, take out decision effects
     switch whichmodulator
         case 'fb+decpupil'
+            % in this case, take out decision effects
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'pupil',
-            data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+            data.decision_pupil = projectout(data.decision_pupil, (log(data.rt + 0.1)));
         case 'rt'
-            data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
+            data.rt = projectout(log(data.rt+0.1), data.decision_pupil);
+        case 'evidence'
+            % single-trial evidence strength is absolute motionenergy
+            data.evidence = data.difficulty;
+            %  data.evidence = data.coherence;
     end
     
     % outcome vector need to be 0 1 for logistic regression
@@ -53,45 +58,50 @@ for sj = unique(subjects),
     resps = [0 1];
     for r = 1:2,
         
-        % split into pupil bins
-        if nbins > 2,
-            if ~isempty(correctness),
-                uncQs = quantile(data.(whichMod)(data.resp == resps(r) & data.correct == correctness), nbins - 1);
-            else
-                uncQs = quantile(data.(whichMod)(data.resp == resps(r)), nbins - 1);
-            end
-        elseif nbins == 2,
-            uncQs = median(data.(whichMod)(data.resp == resps(r)));
+        % split into quantiles for each response
+        if isempty(correctness),
+            uncQs = quantile(data.(whichMod)(data.resp == resps(r)), nbins - 1);
+        else
+            uncQs = quantile(data.(whichMod)(data.resp == resps(r) & data.correct == correctness), nbins - 1);
         end
         
         % uncertainty bins
         for u = 1:nbins,
-            switch u
-                case 1
-                    trls = find(data.resp == resps(r) & data.(whichMod) < uncQs(u));
-                case nbins
-                    trls = find(data.resp == resps(r) & data.(whichMod) > uncQs(u-1));
-                otherwise
-                    trls = find(data.resp == resps(r) & ...
-                        data.(whichMod) > uncQs(u-1) & data.(whichMod) < uncQs(u));
-            end
             
-            if ~isempty(correctness),
-                % continue with a subset of trials
-                trls = intersect(trls, find(data.correct == correctness));
+            % find the trials in this bin
+            if isempty(correctness), % take all trials
+                switch u
+                    case 1
+                        trls = find(data.resp == resps(r) & data.(whichMod) <= uncQs(u));
+                    case nbins % last one
+                        trls = find(data.resp == resps(r) & data.(whichMod) > uncQs(u-1));
+                    otherwise
+                        trls = find(data.resp == resps(r) & ...
+                            data.(whichMod) > uncQs(u-1) & data.(whichMod) <= uncQs(u));
+                end
+            else % either correct or error trials
+                switch u
+                    case 1
+                        trls = find(data.resp == resps(r) & data.correct == correctness & data.(whichMod) <= uncQs(u));
+                    case nbins % last one
+                        trls = find(data.resp == resps(r) & data.correct == correctness & data.(whichMod) > uncQs(u-1));
+                    otherwise
+                        trls = find(data.resp == resps(r) & data.correct == correctness & ...
+                            data.(whichMod) > uncQs(u-1) & data.(whichMod) <= uncQs(u));
+                end
             end
             
             % with this selection, take the trials after that
             laggedtrls = trls+lag;
             
-            % exclude trials at the end of the block
+            % exclude trial at the end of the dataset
             if any(laggedtrls > size(data, 1)),
                 trls(laggedtrls > size(data, 1)) = [];
                 laggedtrls(laggedtrls > size(data, 1)) = [];
             end
             
             % remove trials that dont match in block nr
-            removeTrls = data.blocknr(laggedtrls) ~= data.blocknr(trls);
+            removeTrls = find(data.blocknr(laggedtrls) ~= data.blocknr(trls));
             laggedtrls(removeTrls) = [];
             
             % fit logistic regression
@@ -103,55 +113,52 @@ for sj = unique(subjects),
             catch
                 warning('putting nan in betas!');
                 b = nan(size(b));
+             %   assert(1==0);
             end
             
             % save betas
-            grandavg.logistic(sj, r, u, lag, :) = b;
+            grandavg.logistic(sj, r, u, :) = b;
             
         end % uncertainty bin
     end % resp
 end % sj
 
 % ========================================================= %
-% normalize by their overall bias
+% normalize by their overall bias for A or B
+% keep only the bias, discard slope info
 % ========================================================= %
 
-grandavg.logistic = bsxfun(@minus, grandavg.logistic, grandavg.overallLogistic(:, 1));
+grandavg.logistic = bsxfun(@minus, grandavg.logistic(:, :, :, 1), grandavg.overallLogistic(:, 1));
 
 % ========================================================= %
-% transform to probability saying '1'
+% transform from log(odds) to probability
 % ========================================================= %
 
 grandavg.logistic = exp(grandavg.logistic)./(1+exp(grandavg.logistic));
 
 % ========================================================= %
-% make one plot with repetition (rather than response) bias
+% compute repetition (rather than response) bias
 % ========================================================= %
 
-resp1 = -1 * (squeeze(grandavg.logistic(:, 1, :, :, 1)) - 0.5) + 0.5;
-resp2 = squeeze(grandavg.logistic(:, 2, :, :, 1));
+resp1 = -1 * (squeeze(grandavg.logistic(:, 1, :)) - 0.5) + 0.5;
+resp2 = squeeze(grandavg.logistic(:, 2, :));
 
 % since this is centred at 0.5, treat it that way
 grandavg.logisticRep = (resp1 + resp2) ./ 2;
-
-% ========================================================= %
-% combine the lag groups
-% ========================================================= %
-
-grandavg.logisticRep = squeeze(nanmean(grandavg.logisticRep(:, :, 1), 3));
-grandavg.logistic = squeeze(nanmean(grandavg.logistic(:, :, :, 1, :), 4));
 grandavgBias = grandavg;
 
 % =========================================== %
 % SLOPE - DO NOT ITERATE OVER TWO RESPONSES   %
 % =========================================== %
 
+clearvars -except grandavgBias subjects mypath whichmodulator whichMod nbins correctness lag
+
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     data = data(find(data.sessionnr > 1), :);
     
     % in this case, take out decision effects
-    % in this case, take out decision effects
+    
     switch whichmodulator
         case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
@@ -159,20 +166,18 @@ for sj = unique(subjects),
             data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
         case 'rt'
             data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
+        case 'evidence'
+            data.evidence = abs(data.motionstrength);
     end
     
     % outcome vector needs to be 0 1 for logistic regression
     data.resp(data.resp == -1) = 0;
     
     % previous response
-    if nbins > 2,
-        if ~isempty(correctness),
-            uncQs = quantile(data.(whichMod)(data.correct == correctness), nbins - 1);
-        else
-            uncQs = quantile(data.(whichMod), nbins - 1);
-        end
-    elseif nbins == 2,
-        uncQs = median(data.(whichMod));
+    if ~isempty(correctness),
+        uncQs = quantile(data.(whichMod)(data.correct == correctness), nbins - 1);
+    else
+        uncQs = quantile(data.(whichMod), nbins - 1);
     end
     
     % uncertainty bins
@@ -204,32 +209,31 @@ for sj = unique(subjects),
         % remove trials that dont match in block nr
         removeTrls = data.blocknr(laggedtrls) ~= data.blocknr(trls);
         laggedtrls(removeTrls) = [];
-        trls(removeTrls) = [];
         
         % fit logistic regression
         thisdat = data(laggedtrls, :);
-        grandavg.logistic(sj, u, lag, :) = glmfit(thisdat.motionstrength, thisdat.resp, ...
+        grandavg.logistic(sj, u, :) = glmfit(thisdat.motionstrength, thisdat.resp, ...
             'binomial','link','logit');
         
     end % uncertainty bin
 end % sj
 
 % replace
-grandavg.logisticSlope = squeeze(mean(grandavg.logistic(:, :, 1, 2), 3));
+grandavg.logisticSlope = squeeze(grandavg.logistic(:, :, 2));
 grandavgSlope = grandavg;
 
 % ========================================================= %
 % plot
 % ========================================================= %
 
-x = 1:nbins;
-y1 = grandavgBias.logisticRep;
-y2 = grandavgSlope.logisticSlope;
+x   = 1:nbins;
+y1  = grandavgBias.logisticRep;
+y2  = grandavgSlope.logisticSlope;
 
 % Store the axes handles produced by PLOTYY
 [ax, p1, p2] = plotyy(x, mean(y1), x, mean(y2));
-p1.Color = 'k';
-p2.Color = [0.4 0.4 0.4];
+p1.Color     = 'k';
+p2.Color     = [0.4 0.4 0.4];
 
 % Use HOLD and ERRORBAR, passing axes handles to the functions.
 hold(ax(1), 'on');
@@ -243,6 +247,8 @@ set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
 [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
 disp(stats);
 disp(pval);
+bf10 = t1smpbf(stats.tstat, 27);
+fprintf('bias, bf10 = %f', bf10);
 mysigstar([1 nbins], [0.53 0.53], pval, 'k', 'down');
 axis(ax(1), 'square');
 
@@ -254,7 +260,9 @@ errorbar(ax(2), x, mean(y2), std(y2) ./sqrt(27), ...
 set(ax(2), 'xlim', [0.5 nbins+0.5], 'ylim', [0.40 0.9], 'ytick', [0.8 0.9], ...
     'xcolor', 'k', 'ycolor', [0.4 0.4 0.4], 'linewidth', 0.5, 'box', 'off');
 axis(ax(2), 'square');
-[~, pval] = ttest(y2(:, 1), y2(:, end));
+[~, pval2, ci, stats2] = ttest(y2(:, 1), y2(:, end));
+bf10 = t1smpbf(stats2.tstat, 27);
+fprintf('slope, bf10 = %f', bf10);
 mysigstar([1 nbins], [0.9 0.9], pval, [0.4 0.4 0.4], 'down');
 
 ax(1).YLabel.String = 'P(repeat)';
@@ -266,7 +274,6 @@ switch whichMod
     case 'rt'
         xlabel('Previous trial RT');
     otherwise
-        xlabel(whichmodulator);
+        xlabel(sprintf('Previous trial %s', whichmodulator));
 end
-
 end

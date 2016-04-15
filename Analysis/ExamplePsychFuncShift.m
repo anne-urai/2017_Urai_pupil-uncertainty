@@ -7,7 +7,6 @@ data = data(find(data.sessionnr > 1), :);
 % outcome vector need to be 0 1 for logistic regression
 data.resp(data.resp == -1) = 0;
 
-
 % condition on two previous choices
 resps = [0 1];
 for r = 1:2,

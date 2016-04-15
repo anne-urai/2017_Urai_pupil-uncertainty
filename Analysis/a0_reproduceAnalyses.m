@@ -19,7 +19,7 @@ ft_defaults;
 for sj = 1:27, a1_PupilAnalysis(sj); end
 
 %% motion energy filtering
-% warning: since this is memory and cpu heavy, the outputs of this script
+% warning: since this very is memory and CPU heavy, the outputs of this script
 % have been provided in motionEnergy.zip - consider using those to continue
 % if you don't have access to a computing cluster.
 for sj = 1:27, a2_MotionEnergy(sj); end
@@ -33,12 +33,13 @@ a3_writeData2GA;
 % timecourses
 a4_writeData2CSV;
 
-%% reproduce figure 1 and 2
-fig1_Model;
-
-fig2_Task;
+%% reproduce figure 1, 2, 3
 close all;
-fig2_overview;
+figure1;
+close all;
+figure2;
+close all;
+figure3;
 close all;
 
 %% run the python model with modulatory term
@@ -66,12 +67,17 @@ for m = 1:length(mods),
     a6_retrieveDataFromPython(mods{m});
 end
 
-%% reproduce figure 4
-fig3_overview;
+%% reproduce figures 4,5,6
+close all;
+figure4;
+close all;
+figure5;
+close all; 
+figure6;
 
 %% also reproduce the supplementary figures
 figS2_MotionEnergy_Filters;
 figS3_feedbackpupil;
 
 % there you go! get in touch if you have any further questions.
-% Anne Urai, anne.urai@gmail.com
+% Anne Urai, anne.urai@gmail.com / @AnneEU
