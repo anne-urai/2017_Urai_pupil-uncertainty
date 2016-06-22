@@ -43,8 +43,8 @@ axis(ax(1), 'square');
 hold(ax(2), 'on');
 errorbar(ax(2), 1:nbins, squeeze(nanmean(grandavg.rt)), ...
     squeeze(nanstd(grandavg.rt)) ./ sqrt(length(subjects)), 'color', cols(2,:));
-set(ax(2), 'xlim', [0.5 nbins+0.5], 'xtick', [1 3.5 6], 'ylim', [0.2 0.6], ...
-    'ytick', 0.2:0.2:0.6, 'box', 'off', 'ycolor', cols(2,:)); 
+set(ax(2), 'xlim', [0.5 nbins+0.5], 'xtick', [1 3.5 6], 'ylim', [0.25 0.55], ...
+    'ytick', 0.25:0.15:0.55, 'box', 'off', 'ycolor', cols(2,:)); 
 xlabel(ax(2), 'Evidence');
 ylabel(ax(2), 'RT (s)');
 axis(ax(2), 'square');

@@ -4,7 +4,7 @@
 close; figure;
 global mypath;
 
-subplot(441); ReactionTimeUncertainty;
+subplot(441); Uncertainty_byErrorCorrect('rt');
 
 % other metrics of uncertainty:
 subplot(443); UncertaintyAccuracy('rt');

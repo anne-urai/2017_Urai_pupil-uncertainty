@@ -54,8 +54,8 @@ plot([pt pt], [0 s2(dsearchn(stim', pt))], 'color', gr1, 'linestyle', ':');
 
 axis tight; %ylim([0 0.5]);
 ylabel('Probability density'); xlabel('Decision variable (DV)');
-text(-5, max(s2), 'Stimulus A');
-text(1.5, max(s2), 'Stimulus B');
+text(-12, 0.17, 'Stimulus A');
+text(2, 0.17, 'Stimulus B');
 
 % add legend
 l = legend([p(3), p(1)], {'weak', 'strong'});
@@ -64,7 +64,7 @@ lpos(1) = lpos(1) + 0.12; % right
 lpos(2) = lpos(2) - 0.05; % down
 l.Position = lpos;
 l.Box = 'off';
-text(7, 0.3, 'Intensity');
+text(15, 0.1, 'Intensity');
 
 %offsetAxes(gca, 0.1, 1);
 set(gca, 'xtick', [0 pt], 'xticklabel', {'c', 'dv_i'}, ...
@@ -141,10 +141,10 @@ confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
     [confEpt(s), confCpt(s)] = simulateConf(stimpts(s), sigma);
 end
-plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
-plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
-plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
-plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
+plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
+plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 14);
+plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
+plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
 
 axis tight; axis square;
 set(gca,  'box', 'off', 'tickdir', 'out', 'xlim', [min(stimlevs) max(stimlevs)]);
@@ -175,10 +175,10 @@ confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
     [confEpt(s), confCpt(s)] = simulateUnc(stimpts(s), sigma);
 end
-plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
-plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
-plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
-plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
+plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
+plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 14);
+plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
+plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
 
 hold on; axis square;
 set(gca,'box', 'off', 'tickdir', 'out', 'xlim', [min(stimlevs) max(stimlevs)]);
@@ -202,7 +202,7 @@ function [confE, confC] = simulateConf(x, sigma)
 bound = 0;
 
 % simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(1000, 1);
+dvs = x - bound + sigma * randn(100000, 1);
 
 % find the mean distance to bound for the correct samples
 confC = mean(tanh(abs(dvs(dvs > bound) - bound)));
@@ -220,7 +220,7 @@ function [uncE, uncC] = simulateUnc(x, sigma)
 bound = 0;
 
 % simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(1000, 1);
+dvs = x - bound + sigma * randn(100000, 1);
 
 % find the mean distance to bound for the correct samples
 uncC = mean(1 - tanh(abs(dvs(dvs > bound) - bound)));

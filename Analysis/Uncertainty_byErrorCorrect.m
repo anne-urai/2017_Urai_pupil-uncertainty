@@ -77,7 +77,7 @@ bf10 = t1smpbf(stat.tstat,27);
 bf10 = t1smpbf(stat.tstat,27);
 
 hold on;
-markers = {'^', '.'}; markersizes = [4 12];
+markers = {'^', '.'}; markersizes = [4 14];
 for co = 1:2,
     
     % use double error bars
