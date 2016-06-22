@@ -2,10 +2,11 @@
 
 % first, make sure this path matches the place where the data are stored
 global mypath;
-mypath = '/Users/anne/Data/pupilUncertainty';
+mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
 
 % add the code folder
-addpath('~/Dropbox/Code/pupilUncertainty/Analysis');
+addpath([mypath '/Code/Analysis/']);
+cd([mypath '/Code/Analysis/']);
 
 % optional: get my Tools folder here https://github.com/anne-urai/Tools and
 % add this to your path as well - or, manually get those functions that
@@ -80,4 +81,4 @@ figS2_MotionEnergy_Filters;
 figS3_feedbackpupil;
 
 % there you go! get in touch if you have any further questions.
-% Anne Urai, anne.urai@gmail.com / @AnneEU
+% Anne Urai, anne.urai@gmail.com / @AnneEUrai

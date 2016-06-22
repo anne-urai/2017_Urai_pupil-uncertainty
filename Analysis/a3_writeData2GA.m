@@ -191,7 +191,6 @@ if plotme,
             try
                 trls = find(data.trialinfo(:, 14) == session & data.trialinfo(:, 13)==block);
                 trldat = cat(2, data.trial{trls});
-                
                 plot(trldat(pupilchan, :));
             end
             axis tight; axis off;

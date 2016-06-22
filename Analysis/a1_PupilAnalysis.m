@@ -5,7 +5,9 @@ function a1_PupilAnalysis(sj)
 % structure with a trialinfo matrix that will later be used to create csv
 % files.
 %
-% Anne Urai, 2015
+% Anne Urai, 2016
+% make sure to get several eye-related functions from 
+% https://github.com/anne-urai/Tools/tree/master/eye
 
 global mypath;
 
@@ -95,7 +97,11 @@ for session = unique(sessions),
         % dont add back slow drift for now
         addBackSlowDrift = 0;
         
-        data = blink_regressout(data, blinksmp, saccsmp, 1, addBackSlowDrift);
+        pupildata = data.trial{1}(~cellfun(@isempty, strfind(lower(data.label), 'eyepupil')),:);
+        newpupil = blink_regressout(pupildata, data.fsample, blinksmp, saccsmp, 1, addBackSlowDrift);
+        % put back in fieldtrip format
+        data.trial{1}(~cellfun(@isempty, strfind(lower(data.label), 'eyepupil')),:) = newpupil;
+        
         saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', mypath, sj, session, block), 'pdf');
         
         % ==================================================================

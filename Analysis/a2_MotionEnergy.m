@@ -9,7 +9,7 @@ function [] =  a2_MotionEnergy(sj)
 if ischar(sj), sj = str2double(sj); end
 
 global mypath;
-mypath = '~/Data/pupilUncertainty';
+
 
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
@@ -495,8 +495,6 @@ pixSize = display.width/display.res.width;   %cm/pix
 sz = 2*display.dist*tan(pi*ang/(2*180));  %cm
 
 pix = round(sz/pixSize);   %pix
-
-return
 
 end
 
