@@ -92,7 +92,7 @@ for sj = unique(subjects),
 end
 
 % color scheme
-cols = cbrewer('div', 'RdYlGn', 10);
+cols = cbrewer('div', 'RdYlBu', 10);
 cols = cols([3 2 1 end-2:end], :);
 
 if plotTotalAverage,

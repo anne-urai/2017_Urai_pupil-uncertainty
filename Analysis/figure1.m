@@ -76,7 +76,7 @@ set(gca, 'xtick', [0 pt], 'xticklabel', {'c', 'dv_i'}, ...
 
 subplot(443);
 colors = cbrewer('qual', 'Set1', 8);
-cols = colors([1 3], :);
+cols = colors([1 2], :);
 
 % first the difficult stimulus
 % indicate one correct and one error
@@ -141,9 +141,9 @@ confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
     [confEpt(s), confCpt(s)] = simulateConf(stimpts(s), sigma);
 end
-plot(stimpts(1), confEpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
+plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
 plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
-plot(stimpts(2), confEpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
+plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
 plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
 
 axis tight; axis square;
@@ -175,9 +175,9 @@ confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
     [confEpt(s), confCpt(s)] = simulateUnc(stimpts(s), sigma);
 end
-plot(stimpts(1), confEpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
+plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
 plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 12);
-plot(stimpts(2), confEpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
+plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
 plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 12);
 
 hold on; axis square;
@@ -202,7 +202,7 @@ function [confE, confC] = simulateConf(x, sigma)
 bound = 0;
 
 % simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(1000000, 1);
+dvs = x - bound + sigma * randn(1000, 1);
 
 % find the mean distance to bound for the correct samples
 confC = mean(tanh(abs(dvs(dvs > bound) - bound)));
@@ -220,7 +220,7 @@ function [uncE, uncC] = simulateUnc(x, sigma)
 bound = 0;
 
 % simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(1000000, 1);
+dvs = x - bound + sigma * randn(1000, 1);
 
 % find the mean distance to bound for the correct samples
 uncC = mean(1 - tanh(abs(dvs(dvs > bound) - bound)));

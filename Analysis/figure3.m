@@ -7,8 +7,12 @@ global mypath;
 subplot(4,4,1); PupilTimecourse(0);
 subplot(4,4,3); PupilUncertaintyTimecourse;
 
-subplot(4,4,5); PupilUncertaintyCorrelation;
-subplot(4,4,7); Uncertainty_Accuracy;
+subplot(4,4,5); Uncertainty_byErrorCorrect('decision_pupil');
+subplot(4,4,7); UncertaintyAccuracy('decision_pupil');
+
+% Uncertainty_PsychFuncSlope
+ 
+subplot(4,4,8); PsychFuncs_byUncertainty('decision_pupil');
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure3.pdf', mypath));
 

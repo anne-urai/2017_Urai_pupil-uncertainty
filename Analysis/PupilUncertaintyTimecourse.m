@@ -8,7 +8,6 @@ if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main 
 
 subjects = 1:27;
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
-
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
 warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
 
@@ -17,7 +16,7 @@ warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 colors = cbrewer('qual', 'Set1', 9);
-cols = colors([1 3 9], :); % red green grey
+cols = colors([1 2 9], :); % red blue grey
 
 if plotIndividual, figure; end
 for sj = unique(subjects),

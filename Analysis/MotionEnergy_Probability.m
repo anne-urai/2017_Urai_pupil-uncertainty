@@ -26,7 +26,6 @@ strength = t.motionstrength;
 
 % !!! add zero stimlevels into image MAT to ensure linearity
 stepsize = min(diff(unique(stim)));
-%stepsize = 2*min(diff(unique(stim)));
 stimlevels = min(unique(stim)):stepsize:max(unique(stim));
 stimlevels = [-0.31 stimlevels 0.31];
 n = zeros(length(stimlevels), 99);
@@ -43,9 +42,10 @@ end
 assert(isequal(length(unique(stim)), length(find(nansum(n, 2) > 0))), 'spacing not quite right');
 colormap hot;
 imagesc(stimlevels, edges, n');
+axis square;
 set(gca, 'ydir', 'normal');
-xlabel({'motion coherence (%)'});
-ylabel({'motion energy (a.u.)'});
+xlabel({'Motion coherence (%)'});
+ylabel({'Motion energy (a.u.)'});
 
 %offsetAxes
 set(gca, 'tickdir', 'out', 'box', 'off');
@@ -56,20 +56,26 @@ set(gca, 'xtick', unique(stim), 'xticklabel', xlabs, 'xticklabelrotation', 0);
 set(gca, 'ytick', -6:3:6);
 set(gca, 'XAxisLocation','top');
 
-% put a string on top of the colorbar
-% make the colorbar prettier, move to the side
-c = colorbar('Location', 'EastOutside');
-% cpos = c.Position;
-% cpos(2) = cpos(2)*0.85; % down
-% cpos(4) = 0.6*cpos(4); % thinner
-% cpos(1) = cpos(1)*1.06; % to the rigth
-% cpos(3) = cpos(3) *0.6; % shorter
-% c.Position = cpos;
-c.Box = 'off';
+axpos = get(gca, 'Position');
+drawnow;
 
-c.Label.String = 'Probability';
-c.TickDirection = 'out';
-axis square;
+% add the colorbar, make it prettier
+handles = colorbar('Location', 'EastOutside');
+handles.TickDirection = 'out';
+handles.Box = 'off';
+handles.Label.String = 'Probability';
+
+% this looks okay, but the colorbar is very wide. Let's change that!
+% get original axes
+cpos = handles.Position;
+cpos(3) = 0.5*cpos(3);
+cpos(1) = cpos(1) + 0.05; % to the right
+handles.Position = cpos;
+drawnow;
+
+% restore axis pos
+set(gca, 'position', axpos);
+drawnow;
 
 end
 

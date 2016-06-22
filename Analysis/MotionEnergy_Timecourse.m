@@ -270,7 +270,7 @@ else
     
     timeaxis = 0:window.frameDur:length(motionstrength)*window.frameDur;
     plot(timeaxis(1:end-1),motionstrength, 'k');
-    axis tight; xlabel('Time from baseline (s)'); ylabel('Motion energy (a.u.)'); box off;
+    axis tight; axis square; xlabel('Time from baseline (s)'); ylabel('Motion energy (a.u.)'); box off;
     ylim([-1 11]);
     
 end

@@ -57,24 +57,23 @@ end
 colors = cbrewer('qual', 'Set1', 8);
 cols = colors([1 3], :);
 
-%% for erlich, plot with all SJ
-
-figure; subplot(3,3,1);
-hold on;
-for co = 1:2,
-    plot(squeeze(grandavg.rpeMean(:, co, :))', squeeze(grandavg.rt.data(:, co, :))', ...
-        '.-', 'color', cols(co, :));
-end
-
-xlabel('Evidence');
-ylabel('Reaction time (s)');
-ylim([0 1.2]); set(gca, 'ytick', 0:0.5:1.5);
-xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
-axis square;
-set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-saveas(gcf, sprintf('~/Dropbox/Meetings/RT.eps'), 'epsc');
-
-figure; subplot(3,3,1);
+% %% for erlich, plot with all SJ
+% 
+% figure; subplot(3,3,1);
+% hold on;
+% for co = 1:2,
+%     plot(squeeze(grandavg.rpeMean(:, co, :))', squeeze(grandavg.rt.data(:, co, :))', ...
+%         '.-', 'color', cols(co, :));
+% end
+% 
+% xlabel('Evidence');
+% ylabel('Reaction time (s)');
+% ylim([0 1.2]); set(gca, 'ytick', 0:0.5:1.5);
+% xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
+% axis square;
+% set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+% saveas(gcf, sprintf('~/Dropbox/Meetings/RT.eps'), 'epsc');
+% 
 hold on;
 for co = 1:2,
     h = ploterr(squeeze(nanmean(grandavg.rpeMean(:, co, :))), ...
@@ -90,37 +89,36 @@ end
 
 xlabel('Evidence');
 ylabel('Reaction time (s)');
-ylim([0.25 0.7]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
+ylim([0.25 0.6]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
 xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
 axis square;
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-saveas(gcf, sprintf('~/Dropbox/Meetings/GA_RT.eps'), 'epsc');
-
-figure; subplot(3,3,1);
-% normalize each sj to mean!
-for sj = subjects,
-    meanRT = grandavg.rt.data(sj, :, :);
-    grandavg.rt.data(sj, :, :) = grandavg.rt.data(sj, :, :) - mean(meanRT(:)) + 0.5;
-end
-
-hold on;
-for co = 1:2,
-    plot(squeeze(grandavg.rpeMean(:, co, :))', squeeze(grandavg.rt.data(:, co, :))', ...
-        '.-', 'color', cols(co, :));
-end
-
-xlabel('Evidence');
-ylabel('Normalized RT (s)');
-ylim([0 1.2]); set(gca, 'ytick', 0:0.5:1.5);
-xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
-axis square;
-set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-saveas(gcf, sprintf('~/Dropbox/Meetings/NormalizedRT.eps'), 'epsc');
-
-
+% saveas(gcf, sprintf('~/Dropbox/Meetings/GA_RT.eps'), 'epsc');
+% 
+% % figure; subplot(3,3,1);
+% % normalize each sj to mean!
+% for sj = subjects,
+%     meanRT = grandavg.rt.data(sj, :, :);
+%     grandavg.rt.data(sj, :, :) = grandavg.rt.data(sj, :, :) - mean(meanRT(:)) + 0.5;
+% end
+% 
+% hold on;
+% for co = 1:2,
+%     plot(squeeze(grandavg.rpeMean(:, co, :))', squeeze(grandavg.rt.data(:, co, :))', ...
+%         '.-', 'color', cols(co, :));
+% end
+% 
+% xlabel('Evidence');
+% ylabel('Normalized RT (s)');
+% ylim([0 1.2]); set(gca, 'ytick', 0:0.5:1.5);
+% xlim([-0.2 5.5]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel', {'weak', 'medium', 'strong' });
+% axis square;
+% set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+% %saveas(gcf, sprintf('~/Dropbox/Meetings/NormalizedRT.eps'), 'epsc');
+%  
 %% make the subplot next to it show the significance of the intercepts
 % and slopes
-close all;
+%close all;
 
 % slopes
 slopes         = [grandavg.rt.regline(:, 1, 2) grandavg.rt.regline(:, 2, 2)];
@@ -132,7 +130,7 @@ bf10 = t1smpbf(stat.tstat,27);
 bf10 = t1smpbf(stat.tstat,27);
 
 % slopes
-subplot(3,3,1);
+subplot(4,4,2);
 hold on;
 bar(1, mean(slopes(:,1)), 'FaceColor',  cols(1, :), 'EdgeColor', 'none', 'BarWidth', 0.8);
 bar(2, mean(slopes(:,2)), 'FaceColor', cols(2, :), 'EdgeColor', 'none', 'BarWidth', 0.8);
@@ -143,9 +141,9 @@ set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'}, 'ytick', [-1:0.1:1]
 ylabel('Beta weight (a.u.)');
 plot(slopes', '.k-', 'linewidth', 0.2, 'markersize', 2);
 
-mysigstar([1 2], [0.4], pvalD_interc); % difference
-mysigstar(1, 0.35, pvalE_interc);
-mysigstar(2, -0.35, pvalC_interc);
+mysigstar(gca, [1 2], [0.4], pvalD_interc); % difference
+mysigstar(gca, 1, 0.35, pvalE_interc);
+mysigstar(gca, 2, -0.35, pvalC_interc);
 
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'ytick', [-0.3:0.3:0.3]);
 ylim([-0.4 0.4]); xlim([0.5 2.5]); 

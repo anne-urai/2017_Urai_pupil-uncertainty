@@ -40,6 +40,8 @@ figure1;
 close all;
 figure2;
 close all;
+figure2b; % additional figure with RT stuff 
+close all;
 figure3;
 close all;
 
@@ -60,6 +62,7 @@ for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
         sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
+
 % important: if you want the quick and dirty version without accurate errorbars, change -n1000 to n-10.
 
 %% get the output back into something Matlab can work with
@@ -77,8 +80,9 @@ close all;
 figure6;
 
 %% also reproduce the supplementary figures
-figS2_MotionEnergy_Filters;
-figS3_feedbackpupil;
+figureS1_MotionEnergy_Filters;
+figureS2_History_CorrectError;
+figureS3_feedbackpupil;
 
 % there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai
