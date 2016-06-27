@@ -5,10 +5,12 @@ function [] = plotBetasSwarm(beta, colors)
 if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', 8); end
 global mypath;
 
-hold on;
+hold on; % paired
+if size(beta, 2) == 2,
+    plot(beta', '-', 'color', [0.8 0.8 0.8], 'linewidth', 0.4);
+end
+
 for i = 1:size(beta, 2),
-    barcol = (colors(i, :) * 2); % lighter
-    barcol(barcol > 1) = 1;
     bar(i, squeeze(mean(beta(:, i))), 'edgecolor', 'none', ...
         'facecolor', [0.9 0.9 0.9], 'barwidth', 0.5);
     scatter(i * ones(1, size(beta, 1)), beta(:, i), ...

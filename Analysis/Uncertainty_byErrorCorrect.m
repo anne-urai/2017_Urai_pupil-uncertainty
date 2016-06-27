@@ -1,4 +1,4 @@
-function [b] = Uncertainty_byErrorCorrect(field)
+function [b, bint] = Uncertainty_byErrorCorrect(field)
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
@@ -64,6 +64,8 @@ for sj = subjects,
         % SAVE BETAS FOR THIS PARTICIPANT
         grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
             mdl.Coefficients.Estimate;
+        bint = mdl.coefCI; coef = mdl.Coefficients.Estimate;
+        grandavg.(field).bint(find(sj==subjects), find(corr==cors), :) = bint(2,2) - coef(2);
     end
     
 end
@@ -114,6 +116,6 @@ set(gca, 'xcolor', 'k', 'ycolor', 'k');
 savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');
 
 % output
-b = grandavg.(field).regline;
-
+b = grandavg.(field).regline(:, :, 2);
+bint = grandavg.(field).bint;
 end

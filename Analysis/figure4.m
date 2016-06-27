@@ -6,17 +6,22 @@ global mypath;
 
 subplot(4,4,1); PupilTimecourse(0);
 subplot(4,4,3); PupilUncertaintyTimecourse;
+load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 % use nice shades of red and green
 colors = cbrewer('qual', 'Set1', 9);
 
 % error vs correct
 subplot(445); b = Uncertainty_byErrorCorrect('decision_pupil');
-subplot(4,7,10); plotBetasSwarm(b(:, :, 2), colors([1 2], :));
-set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
+subplot(4,4,6); scatterHistDiff(squeeze(b(:, 1)), squeeze(b(:, 2)), [], [], mycolmap);
+xlabel('Correct trials beta weight (a.u.)'); ylabel('Error trials beta weight (a.u.)');
+
+%subplot(4,7,10); plotBetasSwarm(b(:, :, 2), colors([1 2], :));
+%set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 % other metrics of uncertainty
 subplot(4,4,9); b = UncertaintyAccuracy('decision_pupil');
+%subplot(4,4,10); histogram(b(:, 2));
 
 % show betas
 subplot(4,7,17); plotBetasSwarm(b(:, 2), [0 0 0]);
@@ -25,10 +30,14 @@ set(gca, 'xtick', 1, 'xticklabel', []);
 
 % psychometric functions
 subplot(4,4,13); b = PsychFuncs_byUncertainty('decision_pupil');
-subplot(4,7,24); plotBetasSwarm(b(:, :, 2), [0.7 0.7 0.7; 0.2 0.2 0.2]);
-set(gca, 'xtick', [1 2], 'xticklabel', {'low', 'high'});
-xlabel('Pupil response'); ylabel('Threshold (a.u.)');
-ylim([0 7]);
+subplot(4,4,14); scatterHistDiff(squeeze(b(:, 1)), squeeze(b(:, 2)), ...
+   [], [], mycolmap);
+
+%subplot(4,7,24); plotBetasSwarm(b(:, :, 2), [0.7 0.7 0.7; 0.2 0.2 0.2]);
+xlabel('Low pupil threshold'); ylabel('High pupil threshold');
+%set(gca, 'xtick', [1 2], 'xticklabel', {'low', 'high'});
+%xlabel('Pupil response'); ylabel('Threshold (a.u.)');
+%ylim([0 7]);
 
 % ensure same axes proportions
 ax = findobj(gcf, 'type', 'axes');

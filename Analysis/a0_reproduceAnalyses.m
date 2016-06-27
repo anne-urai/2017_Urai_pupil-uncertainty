@@ -9,10 +9,10 @@ addpath([mypath '/Code/Analysis/']);
 cd([mypath '/Code/Analysis/']);
 
 % optional: get my Tools folder here https://github.com/anne-urai/Tools and
-% add this to your path as well - or, manually get those functions that
+% add this to your path as well - or manually get those functions that
 % you're missing (mainly for plotting and some stats).
 
-% install fieldtrip - see http://www.fieldtriptoolbox.org
+% download and install fieldtrip - see http://www.fieldtriptoolbox.org
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
@@ -40,7 +40,7 @@ figure1;
 close all;
 figure2;
 close all;
-figure3; % additional figure with RT uncertainty
+figure3; 
 close all;
 figure4;
 close all;

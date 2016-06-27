@@ -1,4 +1,4 @@
-function b = PsychFuncs_byUncertainty(field)
+function [b] = PsychFuncs_byUncertainty(field)
 
 global mypath;
 nbins = 6;
@@ -88,14 +88,14 @@ switch field
         l = legend([handles{:}], {'fast', 'slow'}, 'location', 'southeast');
         legend boxoff;
     case 'decision_pupil'
-        l = legend([handles{:}], {'Low pupil', 'High pupil'}, 'location', 'southeast');
+        l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
         legend boxoff;
 end
 lpos = get(l, 'position');
 lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);
 
-b = grandavg.b;
+b = grandavg.b(:, :, 2);
 
 end
 
@@ -221,7 +221,8 @@ lpos = get(l, 'position');
 lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);
 
-b = grandavg.b;
+% return threshold, not slope
+b = grandavg.b(:, :, 2);
 
 end
 
