@@ -40,9 +40,9 @@ figure1;
 close all;
 figure2;
 close all;
-figure2b; % additional figure with RT stuff 
+figure3; % additional figure with RT uncertainty
 close all;
-figure3;
+figure4;
 close all;
 
 %% run the python model with modulatory term
@@ -73,11 +73,11 @@ end
 
 %% reproduce figures 4,5,6
 close all;
-figure4;
-close all;
 figure5;
-close all; 
+close all;
 figure6;
+close all; 
+figure7;
 
 %% also reproduce the supplementary figures
 figureS1_MotionEnergy_Filters;

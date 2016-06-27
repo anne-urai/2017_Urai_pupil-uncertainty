@@ -38,9 +38,7 @@ if plotTotalAverage,
         pupilgrandavg.timelock{1}(2).lock, [0], ...
         pupilgrandavg.timelock{1}(3).lock, [0 1], ...
         pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
-    %xlabel('Time (ms)');
-    % offsetAxes(gca, 0.12, 0);
-    %print(gcf, '-dpdf', '~/Dropbox/Figures/uncertainty/overallPupilTimecourse.pdf');
+  
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,11 +115,24 @@ lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .15;
 set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
 
 axis tight; set(gca, 'ytick', [0:0.5:1], 'ylim', [-0.2 1]);
+
 % subfunction to put lines and xlabels at the right spots
 plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
     pupilgrandavg.timelock{1}(2).lock, [0], ...
     pupilgrandavg.timelock{1}(3).lock, [0 1], ...
     pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
+
+% indicate the grey area we use for getting single-trial scalars
+xticks = get(gca, 'xtick');
+finalx = xticks(5);
+startx = xticks(5) - (0.25* (xticks(6)-xticks(5)));
+a = area(startx:finalx-1, ...
+    ones(1, finalx-startx) * max(get(gca, 'ylim')), ...
+    min(get(gca, 'ylim')));
+a.FaceColor = [0.9 0.9 0.9];
+a.EdgeColor = 'none';
+a.ShowBaseLine = 'off';
+
 % xlabel('Time (ms)');
 
 end

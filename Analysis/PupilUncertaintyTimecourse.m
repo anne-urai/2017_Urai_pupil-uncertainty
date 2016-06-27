@@ -16,98 +16,99 @@ warning('error', 'stats:regress:RankDefDesignMat'); % stop if this happens
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 colors = cbrewer('qual', 'Set1', 9);
-cols = colors([1 2 9], :); % red blue grey
+colors = colors([1 2 9], :); % red blue grey
 
-if plotIndividual, figure; end
-for sj = unique(subjects),
-    
-    pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyePupil')==1);
-    
-    % get all timelock
-    tl = cat(2, ...
-        squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, pupilchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, pupilchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :)));
-    
-    % do the same for the gazepos, x and y
-    xchan    = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyeH')==1);
-    gazex = cat(2, ...
-        squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, xchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, xchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, xchan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, xchan, :)));
-    gazex = gazex - nanmean(gazex(:)); % normalize
-    
-    ychan    = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyeV')==1);
-    gazey = cat(2, ...
-        squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, ychan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, ychan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, ychan, :)), ...
-        squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, ychan, :)));
-    gazey = gazey - nanmean(gazey(:)); % normalize
-    
-    % run a separate glm for correct and error
-    cors = [0 1];
-    signific = ones(2, size(tl, 2));
-    
-    for c = 1:2,
+if exist(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath), 'file'), ...
+        load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath)); % dont redo, takes time;
+else
+    if plotIndividual, figure; end
+    for sj = unique(subjects),
         
-        thistabledat = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
-        trls = find(thistabledat(:, 8) == cors(c));
+        pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyePupil')==1);
         
-        % add log(RT) as another predictor
-        designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
-            zscore(log(thistabledat(trls, 6)+0.1))];
+        % get all timelock
+        tl = cat(2, ...
+            squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, pupilchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, pupilchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :)));
         
-        % regress for each sample
-        for s = 1:size(tl, 2),
+        % do the same for the gazepos, x and y
+        xchan    = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyeH')==1);
+        gazex = cat(2, ...
+            squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, xchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, xchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, xchan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, xchan, :)));
+        gazex = gazex - nanmean(gazex(:)); % normalize
+        
+        ychan    = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyeV')==1);
+        gazey = cat(2, ...
+            squeeze(pupilgrandavg.timelock{sj}(1).lock.trial(:, ychan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(2).lock.trial(:, ychan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(3).lock.trial(:, ychan, :)), ...
+            squeeze(pupilgrandavg.timelock{sj}(4).lock.trial(:, ychan, :)));
+        gazey = gazey - nanmean(gazey(:)); % normalize
+        
+        % run a separate glm for correct and error
+        cors = [0 1];
+        signific = ones(2, size(tl, 2));
+        
+        for c = 1:2,
             
-            % add the x and y position of this sample?
-            designM2 = [designM gazex(trls, s) gazey(trls, s)];
+            thistabledat = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
+            trls = find(thistabledat(:, 8) == cors(c));
             
-            % when zscoring each sample's timecourse, the nice intercept shape
-            % dissappears (duh)
-            [b, bint, ~, ~, stats] = regress((tl(trls, s)), designM2);
-            grandavg.beta(find(sj==subjects), c, s, :)    = b;
-            grandavg.bint(find(sj==subjects), c, s, :)    = [b - bint(:, 1)];
-            grandavg.rsq(find(sj==subjects), c, s, :)     = stats(1);
+            % add log(RT) as another predictor
+            designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
+                zscore(log(thistabledat(trls, 6)+0.1))];
             
-            signific(c, s) = stats(3);
+            % regress for each sample
+            for s = 1:size(tl, 2),
+                
+                % add the x and y position of this sample?
+                designM2 = [designM gazex(trls, s) gazey(trls, s)];
+                
+                % when zscoring each sample's timecourse, the nice intercept shape
+                % dissappears (duh)
+                [b, bint, ~, ~, stats] = regress((tl(trls, s)), designM2);
+                grandavg.beta(find(sj==subjects), c, s, :)    = b;
+                grandavg.bint(find(sj==subjects), c, s, :)    = [b - bint(:, 1)];
+                grandavg.rsq(find(sj==subjects), c, s, :)     = stats(1);
+                
+                signific(c, s) = stats(3);
+            end
+        end
+        
+        if plotIndividual,
+            % plot this sj
+            subplot(6,5,find(sj==subjects));
+            boundedline(1:length(signific), squeeze(grandavg.beta(find(sj==subjects), :, :, 2)), ...
+                permute(squeeze(grandavg.bint(find(sj==subjects), :, :, 2)), [2 3 1]), 'cmap', colors, 'alpha');
+            axis tight;
+            set(gca, 'TickDir', 'out', 'XLim', [0 size(grandavg.beta, 3)], 'box', 'off');
+            ylims = get(gca, 'ylim');
+            plot(find(signific(1, :)<0.05), ylims(1)-0.2*ones(1, length(find(signific(1, :)<0.05))), '.', 'color', colors(1, :));
+            plot(find(signific(2, :)<0.05), ylims(1)-0.3*ones(1, length(find(signific(2, :)<0.05))), '.', 'color', colors(2, :));
+            
+            plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
+                pupilgrandavg.timelock{1}(2).lock, [0], ...
+                pupilgrandavg.timelock{1}(3).lock, [0 1], ...
+                pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
+            set(gca, 'xticklabel', []);
         end
     end
     
     if plotIndividual,
-        % plot this sj
-        subplot(6,5,find(sj==subjects));
-        boundedline(1:length(signific), squeeze(grandavg.beta(find(sj==subjects), :, :, 2)), ...
-            permute(squeeze(grandavg.bint(find(sj==subjects), :, :, 2)), [2 3 1]), 'cmap', cols, 'alpha');
-        axis tight;
-        set(gca, 'TickDir', 'out', 'XLim', [0 size(grandavg.beta, 3)], 'box', 'off');
-        ylims = get(gca, 'ylim');
-        plot(find(signific(1, :)<0.05), ylims(1)-0.2*ones(1, length(find(signific(1, :)<0.05))), '.', 'color', cols(1, :));
-        plot(find(signific(2, :)<0.05), ylims(1)-0.3*ones(1, length(find(signific(2, :)<0.05))), '.', 'color', cols(2, :));
+        % subfunction to put lines and xlabels at the right spots
+        suplabel('Time (s)', 'x');
+        suplabel('Beta (a.u.)', 'y');
         
-        plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
-            pupilgrandavg.timelock{1}(2).lock, [0], ...
-            pupilgrandavg.timelock{1}(3).lock, [0 1], ...
-            pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
-        set(gca, 'xticklabel', []);
-    end
-end
-
-% save to disk to later do the correlation with learning
-save(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath), 'grandavg');
-
-if plotIndividual,
-    % subfunction to put lines and xlabels at the right spots
-    suplabel('Time (s)', 'x');
-    suplabel('Beta (a.u.)', 'y');
-    
-    if RTstratification,
-        suplabel('Beta of coherence with RT as additional predictor', 't');
-    else
-        suplabel('Beta of coherence', 't');
+        if RTstratification,
+            suplabel('Beta of coherence with RT as additional predictor', 't');
+        else
+            suplabel('Beta of coherence', 't');
+        end
     end
 end
 
@@ -122,15 +123,15 @@ else
 end
 
 for whichbeta = whichBetas2plot,
-        % line to indicate zero
+    % line to indicate zero
     plot([0 size(grandavg.beta, 3)], [0 0], '-', 'color', 'k', 'LineWidth', 0.2);
     
     hold on;
     boundedline(1:size(grandavg.beta, 3), squeeze(nanmean(grandavg.beta(:, :, :, whichbeta)))', ...
         permute(squeeze(nanstd(grandavg.beta(:, :, :, whichbeta))) / sqrt(length(subjects)), [2 3 1]), ...
-        'cmap', cols);
-    axis tight; 
-    ylim([-0.1 0.1]); yval = -0.11;
+        'cmap', colors);
+    axis tight;
+    ylim([-0.1 0.1]); 
     thisax = gca;
     
     hold on;
@@ -151,7 +152,9 @@ for whichbeta = whichBetas2plot,
     a.EdgeColor = 'none';
     a.ShowBaseLine = 'off';
     
-    if doStats, % skip stats for the intercept
+    if exist(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath), 'file'), % skip stats for the intercept
+        load(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath));
+    else
         % on this, do cluster based permutation testing over the time
         % dimension - because the samples are not temporally independent...
         
@@ -165,47 +168,46 @@ for whichbeta = whichBetas2plot,
             % compare against null
             grandavg_zero = grandavg_thiscorr(c);
             grandavg_zero.individual = zeros(size(grandavg_thiscorr(c).individual));
+            
             stat{c} = clusterStat(grandavg_thiscorr(c), grandavg_zero, length(subjects));
-            
-            % plot on top
-            try
-                p(c) = plot(find(stat{c}.mask==1), yval*ones(1, length(find(stat{c}.mask==1))), '.', 'color', cols(c, :), 'markersize', 4);
-            end
-            yval = yval - 0.08*range(get(thisax, 'ylim'));
-            
-            % output when this starts to become significant
-            signific  = find(stat{c}.mask==1);
-            alltiming = [pupilgrandavg.timelock{1}(3).lock.time pupilgrandavg.timelock{1}(4).lock.time];
-            try
-                disp([alltiming(signific(1)) alltiming(signific(end))]);
-            end
         end
         
-        try
-            % also test their difference
-            stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
-            p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', cols(3, :), 'markersize', 4);
-        end
+        % also test their difference
+        stat{3} = clusterStat(grandavg_thiscorr(1), grandavg_thiscorr(2), length(subjects));
+        savefast(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath), 'stat');
     end
     
-    ylabel('Beta evidence');
+    yval = -0.12;
+    % plot
+    for c = 1:2,
+        % plot on top
+        p(c) = plot(find(stat{c}.mask==1), yval*ones(1, length(find(stat{c}.mask==1))), '.', 'color', colors(c, :), 'markersize', 4);
+        yval = yval - 0.08*range(get(thisax, 'ylim'));
+        
+        % output when this starts to become significant
+        signific  = find(stat{c}.mask==1);
+        alltiming = [pupilgrandavg.timelock{1}(3).lock.time pupilgrandavg.timelock{1}(4).lock.time];
+        try
+            disp([alltiming(signific(1)) alltiming(signific(end))]);
+        end
+    end
+    p(3) = plot(find(stat{3}.mask==1), yval*ones(1, length(find(stat{3}.mask==1))), '.', 'color', colors(3, :), 'markersize', 4);
+    
+    
+    ylabel('Beta weight (a.u.)');
     ylim([-0.18 0.1]);
     
-    if whichbeta == whichBetas2plot(end) && doStats,
-        hold on;
-        ph2 = plot(180:182, mean(get(thisax, 'ylim'))*ones(3, 10), '.w');
-        lh = legend(ph2); % make t
-        lh.String = {'\color[rgb]{0.915294117647059,0.281568627450980,0.287843137254902} error', ...
-            '\color[rgb]{0.441568627450980,0.749019607843137,0.432156862745098} correct', ...
-            '\color[rgb]{0.600000000000000,0.600000000000000,0.600000000000000} error v correct'};
-        
-        lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .1;
-        set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
+    hold on;
+    ph2 = plot(180:182, mean(get(thisax, 'ylim'))*ones(3, 10), '.w');
+    lh = legend(ph2);
+    legnames = {'error', 'correct', 'error v correct'};
+    for i = 1:length(legnames),
+        str{i} = ['\' sprintf('color[rgb]{%f,%f,%f} %s', colors(i, 1), colors(i, 2), colors(i, 3), legnames{i})];
     end
-end
-
-if doStats
-    save(sprintf('%s/Data/GrandAverage/pupilRegressionSignificantCluster.mat', mypath), 'stat');
+    lh.String = str;
+    lpos = get(lh, 'Position'); lpos(1) = lpos(1) + .1;
+    lpos(2) = lpos(2) - 0.08;
+    set(lh, 'Position', lpos, 'box', 'off', 'FontSize', 6);
 end
 
 end

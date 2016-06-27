@@ -30,7 +30,7 @@ end
 % standard deviation at these values is the inverse!
 sigma = 1/b(2);
 
-subplot(441);
+subplot(331);
 % our stimuli range from -6 to 6
 stim = -15:0.01:15;
 
@@ -52,10 +52,10 @@ plot(pt, s2(dsearchn(stim', pt)), '.', ...
     'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 10);
 plot([pt pt], [0 s2(dsearchn(stim', pt))], 'color', gr1, 'linestyle', ':');
 
-axis tight; %ylim([0 0.5]);
-ylabel('Probability density'); xlabel('Decision variable (DV)');
-text(-12, 0.17, 'Stimulus A');
-text(2, 0.17, 'Stimulus B');
+axis tight; ylim([0 0.2]);
+ylabel('Probability density'); xlabel('Decision variable');
+text(-12, 0.18, 'Stimulus A');
+text(2, 0.18, 'Stimulus B');
 
 % add legend
 l = legend([p(3), p(1)], {'weak', 'strong'});
@@ -64,7 +64,7 @@ lpos(1) = lpos(1) + 0.12; % right
 lpos(2) = lpos(2) - 0.05; % down
 l.Position = lpos;
 l.Box = 'off';
-text(15, 0.1, 'Intensity');
+text(15, 0.16, 'Evidence');
 
 %offsetAxes(gca, 0.1, 1);
 set(gca, 'xtick', [0 pt], 'xticklabel', {'c', 'dv_i'}, ...
@@ -93,7 +93,7 @@ s4 = normpdf(stim,  strength2, sigma);
 p = plot(stim, s3, ':', stim, s4,  '-', zeros(1, 2), [0 max(s4)], 'k');
 p(1).Color = gr2; p(2).Color = gr2;
 
-axis tight;
+axis tight; ylim([0 0.2]); 
 ylabel('Probability density');
 title('Weak evidence');
 set(gca, 'ytick', [], 'xtick', [], 'box', 'off');
@@ -114,7 +114,7 @@ s4 = normpdf(stim,  strength1, sigma);
 p = plot(stim, s3, ':', stim, s4,  '-', zeros(1, 2), [0 max(s4)], 'k');
 p(1).Color = gr1; p(2).Color = gr1;
 
-axis tight;
+axis tight; ylim([0 0.2]);
 xlabel('Decision variable');
 set(gca, 'xtick', 0, 'xticklabel', {'c'}, ...
     'box', 'off', 'tickdir', 'out', 'ytick', []);
@@ -143,18 +143,20 @@ for s = 1:length(stimpts),
 end
 plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
 plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 14);
-plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
-plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
+ploth(1) = plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
+ploth(2) = plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
 
 axis tight; axis square;
 set(gca,  'box', 'off', 'tickdir', 'out', 'xlim', [min(stimlevs) max(stimlevs)]);
-xlabel('Evidence strength');
 ylabel('Confidence');
-ylim([0.45 1]);
+ylim([0.5 1]);
 xlim([-0.5 max(stimlevs)]);
-set(gca, 'ytick', [0:0.25:1]);
-set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
+set(gca, 'ytick', [0:0.5:1]);
+set(gca, 'xcolor', 'w');
 
+l = legend(ploth, {'error', 'correct'});
+lpos = get(l, 'position'); lpos(2) = lpos(2) - 0.15;
+set(l, 'box', 'off', 'position', lpos);
 % ==================================================================
 % uncertainty = 1 - confidence
 % ==================================================================
@@ -182,11 +184,11 @@ plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1
 
 hold on; axis square;
 set(gca,'box', 'off', 'tickdir', 'out', 'xlim', [min(stimlevs) max(stimlevs)]);
-xlabel('Evidence strength');
+xlabel('Evidence');
 ylabel('Uncertainty');
 ylim([-0.05 0.5]);
 xlim([-0.5 max(stimlevs)]);
-set(gca, 'ytick', [0:0.25:1]);
+set(gca, 'ytick', [0:0.5:1]);
 set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 
 cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end

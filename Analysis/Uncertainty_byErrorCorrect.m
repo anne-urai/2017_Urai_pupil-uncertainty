@@ -1,4 +1,4 @@
-function [] = Uncertainty_byErrorCorrect(field)
+function [b] = Uncertainty_byErrorCorrect(field)
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
@@ -26,28 +26,9 @@ for sj = subjects,
     % normalization etc
     data.motionstrength = (abs(data.motionstrength));
     
-    % project RT out of the pupil and vice versa
-    switch field
-        case 'rt'
-            data.(field) = projectout(data.(field), zscore(data.decision_pupil));
-        case 'decision_pupil'
-            data.(field) = projectout(data.(field), zscore(log(data.rt + 0.1)));
-    end
-    
     % loop over error and correct
     cors = [0 1];
     for corr = cors,
-        
-        % FIT BETAS ON THE FULL MODEL, NOT BINNED
-        trls = find(data.subjnr == sj & data.correct == corr);
-        
-        % include RT as a regressor
-        mdl = fitlm([zscore(data.motionstrength(trls)) zscore(log(data.rt(trls)+0.1))],  ...
-            zscore(data.(field)(trls)));
-        
-        % SAVE BETAS FOR THIS PARTICIPANT
-        grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
-            mdl.Coefficients.Estimate;
         
         % RATHER THAN DISCRETE CATEGORIES, BIN BY motionenergy
         clear trls;
@@ -60,21 +41,37 @@ for sj = subjects,
             grandavg.(field).wgt(find(sj==subjects), find(corr==cors), :)] = ...
             divideintobins(data.motionstrength(trls), data.(field)(trls), nbins);
     end
+    
+    % project RT out of the pupil and vice versa
+    switch field
+        case 'rt'
+            data.(field) = projectout(data.rt, zscore(data.decision_pupil));
+        case 'decision_pupil'
+            data.(field) = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+    end
+    
+    % loop over error and correct
+    cors = [0 1];
+    for corr = cors,
+        
+        % FIT BETAS ON THE FULL MODEL, NOT BINNED
+        trls = find(data.subjnr == sj & data.correct == corr);
+        
+        % include RT as a regressor
+        mdl = fitlm(zscore(data.motionstrength(trls)),  ...
+            zscore(data.(field)(trls)));
+        
+        % SAVE BETAS FOR THIS PARTICIPANT
+        grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
+            mdl.Coefficients.Estimate;
+    end
+    
 end
 
 % PLOT
 % use nice shades of red and green
 colors = cbrewer('qual', 'Set1', 8);
 cols = colors([1 2], :);
-
-% slopes
-slopes       = [grandavg.(field).regline(:, 1, 2) grandavg.(field).regline(:, 2, 2)];
-[~, pval(1), ~, stat] = ttest(slopes(:, 1), 0, 'tail', 'both');
-bf10 = t1smpbf(stat.tstat,27);
-[~, pval(2), ~, stat] = ttest(slopes(:, 2), 0, 'tail', 'both');
-bf10 = t1smpbf(stat.tstat,27);
-[~, pval(3), ~, stat] = ttest(slopes(:,1), slopes(:,2));
-bf10 = t1smpbf(stat.tstat,27);
 
 hold on;
 markers = {'^', '.'}; markersizes = [4 14];
@@ -100,20 +97,23 @@ end
 
 xlabel('Evidence');
 axis square;
-xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'});
+xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, 'xticklabel',  {'weak', 'medium', 'strong'}, 'xminortick', 'off');
 
 switch field
     case 'decision_pupil'
         ylim([0.2 0.61]); set(gca, 'ytick', [0.2 0.4 0.6]);
         ylabel('Pupil response (z)');
     case 'rt'
-        ylim([0.25 0.65]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
+        ylim([0.28 0.6]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
         ylabel('Reaction time (s)');
 end
 
 legend([handles{:}], {'error', 'correct'}, 'location', 'southwest'); legend boxoff;
-
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
+
 savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');
+
+% output
+b = grandavg.(field).regline;
 
 end

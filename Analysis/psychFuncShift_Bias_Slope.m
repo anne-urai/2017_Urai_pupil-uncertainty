@@ -38,9 +38,9 @@ for sj = unique(subjects),
             % in this case, take out decision effects
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'pupil',
-            data.decision_pupil = projectout(data.decision_pupil, (log(data.rt + 0.1)));
+            data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
         case 'rt'
-            data.rt = projectout(log(data.rt+0.1), data.decision_pupil);
+            data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
         case 'evidence'
             % single-trial evidence strength is absolute motionenergy
             data.evidence = abs(data.motionstrength);
@@ -154,7 +154,6 @@ grandavg.logisticRep = (resp1 + resp2) ./ 2;
 % ========================================================= %
 
 grandavg.logisticRep = exp(grandavg.logisticRep)./(1+exp(grandavg.logisticRep));
-
 grandavgBias = grandavg;
 
 % =========================================== %
@@ -256,8 +255,6 @@ set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off');
 % low vs high
 [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
-disp(stats);
-disp(pval);
 bf10 = t1smpbf(stats.tstat, 27);
 fprintf('bias, bf10 = %f', bf10);
 mysigstar(gca, [1 nbins], [0.53 0.53], pval, 'k', 'down');
@@ -278,7 +275,6 @@ mysigstar(gca, [1 nbins], [0.9 0.9], pval, [0.4 0.4 0.4], 'down');
 
 ax(1).YLabel.String = 'P(repeat)';
 ax(2).YLabel.String = 'Slope';
-
 
 switch whichMod
     case 'decision_pupil'

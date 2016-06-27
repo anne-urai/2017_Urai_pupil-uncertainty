@@ -32,7 +32,8 @@ cols(2, :) = [0.6 0.6 0.6];
 % add errorbars
 hold(ax(1), 'on');
 errorbar(ax(1), 1:nbins, 100*squeeze(nanmean(grandavg.accuracy)), ...
-    100*squeeze(nanstd(grandavg.accuracy)) ./ sqrt(length(subjects)), 'color', cols(1,:));
+    100*squeeze(nanstd(grandavg.accuracy)) ./ sqrt(length(subjects)), ...
+    'color', cols(1,:), 'linewidth', 1);
 
 set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', [1 3.5 6], 'ylim', [50 100], ...
     'ytick', 50:25:100, 'box', 'off', 'ycolor', cols(1,:), 'xticklabel', {'weak', 'medium', 'strong'}); 
@@ -42,12 +43,23 @@ axis(ax(1), 'square');
 
 hold(ax(2), 'on');
 errorbar(ax(2), 1:nbins, squeeze(nanmean(grandavg.rt)), ...
-    squeeze(nanstd(grandavg.rt)) ./ sqrt(length(subjects)), 'color', cols(2,:));
+    squeeze(nanstd(grandavg.rt)) ./ sqrt(length(subjects)), 'color', cols(2,:), 'linewidth', 1);
+
 set(ax(2), 'xlim', [0.5 nbins+0.5], 'xtick', [1 3.5 6], 'ylim', [0.25 0.55], ...
     'ytick', 0.25:0.15:0.55, 'box', 'off', 'ycolor', cols(2,:)); 
 xlabel(ax(2), 'Evidence');
-ylabel(ax(2), 'RT (s)');
+ylabel(ax(2), 'Reaction time (s)');
 axis(ax(2), 'square');
+
+ax(2).YLabel.Rotation = 270;
+ypos = ax(2).YLabel.Position;
+ypos(1) = ypos(1)+0.8;
+ax(2).YLabel.Position = ypos;
+
+axes = findobj(gcf, 'type', 'axes');
+for a = 1:length(axes),
+  axes(a).FontSize = 7;
+end
 
 
 end

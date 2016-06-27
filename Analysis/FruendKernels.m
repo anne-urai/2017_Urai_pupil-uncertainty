@@ -27,7 +27,9 @@ for sj = 1:27,
     plot(dat.response(sj, :)', 'color', mycolmap(sj, :), 'linewidth', 0.5);
 end
 scatter(ones(1, 27), dat.response(:, 1), 10, mycolmap, 'filled');
-hold on;
+
+% show which one is the example
+plot(1, dat.response(10, 1), 'ok', 'markersize', 4, 'linewidth', 0.2);
 
 % add the group
 [ax, p1, p2] = plotyy(1:7, nanmean(dat.response),  ...

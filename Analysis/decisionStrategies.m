@@ -30,7 +30,7 @@ set(h(3), 'color', 'k');
 
 % mark the example subject
 hold on;
-plot(dat.response(10, 1), dat.stimulus(10, 1), 'ok', 'markersize', 4);
+plot(dat.response(10, 1), dat.stimulus(10, 1), 'ok', 'markersize', 4, 'linewidth', 0.2);
 
 % start with text
 fz = 6;
