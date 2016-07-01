@@ -41,9 +41,9 @@ set(h(1), 'marker', 'none');
 plot(bwMat(theseSj, i)', '.k-', 'linewidth', 0.2);
 
 % sigstar between the two
-mysigstar(1, 0.2, pvals(1));
-mysigstar(2, 0.2, pvals(2));
-mysigstar([1 2], -0.4, pvals(3));
+mysigstar(gca, 1, 0.2, pvals(1));
+mysigstar(gca, 2, 0.2, pvals(2));
+mysigstar(gca, [1 2], -0.4, pvals(3));
 
 % ylims = get(gca, 'ylim');
 % set(gca, 'ylim', [ylims(1) - 0.2*range(ylims) ylims(2)+0.2*range(ylims)]);

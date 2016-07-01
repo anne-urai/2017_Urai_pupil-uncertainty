@@ -52,7 +52,6 @@ a5_writeFiles4pythonToolbox;
 % this is easiest to run from the terminal. With Python 2.7 installed, go
 % to the folder mypath/Code/serial-dependencies
 cd(sprintf('%s/Code/serial-dependencies', mypath));
-cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/');
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
 mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil'};
@@ -68,7 +67,7 @@ end
 %% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
 for m = 1:length(mods),
-    a6_retrieveDataFromPython(mods{m});
+    a6_retrieveDataFromPython(mods{m}); % outputs absolute errors
 end
 
 %% reproduce figures 4,5,6
@@ -83,6 +82,7 @@ figure7;
 figureS1_MotionEnergy_Filters;
 figureS2_History_CorrectError;
 figureS3_feedbackpupil;
+figureS2_performanceOverSessions;
 
 % there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

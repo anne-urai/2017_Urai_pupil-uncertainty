@@ -14,4 +14,4 @@ for m = 1:length(mods),
     subplot(4,8,(m-1)*16+6); fig3hi_HistoryPupil_Bar(whichmodulator);
 end
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS3.pdf', mypath));

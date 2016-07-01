@@ -1,14 +1,16 @@
-function [] = SjCorrelation(whichmodulator)
+function [] = SjCorrelation(whichmodulator, whichweight)
 % plot correlation between subjects
+
+if ~exist('whichweight', 'var'); whichweight = 'response'; end
 
 global mypath;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 % or without errorbars
-scatter(dat.response(:, 1), dat.(['response_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
+scatter(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
 
-[rho, pval] = corr(dat.response(:, 1), dat.(['response_' whichmodulator])(:, 1), 'type', 'pearson');
+[rho, pval] = corr(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 'type', 'pearson');
 if pval < 0.05,
    lsline;
 end
@@ -17,10 +19,11 @@ axis square; box on;
 % plot with errorbars
 for sj = 1:27, 
     hold on;
-    h = ploterr(dat.response(sj, 1), dat.(['response_' whichmodulator])(sj, 1), ...
+    % the CI fields have absolute bounds, lower and upper
+    h = ploterr(dat.response(sj, 1), dat.([whichweight '_' whichmodulator])(sj, 1), ...
         {dat.responseCI(sj, 1, 1) dat.responseCI(sj, 1, 2)}, ...
-        {dat.(['response_' whichmodulator 'CI'])(sj, 1, 1) ... 
-        dat.(['response_' whichmodulator 'CI'])(sj, 1, 2)}, '.', 'abshhxy', 0);
+        {dat.([whichweight '_' whichmodulator 'CI'])(sj, 1, 1) ... 
+        dat.([whichweight '_' whichmodulator 'CI'])(sj, 1, 2)}, '.', 'abshhxy', 0);
     set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :), 'markersize', 1);
     set(h(2), 'color', mycolmap(sj, :), 'linewidth', 0.5);
     set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
@@ -42,9 +45,9 @@ switch whichmodulator
         xlabel('Choice weight');
         
         % between subject stuff
-        y1 = dat.response_pupil(:, 1);
-        y2 = dat.response_rt(:, 1);
-        x = dat.response(:, 1);
+        y1 = dat.([whichweight '_pupil'])(:, 1);
+        y2 = dat.([whichweight '_rt'])(:, 1);
+        x = dat.(whichweight)(:, 1);
         
         % one way, parametric Steiger's test
         [rddiff,cilohi,p] = rddiffci(corr(x, y1), corr(x, y2), corr(y1, y2), 27, 0.05);

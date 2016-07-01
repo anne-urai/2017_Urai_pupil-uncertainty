@@ -6,7 +6,7 @@ nbins = 3;
 cnt = 1; clc;
 
 pupfields = {'rt', 'decision_pupil'};
-for p = 1:length(pupfields),a
+for p = 1:length(pupfields),
     
     subjects = 1:27;
     grandavg.betas = nan(length(subjects), nbins, 2);

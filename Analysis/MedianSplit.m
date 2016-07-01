@@ -1,4 +1,4 @@
-function [] = fig3j_MedianSplit(whichmodulator)
+function [] = MedianSplit(whichmodulator)
 % plot correlation between subjects
 
 global mypath;
@@ -24,7 +24,7 @@ bar(1, mean(mat(switchers)), 'barwidth', 0.5', 'facecolor', mycolmap(1,:), 'edge
 h = ploterr(1, mean(mat(switchers)), [], ...
     std(mat(switchers)) ./ sqrt(length(switchers)), 'k', 'abshhxy', 0);
 set(h(1), 'marker', 'none');
-mysigstar(1, yval, pvals(1));
+mysigstar(gca, 1, yval, pvals(1));
 
 % switchers
 hold on;
@@ -32,10 +32,10 @@ bar(2, mean(mat(repeaters)), 'barwidth', 0.5', 'facecolor', mycolmap(end,:), 'ed
 h = ploterr(2, mean(mat(repeaters)), [], ...
     std(mat(repeaters)) ./ sqrt(length(repeaters)), 'k', 'abshhxy', 0);
 set(h(1), 'marker', 'none');
-mysigstar(2, yval, pvals(2));
+mysigstar(gca, 2, yval, pvals(2));
 
 yval = yval*1.1;
-mysigstar([1 2], [yval yval], pvals(3));
+mysigstar(gca, [1 2], [yval yval], pvals(3));
 
 xlim([0.5 2.5]); set(gca, 'xtick', 1:2, 'xticklabel', []);
 switch whichmodulator

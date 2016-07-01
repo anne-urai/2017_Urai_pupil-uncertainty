@@ -1,6 +1,5 @@
 % figure 4 overview
 
-
 % bottom row - unique variance of pupil and RT
 subplot(4,4,1); HistoryPupil_Bar('pupil');
 subplot(4,4,2); HistoryPupil_Bar('rt');
@@ -18,7 +17,7 @@ print(gcf, '-dpdf', sprintf('%s/Figures/figure7.pdf', mypath));
 %% mean time between responses
 
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
-
+timebewteenResp = {};
 for sj = 1:length(pupilgrandavg.timelock),
    respdiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 9)) ./ 100;
    trldiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 12));

@@ -41,9 +41,9 @@ for sj = subjects,
     
     cnt = 0;
     for w = 1:length(weights1),
-        thisw = model_h_mod.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
         
         % project back into lag space
+        thisw = model_h_mod.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
         thisw       = h * thisw;
         dat.(weights1{w})(sj, :) = thisw;
         
@@ -51,26 +51,26 @@ for sj = subjects,
         thisboot    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1));
         alpha       = 1 - 0.68; % should cover 1 std of the distribution
         thiswci     = prctile(thisboot, [100*alpha/2,100*(1-alpha/2)])';
-        
-        thiswci(:, 1) = thisw - thiswci(:, 1);
-        thiswci(:, 2) = thiswci(:, 2) - thisw; % relative error
         dat.([weights1{w} 'CI'])(sj, :, :) = thiswci;
         cnt = cnt  + 1;
     end
     
     % change into correct and error from stimulus and response
+    % see Fruend et al, supplement A4
     for w = 1:length(weights2),
         dat.(['correct' weights2{w}])(sj, :) = ...
             dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
         dat.(['incorrect' weights2{w}])(sj, :) = ...
             -dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
         
+        % CIs in absolute bound values
         dat.(['correct' weights2{w} 'CI'])(sj, :, :) = ...
             dat.(['stimulus' weights2{w} 'CI'])(sj, :, :) + dat.(['response' weights2{w} 'CI'])(sj, :, :);
         dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = ...
             -dat.(['stimulus' weights2{w} 'CI'])(sj, :, :) + dat.(['response' weights2{w} 'CI'])(sj, :, :);
+        
     end
-    
+
     % add the p value for permutation with history
     dat.pvalue(sj) = length(find(model_w_hist.loglikelihood < permutation_wh(:, 1))) ./ length(permutation_wh(:, 1));
 end

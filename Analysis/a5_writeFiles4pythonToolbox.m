@@ -1,8 +1,7 @@
 %% instead of csv files, write text files that are in the format the Fruend toolbox needs
 
 global mypath;
-% cd(sprintf('%s/Code/serial-dependencies/data/', mypath));
-cd('~/Dropbox/code/pupilUncertainty/serial-dependencies/data/');
+cd(sprintf('%s/Code/serial-dependencies/data', mypath));
 subjects = 1:27;
 
 for sj = subjects,
