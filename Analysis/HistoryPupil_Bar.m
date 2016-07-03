@@ -25,20 +25,19 @@ bwMat = cat(3, [dat.(['response_' whichmodulator])(:, 1) dat.(['stimulus_' which
 % split subgroups by plain weights
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
 
-theseSj = 1:27;
 % p values
-[~, pvals(1)] = ttest(bwMat(theseSj, 1));
-[~, pvals(2)] = ttest(bwMat(theseSj, 2));
-[~, pvals(3)] = ttest(bwMat(theseSj, 1), bwMat(theseSj, 2));
+[~, pvals(1)] = ttest(bwMat(:, 1));
+[~, pvals(2)] = ttest(bwMat(:, 2));
+[~, pvals(3)] = ttest(bwMat(:, 1), bwMat(:, 2));
 
 hold on;
 barcolors = colors([9], :);
 i = [1 2];
-bar(i, mean(bwMat(theseSj, i)), 'barwidth', 0.5', 'facecolor', barcolors, 'edgecolor', 'none');
-h = ploterr(i, mean(bwMat(theseSj, i)), [], ...
-    std(bwMat(theseSj, i)) ./ sqrt(length(theseSj)), 'k', 'abshhxy', 0);
-set(h(1), 'marker', 'none');
-plot(bwMat(theseSj, i)', '.k-', 'linewidth', 0.2);
+bar(i, mean(bwMat(:, i)), 'barwidth', 0.5', 'facecolor', barcolors, 'edgecolor', 'none');
+h = ploterr(i, mean(bwMat(:, i)), [], ...
+    std(bwMat(:, i)) ./ sqrt(27), 'k', 'abshhxy', 0);
+set(h(1), '', 'none');
+plot(bwMat(:, i)', '.k-', 'linewidth', 0.2);
 
 % sigstar between the two
 mysigstar(gca, 1, 0.2, pvals(1));

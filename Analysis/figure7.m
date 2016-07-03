@@ -1,9 +1,11 @@
 % figure 4 overview
-
-% bottom row - unique variance of pupil and RT
-subplot(4,4,1); HistoryPupil_Bar('pupil');
-subplot(4,4,2); HistoryPupil_Bar('rt');
-    saveas(gcf, sprintf('~/Dropbox/Meetings/HistoryBar.eps'), 'epsc');
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+subplot(4,4,1); plotBetasSwarm([dat.response_pupil(:, 1) ...
+    dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], ...
+    [0 0 0; 0 0 0; 0 0 0; 0 0 0]);
+set(gca, 'xtick', 1:4, 'xticklabel', ...
+    {'Pupil * choice', 'Pupil * stimulus', 'RT * choice', 'RT * stimulus'}, ...
+    'xticklabelrotation', -30);
 
 subplot(4,4,11); SjCorrelation('pupil');
 subplot(4,4,12); SjCorrelation('rt');

@@ -50,7 +50,7 @@ for sj = subjects,
         data.intensity = data.motionstrength;
         pBest = fminsearchbnd(@(p) cumWB_LL(p, ...
             abs(data.motionstrength(trls)), data.correct(trls)), ...
-            [1 3], [0 0], [3 6]);
+            [1 3 0.1], [0 0 0], [3 6 1]);
         grandavg.b(sj, r, :) = pBest;
         
     end
@@ -101,44 +101,23 @@ end
 
 % see http://courses.washington.edu/matlab1/Lesson_5.html#1
 function err = cumWB_LL(p, intensity, responses)
-%err = fitPsychometricFunction(p,results,functionName)
-%
-%Calculates maximum likelihood fit of a psychometric function to
-%psychophysical results.
-%
-%Inputs
-%   p            structure containing parameters for the function
-%   results      structure containing fields 'intensity' and 'response',
-%                which are vectors for intensity values shown for each trial
-%                and the corresponding binary response (1 = correct)
-%   functionName 'Weibull' (requires p.b and p.t)
-%                 'Normal'  (requires p.u and p.s)
-%
-%Outputs
-%   err          negative of maximum likelihood probability (so that small is good)
 
-%11/13/2007     gmb wrote it.
-%3/7/2008       gmb fixed 'hack' to keep p.t>0 only for Weibull function
-
+% compute the vector of responses for each level of intensity
 w = Weibull(p, intensity);
 
-%hack!  pull the values of w away from 0 and 1
-w = w*.99+.005;
+% negative loglikelihood, to be minimised
 err = -sum(responses .*log(w) + (1-responses).*log(1-w));
 end
 
 function y = Weibull(p, x)
-% y = Weibull(p,x)
-%
 % Parameters:  p(1) slope
 %             p(2) threshold yeilding ~80% correct
+%             p(3) lapse rate
 %             x   intensity values.
 
 g = 0.5;  %chance performance
-e = (.5)^(1/3);  %threshold performance ( ~80%)
 
-%here it is.
-k = (-log( (1-e)/(1-g)))^(1/p(1));
-y = 1- (1-g)*exp(- (k*x/p(2)).^p(1));
+% include a lapse rate, see Wichmann and Hill parameterisation
+y = g + (1 - g - p(3)) * (1-exp(- (x/p(2)).^p(1)));
 
 end

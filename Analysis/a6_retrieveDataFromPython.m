@@ -20,6 +20,10 @@ for sj = subjects,
             model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
+        case {'plain_session2', 'plain_session3', 'plain_session4', 'plain_session5', 'plain_session6'};
+            model_h_mod = model_w_hist;
+            weights1 = {'response', 'stimulus'};
+            weights2 = {''};
         case 'fbpupil';
             weights1 = {'response', 'stimulus', ...
                 'pupil', 'response_pupil', 'stimulus_pupil'};

@@ -16,6 +16,7 @@ if size(beta, 2) == 2,
     plot(beta', '-', 'color', [0.7 0.7 0.7], 'linewidth', 0.4);
 end
 
+% scatter all the points
 for i = 1:size(beta, 2),
     scatter(i * ones(1, size(beta, 1)), beta(:, i), ...
         10, colors(i, :), 'o', 'linewidth', 0.5, 'jitter', 'on', 'jitteramount', 0);
@@ -33,8 +34,10 @@ yrange = range(ylims);
 ylim([ylims(1) - yrange*0.1 ylims(2) + yrange*0.1]);
 
 % stats
-[~, pval(1), ~, stat] = ttest(beta(:, 1), 0, 'tail', 'both');
-mysigstar(gca, 1, max(get(gca, 'ylim')), pval(1));
+for i = 1:size(beta, 2),
+    [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
+    mysigstar(gca, i, max(get(gca, 'ylim')), pval);
+end
 
 if size(beta,2) == 2,
     [~, pval(2), ~, stat] = ttest(beta(:, 2), 0, 'tail', 'both');

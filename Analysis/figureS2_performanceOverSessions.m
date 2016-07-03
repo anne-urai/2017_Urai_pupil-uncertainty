@@ -8,6 +8,7 @@ for s = 2:6,
     PsychometricFunction(s);
 end
 
+
 %% run history model for every session
 cd(sprintf('%s/Code/serial-dependencies/data', mypath));
 subjects = 1:27;
@@ -48,7 +49,7 @@ for sj = subjects,
     
 end
 
-%%
+%% run the actual model
 
 cd(sprintf('%s/Code/serial-dependencies', mypath));
 for session = 2:6,
@@ -62,4 +63,12 @@ for session = 2:6,
     a6_retrieveDataFromPython(sprintf('plain_session%d', session)); % outputs absolute errors
 end
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS4.pdf', mypath));
+% plot the history strategies for each session
+for s = 2:6,
+    subplot(5,5,s-1+10);
+    decisionStrategies(sprintf('plain_session%d', s), 0, 0);
+     axis tight;
+end
+set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
