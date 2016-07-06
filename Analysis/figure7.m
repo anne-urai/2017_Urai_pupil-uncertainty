@@ -7,14 +7,40 @@ set(gca, 'xtick', 1:4, 'xticklabel', ...
     {'Pupil * choice', 'Pupil * stimulus', 'RT * choice', 'RT * stimulus'}, ...
     'xticklabelrotation', -30);
 
-subplot(4,4,11); SjCorrelation('pupil');
-subplot(4,4,12); SjCorrelation('rt');
+subplot(4,4,3); SjCorrelation('pupil', 'response');
+subplot(4,4,4); SjCorrelation('rt', 'response');
 
-% show median split for correlation stuff
-subplot(4,4,14); MedianSplit('pupil'); 
-subplot(4,4,15); MedianSplit('rt'); 
+%% show median split for correlation stuff
+subplot(4,6, 13); MedianSplit('pupil', 'response'); 
+ylim([-0.3 0.15]); ylabel('Pupil * choice');
+subplot(4,6,14); MedianSplit('rt', 'response'); 
+ylim([-0.3 0.15]); set(gca, 'yaxislocation', 'right');
+ylabel('RT * choice');
+
+% group split, also correct and error
+subplot(4,6, 15); MedianSplit('pupil', 'correct');
+ylim([-0.35 0.2]);
+ylabel('Pupil * correct');
+subplot(4,6,16); MedianSplit('pupil', 'incorrect');
+set(gca, 'yaxislocation', 'right');
+ylabel('Pupil * error');ylim([-0.35 0.2]);
+
+% group split, also correct and error
+subplot(4,6, 17); MedianSplit('rt', 'correct');
+ylim([-0.35 0.2]);
+ylabel('RT * correct');
+subplot(4,6,18); MedianSplit('rt', 'incorrect');
+set(gca, 'yaxislocation', 'right');
+ylabel('RT * error');ylim([-0.35 0.2]);
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure7.pdf', mypath));
+
+%% 
+subplot(4,6,19);  SjCorrelation('pupil', 'correct');
+subplot(4,6,20);  SjCorrelation('pupil', 'incorrect');
+
+
+
 
 %% mean time between responses
 

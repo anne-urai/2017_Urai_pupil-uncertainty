@@ -17,6 +17,9 @@ switch whichmodulator
     case 'fb+decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
+    case 'dec+fbpupil'
+        % see below for projecting out
+        whichMod = 'decision_pupil';
     case 'rt'
         whichMod = 'rt';
     case 'evidence'
@@ -36,6 +39,8 @@ for lag = whichLags,
         switch whichmodulator
             case 'fb+decpupil'
                 data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
+            case 'dec+fbpupil'
+                data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
             case 'pupil',
                 data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
             case 'rt'

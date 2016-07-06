@@ -49,13 +49,13 @@ close all;
 % write away text files that have the format Python needs
 a5_writeFiles4pythonToolbox;
 
-% this is easiest to run from the terminal. With Python 2.7 installed, go
-% to the folder mypath/Code/serial-dependencies
-cd(sprintf('%s/Code/serial-dependencies', mypath));
-
 % then, call the terminal from Matlab (not sure if this would work on Windows)
 mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
+
+% this is easiest to run from the terminal. With Python 2.7 installed, go
+% to the folder mypath/Code/serial-dependencies
+cd(sprintf('%s/Code/serial-dependencies', mypath));
 
 for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
@@ -80,9 +80,12 @@ figure7;
 
 %% also reproduce the supplementary figures
 figureS1_MotionEnergy_Filters;
-figureS2_History_CorrectError;
-figureS3_feedbackpupil;
 figureS2_performanceOverSessions;
+figureS3_History_CorrectError;
+figureS4_feedbackpupil;
+
+%% stuff for reviewers
+ReviewerFigs;
 
 % there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

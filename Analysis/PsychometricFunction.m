@@ -18,12 +18,7 @@ for sj = subjects,
 
     % evidence strength
     data.motionstrength = (abs(data.motionstrength));
-    
-    if all(isnan(data.motionstrength)),
-        assert(1==0);
-    end
-       
-    
+
     % bin
     [grandavg.ev(sj, :), grandavg.accuracy(sj, :)] = divideintobins(abs(data.motionstrength), data.correct, nbins);
     [~, grandavg.rt(sj, :)] = divideintobins(data.motionstrength, data.rt, nbins);
@@ -70,6 +65,5 @@ axes = findobj(gcf, 'type', 'axes');
 for a = 1:length(axes),
   axes(a).FontSize = 7;
 end
-
 
 end

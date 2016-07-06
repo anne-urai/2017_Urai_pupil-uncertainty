@@ -36,7 +36,7 @@ i = [1 2];
 bar(i, mean(bwMat(:, i)), 'barwidth', 0.5', 'facecolor', barcolors, 'edgecolor', 'none');
 h = ploterr(i, mean(bwMat(:, i)), [], ...
     std(bwMat(:, i)) ./ sqrt(27), 'k', 'abshhxy', 0);
-set(h(1), '', 'none');
+set(h(1), marker, 'none');
 plot(bwMat(:, i)', '.k-', 'linewidth', 0.2);
 
 % sigstar between the two

@@ -20,7 +20,8 @@ for sj = subjects,
             model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
-        case {'plain_session2', 'plain_session3', 'plain_session4', 'plain_session5', 'plain_session6'};
+        case {'plain_session2', 'plain_session3', 'plain_session4', ...
+                'plain_session5', 'plain_session6'}; % by session
             model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
@@ -42,12 +43,12 @@ for sj = subjects,
     
     % for bootstrapped values, also multiply with the bootstrapped slope
     bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
-    
+
     cnt = 0;
     for w = 1:length(weights1),
         
         % project back into lag space
-        thisw = model_h_mod.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
+        thisw       = model_h_mod.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
         thisw       = h * thisw;
         dat.(weights1{w})(sj, :) = thisw;
         
@@ -56,22 +57,32 @@ for sj = subjects,
         alpha       = 1 - 0.68; % should cover 1 std of the distribution
         thiswci     = prctile(thisboot, [100*alpha/2,100*(1-alpha/2)])';
         dat.([weights1{w} 'CI'])(sj, :, :) = thiswci;
-        cnt = cnt  + 1;
+        cnt         = cnt  + 1;
     end
     
     % change into correct and error from stimulus and response
     % see Fruend et al, supplement A4
+    % note: these are identical to reward and punishment weights 
+    % from Busse et al, Abrahamyan et al
+
+    cnt = 0;
     for w = 1:length(weights2),
         dat.(['correct' weights2{w}])(sj, :) = ...
             dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
         dat.(['incorrect' weights2{w}])(sj, :) = ...
             -dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
         
+        % make correct and error CIs by recoding each bootstrap
+        boot_choice    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 1;
+        boot_stim      = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 2;
+        
+        % combine them
+        boot_correct   = boot_choice + boot_stim;
+        boot_incorrect = boot_choice - boot_stim;
+
         % CIs in absolute bound values
-        dat.(['correct' weights2{w} 'CI'])(sj, :, :) = ...
-            dat.(['stimulus' weights2{w} 'CI'])(sj, :, :) + dat.(['response' weights2{w} 'CI'])(sj, :, :);
-        dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = ...
-            -dat.(['stimulus' weights2{w} 'CI'])(sj, :, :) + dat.(['response' weights2{w} 'CI'])(sj, :, :);
+        dat.(['correct' weights2{w} 'CI'])(sj, :, :) = prctile(boot_correct, [100*alpha/2,100*(1-alpha/2)])';
+        dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = prctile(boot_incorrect, [100*alpha/2,100*(1-alpha/2)])';
         
     end
 

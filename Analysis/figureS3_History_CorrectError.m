@@ -3,42 +3,55 @@
 global mypath;
 close; figure;
 
-% use nice shades of red and green
-cols = cbrewer('qual', 'Set1', 8);
-cols = cols([1 2], :);
+%% correct and error weights (not the pupil modulation)
+load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'))
 
-nbins = 3;
-subplot(441); psychFuncShift_Bias('pupil', nbins, 1);
-title('Correct', 'color', cols(2,:));
-subplot(442); psychFuncShift_Bias('pupil', nbins, 0);
-title('Error', 'color', cols(1,:));
+subplot(441);
+hold on;
+for sj = 1:27,
+    h = ploterr(dat.correct(sj, 1), dat.incorrect(sj, 1), ...
+        [], ...
+        [], '.', 'abshhxy', 0);
+    set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :), 'markersize', 10);
+end
 
-subplot(443); psychFuncShift_Bias('rt', nbins, 1);
-title('Correct', 'color', cols(2,:));
-subplot(444); psychFuncShift_Bias('rt', nbins, 0);
-title('Error', 'color', cols(1,:));
+% layout
+xlim([-0.5 0.5]); ylim([-1 1]);
+xlabel('Reward weight'); ylabel('Punishment weight');
+box on; axis square;
 
 %% also show the bar graphs of the error and correct fruend-derived model
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 
-subplot(4,4,5); plotBetasSwarm([dat.response_pupil(:, 1) dat.stimulus_pupil(:, 1)], [0 0 0; 0 0 0]); 
-set(gca, 'xtick', 1:2, 'xticklabel', {'pupil*choice', 'pupil*stim'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
-axis square;
-
 colors = cbrewer('qual', 'Set1', 8);
-subplot(4,4,6); plotBetasSwarm([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :)); 
+subplot(4,4,2); plotBetasSwarm([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :)); 
 set(gca, 'xtick', 1:2, 'xticklabel', {'pupil*correct', 'pupil*error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
-subplot(4,4,7); plotBetasSwarm([dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], [0 0 0; 0 0 0]); 
-set(gca, 'xtick', 1:2, 'xticklabel', {'rt*choice', 'rt*stim'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
-axis square;
-
 colors = cbrewer('qual', 'Set1', 8);
-subplot(4,4,8); plotBetasSwarm([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :)); 
+subplot(4,4,3); plotBetasSwarm([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :)); 
 set(gca, 'xtick', 1:2, 'xticklabel', {'rt*correct', 'rt*error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
+%% use nice shades of red and green
+cols = cbrewer('qual', 'Set1', 8);
+cols = cols([1 2], :);
+
+nbins = 3;
+subplot(445); psychFuncShift_Bias('pupil', nbins, 1);
+title('Correct', 'color', cols(2,:));
+subplot(446); psychFuncShift_Bias('pupil', nbins, 0);
+title('Error', 'color', cols(1,:));
+
+subplot(447); psychFuncShift_Bias('rt', nbins, 1);
+title('Correct', 'color', cols(2,:));
+subplot(448); psychFuncShift_Bias('rt', nbins, 0);
+title('Error', 'color', cols(1,:));
+
+
+
+%%
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
 
 %% simulate error versus correct and choice versus stimulus weights

@@ -1,4 +1,4 @@
-function [] = MedianSplit(whichmodulator)
+function [] = MedianSplit(whichmodulator, field)
 % plot correlation between subjects
 
 global mypath;
@@ -6,45 +6,58 @@ load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 mycolmap = cbrewer('div', 'PuOr', 3);
 
 % split between repeaters and alternators
-repeaters = find(dat.response(:, 1) > 0);
-switchers = find(dat.response(:, 1) < 0);
+mat = dat.([field '_' whichmodulator])(:, 1);
 
-% plot a bargraph of the modulation weights for modulation and choice
-mat = dat.(['response_' whichmodulator])(:, 1);
-yval = mean(mat)-std(mat);
-
-% significance
-[~, pvals(1)] = ttest(mat(switchers));
-[~, pvals(2)] = ttest(mat(repeaters));
-[~, pvals(3)] = ttest2(mat(switchers), mat(repeaters));
-
-% first, repeaters
-hold on;
-bar(1, mean(mat(switchers)), 'barwidth', 0.5', 'facecolor', mycolmap(1,:), 'edgecolor', 'none');
-h = ploterr(1, mean(mat(switchers)), [], ...
-    std(mat(switchers)) ./ sqrt(length(switchers)), 'k', 'abshhxy', 0);
-set(h(1), 'marker', 'none');
-mysigstar(gca, 1, yval, pvals(1));
-
-% switchers
-hold on;
-bar(2, mean(mat(repeaters)), 'barwidth', 0.5', 'facecolor', mycolmap(end,:), 'edgecolor', 'none');
-h = ploterr(2, mean(mat(repeaters)), [], ...
-    std(mat(repeaters)) ./ sqrt(length(repeaters)), 'k', 'abshhxy', 0);
-set(h(1), 'marker', 'none');
-mysigstar(gca, 2, yval, pvals(2));
-
-yval = yval*1.1;
-mysigstar(gca, [1 2], [yval yval], pvals(3));
-
-xlim([0.5 2.5]); set(gca, 'xtick', 1:2, 'xticklabel', []);
-switch whichmodulator
-    case 'pupil'
-        ylabel('Pupil modulation weight');
-    case 'rt'
-        ylabel('RT modulation weight');
+for i = 1:2,
+    
+    switch i
+        case 1
+            subjects{i} = find(dat.response(:, 1) > 0);
+            colors = mycolmap(3,:);
+        case 2
+            subjects{i} = find(dat.response(:, 1) < 0);
+            colors = mycolmap(1,:);
+            
+    end
+    plotBetasSwarmUnpaired(i, mat(subjects{i}, :), colors)
 end
-ylim([-0.12 0.02]); set(gca, 'ytick', [-0.1:0.1:0]);
-axis square;
+
+% do stats between them
+xlim([0.5 2.5]);
+set(gca, 'xtick', 1:2, 'xticklabel', {'repeaters', 'alternators'}, ...
+    'xaxislocation', 'top', 'xticklabelrotation', 30);
+
+ylims = get(gca, 'ylim');
+yrange = range(ylims);
+ylim([ylims(1) - yrange*0.2 ylims(2) + yrange*0.1]);
+
+[h, p, ci, stats] = ttest2(mat(subjects{1}), mat(subjects{2}));
+mysigstar(gca, [1 2], min(get(gca, 'ylim')), p);
 
 end
+
+function [] = plotBetasSwarmUnpaired(i, beta, colors)
+% using the timewindow that is indicated in the regression timecourse plot,
+% show the shape of the pupil vs motionstrength pattern
+
+if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', 8); 
+colors = [0 0 0; colors]; end % start with black
+hold on; % paired
+
+bar(i, squeeze(mean(beta)), 'edgecolor', 'none', ...
+    'facecolor', [0.8 0.8 0.8], 'barwidth', 0.5);
+
+% scatter all the points
+scatter(i * ones(1, size(beta, 1)), beta, ...
+    10, colors, 'o', 'linewidth', 0.5, 'jitter', 'on', 'jitteramount', 0);
+set(gca, 'xtick', [1 2], 'xminortick', 'off');
+ylabel('Beta weights (a.u.)'); 
+
+xlim([0.5 size(beta,2) + 0.5]);
+axis tight;
+box off;
+[~, pval, ~, stat] = ttest(beta, 0, 'tail', 'both');
+mysigstar(gca, i, min(get(gca, 'ylim')), pval);
+
+end
+
