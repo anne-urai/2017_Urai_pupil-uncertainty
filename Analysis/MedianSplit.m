@@ -12,11 +12,11 @@ for i = 1:2,
     
     switch i
         case 1
-            subjects{i} = find(dat.response(:, 1) > 0);
-            colors = mycolmap(3,:);
-        case 2
             subjects{i} = find(dat.response(:, 1) < 0);
             colors = mycolmap(1,:);
+        case 2
+            subjects{i} = find(dat.response(:, 1) > 0);
+            colors = mycolmap(3,:);
             
     end
     plotBetasSwarmUnpaired(i, mat(subjects{i}, :), colors)
@@ -24,7 +24,7 @@ end
 
 % do stats between them
 xlim([0.5 2.5]);
-set(gca, 'xtick', 1:2, 'xticklabel', {'repeaters', 'alternators'}, ...
+set(gca, 'xtick', 1:2, 'xticklabel', {'alternators', 'repeaters'}, ...
     'xaxislocation', 'top', 'xticklabelrotation', 30);
 
 ylims = get(gca, 'ylim');

@@ -1,7 +1,3 @@
-%% for the reviewers
-subplot(441);
-FruendKernels('pupil+rt', 'response_pupil')
-print(gcf, '-dpdf', sprintf('%s/Figures/pupilLags.pdf', mypath));
 
 %%
 b = UncertaintyAccuracy('decision_pupil');
@@ -32,7 +28,6 @@ axis square;
 fprintf('rho = %.3f, p = %.3f, bf10 = %.3f \n', rho, pval, bf10);
 xlabel('Choice weight'); ylabel('Psychometric threshold');
 print(gcf, '-dpdf', sprintf('%s/Figures/WbThresholdCorrChoiceHistory.pdf', mypath));
-
 
 %% sequential biases in stimuli
 stimRep.one = nan(27, 7);

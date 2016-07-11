@@ -7,14 +7,18 @@ global mypath;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
+hold on;
+% axes
+plot([-1 1], [0 0], 'color', [0.5 0.5 0.5], 'linewidth', 0.2);
+plot([0 0 ], [-1 1], 'color', [0.5 0.5 0.5], 'linewidth', 0.2);
+
 % or without errorbars
 scatter(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
 
 [rho, pval] = corr(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 'type', 'pearson');
-if pval < 0.05,
-   lsline;
-end
-axis square; box on;
+%if pval < 0.05,
+lsline;
+%end
 
 % plot with errorbars
 for sj = 1:27, 
@@ -31,7 +35,7 @@ end
 
 text(0.5, -0.15, sprintf('r = %.3f', rho));
 text(0.5, -0.2, sprintf('p < %.3f', pval));
-ylim([-.25 .25]); set(gca, 'ytick', [-.2 0 0.2]);
+ylim([-0.45 0.25]); set(gca, 'ytick', [-.4:0.2:0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
 
 bf10 = corrbf(rho,27);
@@ -54,6 +58,9 @@ switch whichmodulator
         
         % second way, nonparametric permutation
         [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000);
+        
+        % importantly, in this case they return the same value
 end
+axis square; box on;
 
 end

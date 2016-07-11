@@ -1,15 +1,21 @@
+% figure 4 overview
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+subplot(4,4,1); plotBetasSwarm([dat.response_pupil(:, 1) ...
+    dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], ...
+    [0 0 0; 0 0 0; 0 0 0; 0 0 0]);
+set(gca, 'xtick', 1:4, 'xticklabel', ...
+    {'Pupil * choice', 'Pupil * stimulus', 'RT * choice', 'RT * stimulus'}, ...
+    'xticklabelrotation', -30);
 
-% reproduces 
-global mypath;
-close; figure;
+subplot(5,5,3); SjCorrelation('pupil', 'response');
+subplot(5,5,4); SjCorrelation('rt', 'response');
 
-correctness = []; % empty; both correct and error trials will be used
-nbins = 3;
-
-subplot(441); psychFuncShift_Bias_byResp('pupil', nbins, correctness);
-subplot(442); psychFuncShift_Bias_Slope('pupil', nbins, correctness);
-
-subplot(443); psychFuncShift_Bias_byResp('rt', nbins, correctness); 
-subplot(444); psychFuncShift_Bias_Slope('rt', nbins, correctness);
+% show median split for correlation stuff
+subplot(4,6, 13); MedianSplit('pupil', 'response'); 
+ylim([-0.4 0.15]); ylabel('Pupil * choice');
+subplot(4,6,14); MedianSplit('rt', 'response'); 
+ylim([-0.4 0.15]); set(gca, 'yaxislocation', 'right');
+ylabel('RT * choice');
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure6.pdf', mypath));
+

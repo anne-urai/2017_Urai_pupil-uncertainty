@@ -1,17 +1,15 @@
 
 % reproduces 
 global mypath;
+close; figure;
 
-close;
-figure;
+correctness = []; % empty; both correct and error trials will be used
+nbins = 3;
 
-% take P10 as an example
-subplot(441); ExamplePsychFuncShift(10);
+subplot(441); psychFuncShift_Bias_byResp('pupil', nbins, correctness);
+subplot(442); psychFuncShift_Bias_Slope('pupil', nbins, correctness);
 
-subplot(445); FruendKernels('plain');
-set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-
-subplot(446); decisionStrategies('plain');
-set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+subplot(443); psychFuncShift_Bias_byResp('rt', nbins, correctness); 
+subplot(444); psychFuncShift_Bias_Slope('rt', nbins, correctness);
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figure5.pdf', mypath));
