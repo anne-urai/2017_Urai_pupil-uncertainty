@@ -116,7 +116,7 @@ median(timebetweenResp); % long-tailed distribution, so mean is biased
 % 2.  Speed-accuracy trade-off 
 biasRT;
 
-% 3.  compute the actual stimulus transition probabilites
+% 3.  compute autocorrelation in evidence strength
 stimRep.rho = nan(27, 7);
 stimRep.pval = nan(27, 7);
 for sj = 1:27,
@@ -134,11 +134,7 @@ fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
     nanmean(stimRep.rho(:)), min(stimRep.rho(:)), max(stimRep.rho(:)), ...
     length(find(stimRep.pval(:) < 0.05)), numel(stimRep.pval));
 
-% 4. autocorrelation function of evidence strength
-% do this per session!
-data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-
-[rho, pval] = corr(abs(data.motionstrength), circshift(abs(data.motionstrength), 1));
+% 4. mediation analysis
 
 %% there you go! get in touch if you have any further questions.
 
