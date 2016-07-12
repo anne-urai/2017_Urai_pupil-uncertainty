@@ -86,11 +86,12 @@ axis square; box off;
 switch field
     case 'rt'
         l = legend([handles{:}], {'fast', 'slow'}, 'location', 'southeast');
-        legend boxoff;
     case 'decision_pupil'
         l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
-        legend boxoff;
+    otherwise
+        l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
 end
+legend boxoff;
 lpos = get(l, 'position');
 lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);

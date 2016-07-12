@@ -3,6 +3,14 @@ function mediationAnalysis()
 % diameter and/or RT mediate the effect of uncertainty on switching
 % behaviour
 
+% ============================================ %
+% check if uncertainty behaves as we expect
+% ============================================ %
+
+nbins = 6;
+subplot(221); psychFuncShift_Bias('uncertainty', nbins, 1); title('Correct');
+subplot(222); psychFuncShift_Bias('uncertainty', nbins, 1); title('Error');
+
 global mypath;
 for sj = 1:27,
     disp(sj);
@@ -26,7 +34,7 @@ for sj = 1:27,
     % grid on; xlim([-6 6]);ylim([0 1]);
     
     % for each trial, compute the average level of uncertainty
-    data.uncertainty = arrayfun(@simulateUnc, abs(data.motionstrength), ...
+    data.uncertainty = arrayfun(@simulateUncertainty, abs(data.motionstrength), ...
         data.correct, sigma*ones(length(data.correct), 1), bound*ones(length(data.correct), 1));
     
     % =================================================== %
@@ -90,10 +98,10 @@ for sj = 1:27,
     grandavg.eq3Names       = mdl.CoefficientNames;
     
     % extract the relevant information
-    grandavg.a(sj)   = grandavg.coef2(sj, strcmp('uncertainty',     grandavg.eq2Names));
-    grandavg.b(sj)   = grandavg.coef3(sj, strcmp('decision_pupil',  grandavg.eq3Names));
     grandavg.c(sj)   = grandavg.coef1(sj, strcmp('uncertainty',     grandavg.eq1Names)); % without b
+    grandavg.a(sj)   = grandavg.coef2(sj, strcmp('uncertainty',     grandavg.eq2Names));
     grandavg.c1(sj)  = grandavg.coef3(sj, strcmp('uncertainty',     grandavg.eq3Names)); % with b
+    grandavg.b(sj)   = grandavg.coef3(sj, strcmp('decision_pupil',  grandavg.eq3Names));
     
     % to compute the Sobel test, from
     
@@ -154,6 +162,7 @@ disp('testing the causal steps approach...');
 % below on significance testing). The effects in both Steps 3 and 4 are 
 % estimated in the same equation.
 
+% test if c1 is closer to zero than c
 [h(4), pval(4)] = ttest(grandavg.c, grandavg.c1);
 
 % test if all these conditions are met!
@@ -189,6 +198,9 @@ fprintf('Test: mean ab+c1 = %.3f, c = %.3f, difference %.3f \n', ...
 grandavg.a_corr_se = grandavg.std2(:, strcmp('uncertainty', grandavg.eq2Names));
 grandavg.b_corr_se = grandavg.std2(:, strcmp('uncertainty', grandavg.eq2Names));
 
+% save
+savefast(sprintf('%s/Data/GrandAverage/mediationModel.mat', mypath), 'grandavg');
+
 % =================================================== %
 % use the Sobell test to see if the indirect path is significant
 % from http://quantpsy.org/sobel/sobel.htm
@@ -198,21 +210,5 @@ sobel.z = grandavg.a * grandavg.b / ...
     sqrt(grandavg.b .^2 * sa.^2 + a .^2 * sb .^2); % original Sobel test
 sobel.z = grandavg.a * grandavg.b / sqrt(b.^2*sa.^2 + a.^2*sb.^2 + sa.^2*sb.^2); % Aroian test
 sobel.p = normcdf(-abs(sobel.z), 0, 1); % get the p-value for this z-value;
-
-end
-
-function unc = simulateUnc(x, correct, sigma, bound)
-% compute uncertainty for correct and error trials based on stimulus strength
-
-% simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(10000, 1);
-
-if correct == 1,
-    % find the mean distance to bound for the correct samples
-    unc = mean(1 - tanh(abs(dvs(dvs > bound) - bound)));
-elseif correct == 0,
-    % find the mean distance to bound for error samples
-    unc = mean(1 - tanh(abs(dvs(dvs < bound) - bound)));
-end
 
 end

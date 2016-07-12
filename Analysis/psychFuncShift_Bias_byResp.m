@@ -20,10 +20,8 @@ switch whichmodulator
     case 'dec+fbpupil'
         % see below for projecting out
         whichMod = 'decision_pupil';
-    case 'rt'
-        whichMod = 'rt';
-    case 'evidence'
-        whichMod = 'evidence';
+    otherwise
+        whichMod = whichmodulator;
 end
 
 subjects = 1:27;

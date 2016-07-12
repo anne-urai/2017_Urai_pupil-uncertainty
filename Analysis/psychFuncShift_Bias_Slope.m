@@ -19,10 +19,8 @@ switch whichmodulator
     case 'dec+fbpupil'
         % see below for projecting out
         whichMod = 'decision_pupil';
-    case 'rt'
-        whichMod = 'rt';
-    case 'evidence'
-        whichMod = 'evidence';
+    otherwise
+        whichMod = 'uncertainty';
 end
 
 % =========================================== %
@@ -186,6 +184,15 @@ for sj = unique(subjects),
             data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
         case 'evidence'
             data.evidence = abs(data.motionstrength);
+        case 'uncertainty';
+            % fit a probit slope so we can get the sigma
+            b       = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
+            sigma   = 1/b(2);  % standard deviation at these values is the inverse!
+            bound   = -b(1); % the bound is negative if people say
+            
+            % for each trial, compute the average level of uncertainty
+            data.uncertainty = arrayfun(@simulateUncertainty, abs(data.motionstrength), ...
+                data.correct, sigma*ones(length(data.correct), 1), bound*ones(length(data.correct), 1));
     end
     
     % outcome vector needs to be 0 1 for logistic regression

@@ -49,8 +49,6 @@ title('Correct', 'color', cols(2,:));
 subplot(448); psychFuncShift_Bias('rt', nbins, 0);
 title('Error', 'color', cols(1,:));
 
-
-
 %%
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
 

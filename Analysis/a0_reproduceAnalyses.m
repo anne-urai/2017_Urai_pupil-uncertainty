@@ -90,7 +90,7 @@ figure5;
 close all; 
 figure6;
 
-%% also ccreate the supplementary figures
+%% also create the supplementary figures
 figureS1_MotionEnergy_Filters;
 figureS2_RT;
 figureS3_feedbackpupil;
@@ -98,7 +98,7 @@ figureS4_History_CorrectError;
 figureS5_pupilResponseLagged;
 figureS5_scatterIndividual;
 figureS6_performanceOverSessions;
-
+    
 %% analyze some final stuff that's not in the figures
 
 % 1. median time between responses

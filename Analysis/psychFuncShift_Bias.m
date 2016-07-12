@@ -1,10 +1,11 @@
-function psychFuncShift_Bias(whichmodulator, nbins, correctness)
+function b = psychFuncShift_Bias(whichmodulator, nbins, correctness, subjects)
 global mypath;
 
 if ~exist('whichmodulator', 'var'); whichmodulator = 'pupil'; end
 if ~exist('correctness', 'var'); correctness = []; end
 if ~exist('nbins', 'var'); nbins = 3; end
 lag = 1; % look at 1 trial in the past
+if ~exist('subjects', 'var'); subjects = 1:27; end
 
 warning('error', 'stats:glmfit:PerfectSeparation');
 
@@ -16,18 +17,15 @@ switch whichmodulator
     case 'fb+decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
-    case 'rt'
-        whichMod = 'rt';
-    case 'evidence'
-        whichMod = 'evidence';
+    otherwise
+        whichMod = whichmodulator;
 end
+
+grandavg.logistic = nan(27, 2, nbins, 2);
 
 % =========================================== %
 % BIAS - ITERATE OVER TWO RESPONSES
 % =========================================== %
-
-subjects = 1:27;
-clear grandavg;
 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
@@ -134,7 +132,6 @@ end % sj
 % ========================================================= %
 
 % grandavg.logistic = bsxfun(@minus, grandavg.logistic(:, :, :, 1), grandavg.overallLogistic(:, 1));
-
 grandavg.logistic = grandavg.logistic(:, :, :, 1);
 
 % ========================================================= %
@@ -164,15 +161,21 @@ y1  = grandavg.logisticRep;
 
 % Use HOLD and ERRORBAR, passing axes handles to the functions.
 colors = cbrewer('qual', 'Set1', 8);
-switch correctness
-    case 1
-        thismarker = '.';
-        thismarkersize = 14;
-        thiscolor = colors(2,:);
-    case 0
-        thismarker = '^';
-        thismarkersize = 4;
-        thiscolor = colors(1,:);
+if isempty(correctness),
+    thismarker = '.';
+    thismarkersize = 14;
+    thiscolor = [0 0 0];
+else
+    switch correctness
+        case 1
+            thismarker = '.';
+            thismarkersize = 14;
+            thiscolor = colors(2,:);
+        case 0
+            thismarker = '^';
+            thismarkersize = 4;
+            thiscolor = colors(1,:);
+    end
 end
 
 % line to indicate 50 % repetition
@@ -191,12 +194,18 @@ set(h(2), 'color', thiscolor); % line color
 set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'}, 'ylim', [0.48 0.56], 'ytick', [0.5 0.56], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
-% low vs high
-[~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
-disp(pval);
-bf10 = t1smpbf(stats.tstat, 27);
-fprintf('bias, bf10 = %f', bf10);
-mysigstar(gca, [1 nbins], [0.55 0.55], pval, 'k', 'down');
+
+if length(subjects) > 1,
+    % low vs high
+    [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
+    disp(pval);
+    bf10 = t1smpbf(stats.tstat, 27);
+    fprintf('bias, bf10 = %f', bf10);
+    mysigstar(gca, [1 nbins], [0.55 0.55], pval, 'k', 'down');
+else
+    axis tight; xlim([0.5 nbins+0.5]);
+end
+
 axis square;
 
 ylabel('P(repeat)');
@@ -209,4 +218,6 @@ switch whichMod
     otherwise
         xlabel(sprintf('Previous trial %s', whichmodulator));
 end
+
+b = y1;
 end
