@@ -2,7 +2,7 @@ function [] = plotBetasSwarm(beta, colors)
 % using the timewindow that is indicated in the regression timecourse plot,
 % show the shape of the pupil vs motionstrength pattern
 
-if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', 8); 
+if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', size(beta, 2)); 
 colors = [0 0 0; colors]; end % start with black
 hold on; % paired
 

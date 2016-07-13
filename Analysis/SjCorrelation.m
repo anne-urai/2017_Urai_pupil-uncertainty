@@ -1,10 +1,11 @@
-function [] = SjCorrelation(whichmodulator, whichweight)
+function [] = SjCorrelation(whichmodulator, whichweight, whichFile)
 % plot correlation between subjects
 
 if ~exist('whichweight', 'var'); whichweight = 'response'; end
+if ~exist('whichFile', 'var'); whichFile = 'pupil+rt'; end
 
 global mypath;
-load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichFile));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 hold on;
@@ -33,13 +34,9 @@ for sj = 1:27,
     set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
 end
 
-text(0.5, -0.15, sprintf('r = %.3f', rho));
-text(0.5, -0.2, sprintf('p < %.3f', pval));
+title(sprintf('r = %.3f, p = %.3f', rho, pval));
 ylim([-0.45 0.25]); set(gca, 'ytick', [-.4:0.2:0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
-
-bf10 = corrbf(rho,27);
-text(0.5, -0.25, sprintf('bf10 = %.3f', bf10));
 
 switch whichmodulator
     case 'pupil'

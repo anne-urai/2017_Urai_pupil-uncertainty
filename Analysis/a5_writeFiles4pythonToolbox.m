@@ -46,4 +46,10 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_fb+decpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
+    % model-based uncertainty
+    newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        zscore(data.decision_pupil) zscore(data.uncertainty) ];
+    dlmwrite(sprintf('2ifc_pupil+uncertainty_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+    
 end

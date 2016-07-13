@@ -200,7 +200,7 @@ if length(subjects) > 1,
     [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
     disp(pval);
     bf10 = t1smpbf(stats.tstat, 27);
-    fprintf('bias, bf10 = %f', bf10);
+    fprintf('bias, bf10 = %f \n', bf10);
     mysigstar(gca, [1 nbins], [0.55 0.55], pval, 'k', 'down');
 else
     axis tight; xlim([0.5 nbins+0.5]);
