@@ -1,61 +1,64 @@
 # set path
 mypath <- '/Users/anne/Data/pupilUncertainty_FigShare'
 
+
+# ============================================ #
+# LAVAAN PACKAGE
+# ============================================ #
+
 # activate the lavaan package
 library("lavaan", lib.loc="~/Library/R/3.2/library")
-library("mediation")
 
-# example in the mediation package
-set.seed(2014)
-data("framing", package = "mediation")
+# preallocate
+nr_subjects = 27;
+data = matrix(, nrow = nr_subjects, ncol = 7)
 
-
-med.fit <- lm(emo ~ treat + age + educ + gender + income, data = framing) # mediation model
-out.fit <- glm(cong_mesg ~ emo + treat + age + educ + gender + income, data = framing, family = binomial("logit")) # outcome model
-
-# fit the full  mediation model
-med.out <- mediate(med.fit, out.fit, mediator = "emo", robustSE = TRUE, sims = 100)
-summary(med.out)
-
-for ( sj in 1 ) {
+for ( s in 1:27 ) {
+  
   # load data that have been coded to indicate repetition
-  mydata = read.csv(sprintf("%s/Data/CSV/SEMdata_sj%02d.csv", mypath, sj))
+  mydata = read.csv(sprintf("%s/Data/CSV/SEMdata_sj%02d.csv", mypath, s))
   
   # make sure repeat is a logical array, so logistic regression is used
   mydata$repeat. <- factor(mydata$repeat.)
   
-  # ============================================ #
-  # MEDIATE PACKAGE
-  # ============================================ #
+  # specify the naive model
+  model <- ' # direct effect
+			      repeat. ~ c*uncertainty + cov1*stimrepeat
+          '
+  fit <- sem(model, data=mydata, ordered=c("repeat."))
+  coefs <- parameterEstimates(fit)
+  data[s, 1] = coefs[['est']][1]
   
-  
-  
-  # ============================================ #
-  # LAVAAN PACKAGE
-  # ============================================ #
-
   # specify the mediation model
-  model <- '# mediator
+  model <- '
+            # indirect effect through mediator
             decision_pupil ~ a*uncertainty
-            repeat. ~ b*decision_pupil + c*uncertainty
+            repeat. ~ b*decision_pupil + c1*uncertainty + cov2*stimrepeat
 
             # specify the effects we want to test
             indirect := a*b
-            direct   := c
-            total    := c + (a*b)
+            direct   := c1
+            total    := c1 + (a*b)
             '
   
   # tell lavaan that the repeat variable is binary
   fit <- sem(model, data = mydata, ordered="repeat.")
   
-  # display the results
-  summary(fit)
-  
   # save the results for later statistical inference
-  params <- parameterEstimates(fit)
-  paramsStand <- standardizedSolution(fit) # how are these standardized???
+  coefs <- parameterEstimates(fit)
+  # paramsStand <- standardizedSolution(fit) # how are these standardized?
   
   # save
-  write.csv(parans, sprintf("%s/Data/CSV/SEMdata_sj%02d.csv", mypath, sj))
+  data[s, 2] = coefs[['est']][1]
+  data[s, 3] = coefs[['est']][2]
+  data[s, 4] = coefs[['est']][3]
+  data[s, 5] = coefs[['est']][12]
+  data[s, 6] = coefs[['est']][13]
+  data[s, 7] = coefs[['est']][14]
 }
+
+# put all together 
+colnames(data) <- c('c', 'a', 'b', 'c1', 'indirect', 'direct', 'total')
+write.csv(data, sprintf("%s/Data/CSV/SEMdata_lavaan.csv", mypath))
+
 

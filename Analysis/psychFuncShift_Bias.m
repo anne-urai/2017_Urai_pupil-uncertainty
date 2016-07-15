@@ -191,8 +191,13 @@ if correctness == 0,
 end
 set(h(2), 'color', thiscolor); % line color
 
+xticklabs = repmat({' '}, 1, nbins);
+xticklabs{1} = 'low';
+xticklabs{end} = 'high';
+if nbins == 3, xticklabs{2} = 'med'; end
+
 set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
-    'xticklabel', {'low', 'med', 'high'}, 'ylim', [0.48 0.56], 'ytick', [0.5 0.56], ...
+    'xticklabel', xticklabs, 'ylim', [0.48 0.56], 'ytick', [0.5 0.56], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
 
 if length(subjects) > 1,
