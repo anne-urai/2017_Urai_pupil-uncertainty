@@ -1,19 +1,14 @@
 # set path
 mypath <- '/Users/anne/Data/pupilUncertainty_FigShare'
 
-
-# ============================================ #
-# LAVAAN PACKAGE
-# ============================================ #
-
 # activate the lavaan package
 library("lavaan", lib.loc="~/Library/R/3.2/library")
 
 # preallocate
 nr_subjects = 27;
-data = matrix(, nrow = nr_subjects, ncol = 7)
+data = matrix(, nrow = nr_subjects, ncol = 8)
 
-for ( s in 1:27 ) {
+for ( s in 1:nr_subjects ) {
   
   # load data that have been coded to indicate repetition
   mydata = read.csv(sprintf("%s/Data/CSV/SEMdata_sj%02d.csv", mypath, s))
@@ -22,12 +17,16 @@ for ( s in 1:27 ) {
   mydata$repeat. <- factor(mydata$repeat.)
   
   # specify the naive model
-  model <- ' # direct effect
+  model <- '# direct effect
 			      repeat. ~ c*uncertainty + cov1*stimrepeat
-          '
+           '
   fit <- sem(model, data=mydata, ordered=c("repeat."))
   coefs <- parameterEstimates(fit)
+  gof = fitmeasures(fit)
   data[s, 1] = coefs[['est']][1]
+  # data[s, 8] = gof['chisq']
+  # baselineMdl = fit # save for later
+  # data[s, 8] = gof['cfi']
   
   # specify the mediation model
   model <- '
@@ -55,10 +54,18 @@ for ( s in 1:27 ) {
   data[s, 5] = coefs[['est']][12]
   data[s, 6] = coefs[['est']][13]
   data[s, 7] = coefs[['est']][14]
+  
+  # also test whether the indirect effect is significant for this person
+  data[s, 8] = coefs[['pvalue']][12]
+  
+  # also get some measure of the goodness of fit
+  #gof = fitMeasures(fit)
+  #data[s, 9] = gof['cfi']
+  
 }
 
 # put all together 
-colnames(data) <- c('c', 'a', 'b', 'c1', 'indirect', 'direct', 'total')
+colnames(data) <- c('c', 'a', 'b', 'c1', 'indirect', 'direct', 'total', 'pvalue')
 write.csv(data, sprintf("%s/Data/CSV/SEMdata_lavaan.csv", mypath))
 
 

@@ -32,7 +32,7 @@ for sj = 1:27,
     % reformat
     coefnames = mdl.CoefficientNames;
     coefnames{1} = 'intercept';
-    coefnames = regexprep(coefnames, ':', '_');
+    coefnames = regexprep(coefnames, ':', 'X');
     
     if sj == 1,
         grandavg = array2table(mdl.Coefficients.Estimate', 'VariableNames', coefnames);
