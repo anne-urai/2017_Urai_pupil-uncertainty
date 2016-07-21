@@ -6,7 +6,7 @@ function mediationAnalysis()
 % do this in lavaan (R) or manually in Matlab
 % when using probit regression, these give the same results
 whichLanguage = 'R';
-whichLanguage = 'Matlab';
+%whichLanguage = 'Matlab';
 
 global mypath;
 mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
@@ -16,7 +16,7 @@ mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
 % ============================================ %
 
 for sj = 1:27,
-    if ~exist(sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj), 'file'),
+   % if ~exist(sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj), 'file'),
         
         disp(sj);
         clearvars -except mypath grandavg sj whichLanguage;
@@ -70,13 +70,14 @@ for sj = 1:27,
         % zscore the uncertainty values, these are NOT normally distributed!
         data.decision_pupil     = zscore(data.decision_pupil);
         data.uncertainty        = zscore(data.uncertainty);
+        data.rt                 = zscore(log(data.rt + 0.1));
         
         % =================================================== %
         % step 2b: write 2 csv for loading into lavaan
         % =================================================== %
         
         writetable(data, sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj));
-    end
+  %  end
 end
 
 % =================================================== %
@@ -196,7 +197,6 @@ switch whichLanguage,
         % an output file will be saved from R
         system('/Library/Frameworks/R.framework/Resources/bin/R < MediationLavaan.R --no-save');
         dat = readtable(sprintf('%s/Data/CSV/SEMdata_lavaan.csv', mypath));
-        
 end
 
 % =================================================== %
@@ -204,18 +204,22 @@ end
 % =================================================== %
 
 clf; subplot(4,4,1);
-plotBetasSwarm([dat.a dat.b dat.c1]);
-set(gca, 'xtick', 1:3, 'xticklabel', {'a', 'b', 'c'''});
+plotBetasSwarm([dat.a1 dat.a2 dat.b1 dat.b2 dat.c1]);
+set(gca, 'xtick', 1:5, 'xticklabel', {'a1', 'a2', 'b1', 'b2', 'c'''});
 
 subplot(4,8,4);
-plotBetasSwarm([dat.indirect]);
-set(gca, 'xtick', 1, 'xticklabel', {'indirect path'});
+plotBetasSwarm([dat.indirectPup dat.indirectRT]);
+set(gca, 'xtick', 1:2, 'xticklabel', {'a1*b1', 'a2*b2'});
+
+subplot(4,8,6);
+plotBetasSwarm([dat.cov2]);
+set(gca, 'xtick', 1, 'xticklabel', {'cov'});
 
 % =================================================== %
 % also show the model-free effect of uncertainty
 % =================================================== %
-uncertaintyRepetition_grandaverage;
 
+uncertaintyRepetition_grandaverage;
 print(gcf, '-dpdf', sprintf('%s/Figures/mediationAnalysis.pdf', mypath));
 
 % =================================================== %

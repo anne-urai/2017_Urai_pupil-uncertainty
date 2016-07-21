@@ -17,6 +17,8 @@ switch whichmodulator
     case 'fb+decpupil'
         % see below for projecting out
         whichMod = 'feedback_pupil';
+    case 'baseline_pupil'
+        whichMod = 'baseline_pupil';
     otherwise
         whichMod = whichmodulator;
 end
@@ -37,6 +39,9 @@ for sj = unique(subjects),
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'pupil',
             data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+        case 'baseline_pupil'
+            % move to previous trial so that we split by current trial baseline
+            data.baseline_pupil = circshift((data.baseline_pupil), -1);
         case 'rt'
             data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
         case 'evidence'
@@ -203,21 +208,20 @@ set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
 if length(subjects) > 1,
     % low vs high
     [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
-    disp(pval);
     bf10 = t1smpbf(stats.tstat, 27);
-    fprintf('bias, bf10 = %f \n', bf10);
+    fprintf('bias, t(%d) = %.3f, p = %.3f, bf10 = %f \n', stats.df, stats.tstat, pval, bf10);
     mysigstar(gca, [1 nbins], [0.55 0.55], pval, 'k', 'down');
 else
     axis tight; xlim([0.5 nbins+0.5]);
 end
-
 axis square;
-
 ylabel('P(repeat)');
 
 switch whichMod
     case 'decision_pupil'
         xlabel('Previous trial pupil');
+    case 'baseline_pupil'
+        xlabel('Baseline pupil');
     case 'rt'
         xlabel('Previous trial RT');
     otherwise

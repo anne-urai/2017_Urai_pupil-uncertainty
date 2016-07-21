@@ -48,10 +48,8 @@ for sj = subjects,
         
         % fit cumulative weibull to this psychfunc
         data.intensity = data.motionstrength;
-        pBest = fminsearchbnd(@(p) cumWB_LL(p, ...
-            abs(data.motionstrength(trls)), data.correct(trls)), ...
-            [1 3 0.1], [0 0 0], [3 6 1]);
-        grandavg.b(sj, r, :) = pBest;
+        [slope, threshold, lapse] = fitWeibull(abs(data.motionstrength(trls)), data.correct(trls));
+        grandavg.b(sj, r, :) = [slope threshold lapse];
         
     end
 end
@@ -65,7 +63,7 @@ for r = 1:2,
     
     % show the mean curve for the Weibull fit
     newx = linspace(0.1, 5.5, 100);
-    plot(newx,  100* Weibull(squeeze(nanmean(grandavg.b(:, r, :))), newx), 'color', colors(r, :)) ;
+    plot(newx, 100* Weibull(squeeze(nanmean(grandavg.b(:, r, :))), newx), 'color', colors(r, :)) ;
     
     % datapoints on top
     h = ploterr( squeeze(nanmean(grandavg.ev(:, r, :))), squeeze(100* nanmean(grandavg.acc(:, r, :))), ...
@@ -96,6 +94,7 @@ lpos = get(l, 'position');
 lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);
 
+% take only the second parameter from the Weibull fit (threshold)
 b = grandavg.b(:, :, 2);
 
 end

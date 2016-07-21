@@ -17,9 +17,13 @@ plot([0 0 ], [-1 1], 'color', [0.5 0.5 0.5], 'linewidth', 0.2);
 scatter(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
 
 [rho, pval] = corr(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 'type', 'pearson');
-%if pval < 0.05,
-lsline;
-%end
+if pval < 0.05,
+    l = lsline; l.Color = 'k';
+    l.LineStyle = '-';
+else
+    l = lsline; l.Color = 'k';
+    l.LineStyle = ':';
+end
 
 % plot with errorbars
 for sj = 1:27, 

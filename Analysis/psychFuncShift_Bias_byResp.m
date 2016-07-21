@@ -20,6 +20,8 @@ switch whichmodulator
     case 'dec+fbpupil'
         % see below for projecting out
         whichMod = 'decision_pupil';
+    case 'baseline_pupil'
+        whichMod = 'baseline_pupil';
     otherwise
         whichMod = whichmodulator;
 end
@@ -44,7 +46,10 @@ for lag = whichLags,
             case 'rt'
                 data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
             case 'evidence'
-                data.evidence = abs(data.motionstrength);
+                data.evidence       = abs(data.motionstrength);
+            case 'baseline_pupil' 
+                % move to previous trial so that we split by current trial baseline
+                data.baseline_pupil = circshift(zscore(data.baseline_pupil), -1);
         end
         
         % outcome vector need to be 0 1 for logistic regression
@@ -52,8 +57,7 @@ for lag = whichLags,
         
         % get an overall logistic fit for normalization
         grandavg.overallLogistic(sj, :) = glmfit(data.motionstrength, ...
-            data.resp, ...
-            'binomial','link','logit');
+            data.resp, 'binomial','link','logit');
         
         % previous response
         resps = [0 1];
@@ -182,10 +186,11 @@ ylabel('P(choice = 1)');
 switch whichMod
     case 'pupil'
         xlabel('Previous trial pupil');
+    case 'baseline_pupil'
+        xlabel('Baseline pupil');
     case 'rt'
         xlabel('Previous trial RT');
 end
-
 
 text(2.5, .53, 'previous', 'color', colors(2, :), 'horizontalalignment', 'center');
 text(2.5, 0.52, 'choice = 1', 'color', colors(2, :), 'horizontalalignment', 'center');

@@ -23,6 +23,12 @@ for sj = subjects,
     
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
+    % if looking at the baseline, get the one from the next trial
+    switch field
+        case 'baseline_pupil'
+            data.baseline_pupil = circshift(zscore(data.baseline_pupil), -1);
+    end
+    
     % normalization etc
     data.motionstrength = (abs(data.motionstrength));
     
@@ -105,6 +111,10 @@ switch field
     case 'decision_pupil'
         ylim([0.2 0.61]); set(gca, 'ytick', [0.2 0.4 0.6]);
         ylabel('Pupil response (z)');
+        savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');
+    case 'baseline_pupil'
+        ylim([-0.1 0.2]); set(gca, 'ytick', -1:0.1:1);
+        ylabel('Next trial baseline pupil (z)');
     case 'rt'
         ylim([0.28 0.6]); set(gca, 'ytick', [0.3 0.4 0.5 0.6]);
         ylabel('Reaction time (s)');
@@ -112,8 +122,6 @@ end
 
 legend([handles{:}], {'error', 'correct'}, 'location', 'southwest'); legend boxoff;
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-
-savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');
 
 % output
 b = grandavg.(field).regline(:, :, 2);

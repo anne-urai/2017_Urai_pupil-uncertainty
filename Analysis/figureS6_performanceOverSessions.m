@@ -78,6 +78,7 @@ figure;
 colors = cbrewer('div', 'BrBG', 15);
 colors = colors(9:end, :);
 
+% these files only have the previous response and previous stimulus regressors, no pupil or RT interaction
 for s = 2:6,
     load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, sprintf('plain_session%d', s)));
     sessionDat.response(s-1, :) = dat.response(:, 1);

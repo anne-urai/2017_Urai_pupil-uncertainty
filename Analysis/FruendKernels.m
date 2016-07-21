@@ -2,7 +2,6 @@ function [] = FruendKernels(whichmodulator, field)
 % history kernels
 
 global mypath;
-
 % determine the subjects based on their plain weights
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator));
 
@@ -24,7 +23,7 @@ switch field
         end
         save(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath), 'mycolmap');
     otherwise
-        load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
+        mycolmap = 0.8*ones(27, 3);
 end
 
 hold on;
@@ -51,13 +50,22 @@ switch field
         
         ylabel(ax(1),'Choice weight') % label left y-axis
         ylabel(ax(2),'|Choice weight|') % label right y-axis
+        
     otherwise
         plot(1:7, nanmean(dat.(field)), 'k', 'linewidth', 1);
         axis square;
         set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', ...
             [-0.2 0 0.2], 'ylim', [-.25 .25], 'xlim', [0.5 7.5], ...
             'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
-        ylabel('Pupil * choice weights');
+        ylabel('Pupil * choice weight');
+        
+        % indicate significance for each lag
+        clear h;
+        for s = 1:size(dat.(field), 2),
+            h(s) = ttest(dat.(field)(:, s));
+        end
+        h(h < 1) = NaN;
+        plot(1:7, -0.2*h, 'k.', 'markersize', 5);
 end
 xlabel('Lags');
 end

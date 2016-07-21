@@ -91,14 +91,18 @@ close all;
 figure6;
 
 %% also create the supplementary figures
-figureS1_MotionEnergy_Filters;
 figureS2_RT;
-figureS3_feedbackpupil;
 figureS4_History_CorrectError;
+figureS3_feedbackpupil;
 figureS5_pupilResponseLagged;
-figureS5_scatterIndividual;
+
+figureS5_scatterIndividual; % figure 6 but then with correct and error
 figureS6_performanceOverSessions;
-    
+    % 4. mediation analysis
+mediationAnalysis;
+
+figureS1_MotionEnergy_Filters;
+
 %% analyze some final stuff that's not in the figures
 
 % 1. median time between responses
@@ -113,17 +117,17 @@ end
 timebetweenResp = cat(1, timebetweenResp{:});
 median(timebetweenResp); % long-tailed distribution, so mean is biased
 
-% 2.  Speed-accuracy trade-off 
-biasRT;
+% 2. Speed-accuracy trade-off and post error slowing
+postErrorSlowing;
 
-% 3.  compute autocorrelation in evidence strength
+% 3. compute autocorrelation in evidence strength
 stimRep.rho = nan(27, 7);
 stimRep.pval = nan(27, 7);
 for sj = 1:27,
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     for session = unique(data.sessionnr)',
-        thisdat = data(find(session==data.sessionnr), :);
-        stim1 = abs(thisdat.motionstrength);
+        thisdat     = data(find(session==data.sessionnr), :);
+        stim1       = abs(thisdat.motionstrength);
         stim1(logical([(diff(thisdat.trialnr) ~= 1); 1])) = NaN;
         [rho, pval] = corr(stim1, circshift(stim1, 1), 'rows', 'complete');
         stimRep.rho(sj, session) = rho;
@@ -134,13 +138,33 @@ fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
     nanmean(stimRep.rho(:)), min(stimRep.rho(:)), max(stimRep.rho(:)), ...
     length(find(stimRep.pval(:) < 0.05)), numel(stimRep.pval));
 
-% 4. mediation analysis
-mediationAnalysis;
-
 % 5. checks on model-based uncertainty and its effect on switching
 uncertaintyControlAnalyses;
 
+% 6. does individual choice tendency correlate with psychometric thresholds?
+data          = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+data.evidence = abs(data.motionstrength);
+pBest         = rowfun(@fitWeibull, data, 'inputvariables', {'evidence', 'correct'}, ...
+    'groupingvariables', {'subjnr', 'sessionnr'}, 'outputvariablenames', {'slope', 'threshold', 'lapse'});
+
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
+scatter(pBest(:, 2), dat.response(:, 1));
+[rho, pval] = corr(pBest(:, 2), dat.response(:, 1));
+
+% 7. RT for the easiest trials
+data    = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+data    = data(find(data.difficulty == 5), :);
+data.rt = data.rt * 1000;
+RTs     = splitapply(@median, data.rt, findgroups(data.subjnr)); % in ms
+fprintf('mean %.3f, min %.3f, max %.3f', mean(RTs), min(RTs), max(RTs));
+
+% 8. baseline pupil does not predict repetition behaviour
+clf; subplot(441); b = Uncertainty_byErrorCorrect('baseline_pupil');
+subplot(4,7,3); plotBetasSwarm(b, colors([1 2], :));
+set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
+
+subplot(443); psychFuncShift_Bias('baseline_pupil', 3, []);
+print(gcf, '-dpdf', sprintf('%s/Figures/baselinePupil.pdf', mypath));
 
 %% there you go! get in touch if you have any further questions.
-
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

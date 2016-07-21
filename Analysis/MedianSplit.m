@@ -25,7 +25,7 @@ end
 % do stats between them
 xlim([0.5 2.5]);
 set(gca, 'xtick', 1:2, 'xticklabel', {'alternators', 'repeaters'}, ...
-    'xaxislocation', 'top', 'xticklabelrotation', 30);
+   'xticklabelrotation', -30);
 
 ylims = get(gca, 'ylim');
 yrange = range(ylims);
