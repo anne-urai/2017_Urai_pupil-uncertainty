@@ -1,5 +1,3 @@
-
-
 % new figure with more uncertainty signatures
 close; figure;
 global mypath;

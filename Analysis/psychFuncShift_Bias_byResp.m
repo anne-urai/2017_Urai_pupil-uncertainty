@@ -183,6 +183,19 @@ axis tight; axis square;
 xlim([0.5 nbins+0.5]); set(gca, 'xtick', 1:nbins, 'xticklabel', {'low', 'med', 'high'});
 ylabel('P(choice = 1)');
 
+% do stats
+y1  = squeeze(grandavg.logistic(:, :, :, 1));
+s   = repmat(transpose(1:27), [1 2 3]);
+ft  = repmat(1:2, [27 1 3]);
+f{1} = ft(:);
+ft = permute(repmat(1:3, [27 1 2]), [1 3 2]);
+f{2} = ft(:);
+
+% use Valentin's function, at some point I should figure out the Matlab
+% anova syntax
+stats = rm_anova(y1(:), s(:), f);
+% mysigstar(gca, [1 nbins], [0.53 0.53], stats.f1xf2.pvalue, 'k', 'down');
+
 switch whichMod
     case 'pupil'
         xlabel('Previous trial pupil');

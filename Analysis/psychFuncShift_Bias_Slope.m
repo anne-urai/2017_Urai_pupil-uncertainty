@@ -20,7 +20,7 @@ switch whichmodulator
         % see below for projecting out
         whichMod = 'decision_pupil';
     otherwise
-        whichMod = 'uncertainty';
+        whichMod = whichmodulator;
 end
 
 % =========================================== %
@@ -40,7 +40,6 @@ for sj = unique(subjects),
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'dec+fbpupil'
             data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
-            
         case 'pupil',
             data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
         case 'rt'
@@ -171,13 +170,11 @@ for sj = unique(subjects),
     data = data(find(data.sessionnr > 1), :);
     
     % in this case, take out decision effects
-    
     switch whichmodulator
         case 'fb+decpupil'
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);
         case 'dec+fbpupil'
             data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
-            
         case 'pupil',
             data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
         case 'rt'
@@ -269,11 +266,13 @@ errorbar(ax(1), x, nanmean(y1), nanstd(y1) ./sqrt(27), ...
 set(ax(1), 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xticklabel', {'low', 'med', 'high'}, 'ylim', [0.48 0.56], 'ytick', [0.49 0.51 0.53], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off');
-% low vs high
-[~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
-bf10 = t1smpbf(stats.tstat, 27);
-fprintf('bias, bf10 = %f', bf10);
-mysigstar(gca, [1 nbins], [0.53 0.53], pval, 'k', 'down');
+
+% do statistics
+s = repmat(1:27, 3, 1)';
+ft = repmat(transpose(1:3), 1, 27)';
+f{1} = ft(:);
+stats = rm_anova(y1(:), s(:), f);
+mysigstar(gca, [1 nbins], [0.53 0.53], stats.f1.pvalue, 'k', 'down');
 axis(ax(1), 'square');
 
 % second errorbar, grey
@@ -284,10 +283,12 @@ errorbar(ax(2), x, nanmean(y2), nanstd(y2) ./sqrt(27), ...
 set(ax(2), 'xlim', [0.5 nbins+0.5], 'ylim', [0.40 0.9], 'ytick', [0.8 0.9], ...
     'xcolor', 'k', 'ycolor', [0.4 0.4 0.4], 'linewidth', 0.5, 'box', 'off');
 axis(ax(2), 'square');
-[~, pval2, ci, stats2] = ttest(y2(:, 1), y2(:, end));
-bf10 = t1smpbf(stats2.tstat, 27);
-fprintf('slope, bf10 = %f', bf10);
-mysigstar(gca, [1 nbins], [0.9 0.9], pval, [0.4 0.4 0.4], 'down');
+
+% do statistics
+stats = rm_anova(y2(:), s(:), f(:));
+if stats.f1.pvalue < 0.05,
+    mysigstar(gca, [1 nbins], [0.9 0.9], stats.f1.pvalue, [0.4 0.4 0.4], 'down');
+end
 
 ax(1).YLabel.String = 'P(repeat)';
 ax(2).YLabel.String = 'Slope';

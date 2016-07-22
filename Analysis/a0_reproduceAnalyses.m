@@ -87,6 +87,9 @@ figure4;
 close all;
 figure5;
 
+% confirm that pupil only changes sequential biases
+postErrorSlowing;
+
 close all; 
 figure6;
 
@@ -98,7 +101,6 @@ figureS5_pupilResponseLagged;
 
 figureS5_scatterIndividual; % figure 6 but then with correct and error
 figureS6_performanceOverSessions;
-    % 4. mediation analysis
 mediationAnalysis;
 
 figureS1_MotionEnergy_Filters;
@@ -116,9 +118,6 @@ for sj = 1:length(pupilgrandavg.timelock),
 end
 timebetweenResp = cat(1, timebetweenResp{:});
 median(timebetweenResp); % long-tailed distribution, so mean is biased
-
-% 2. Speed-accuracy trade-off and post error slowing
-postErrorSlowing;
 
 % 3. compute autocorrelation in evidence strength
 stimRep.rho = nan(27, 7);

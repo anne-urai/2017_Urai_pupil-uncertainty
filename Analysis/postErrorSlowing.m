@@ -1,4 +1,4 @@
-function [] = biasRT()
+function [] = postErrorSlowing()
 % check how pupil-linked uncertainty affects subsequent sensitivity, RT,
 % side bias, absolute bias, or post-error slowing
 
@@ -69,19 +69,27 @@ for p = 1:length(plotVars),
     errorbar(1:nbins, splitapply(@mean, grandavg.(plotVars{p}), findgroups(grandavg.prevPupilBins)), ...
         splitapply(@sem, grandavg.(plotVars{p}), findgroups(grandavg.prevPupilBins)), '.k-', 'markersize', 12);
     
-    % ttest between lowest and highest bins
-    [~, pval, ~, stats] = ttest(grandavg.(plotVars{p})((grandavg.prevPupilBins == 1)), ....
-        grandavg.(plotVars{p})(grandavg.prevPupilBins == nbins));
+    % do Bayesian ANOVA to get Bayes Factors 
+    % write to csv
+    statdat = grandavg(:, {'subjnr', 'prevPupilBins', plotVars{p}});
+    statdat.Properties.VariableNames{plotVars{p}} = 'DV';
+    writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
     
+    % call R from here
+    system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+    statdat = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+
+    % save for later
+    statresults(p, :) = statdat{1, [2 3]};
+    
+    % plot
     xlim([0.5 nbins+0.5]); box off;
-    mysigstar(gca, [1 nbins], max(get(gca, 'ylim')), pval);
+    mysigstar(gca, [1 nbins], max(get(gca, 'ylim')), statdat2.pvalue);
     xlabel('Previous pupil bin');
     ylabel(plotVars{p});
     
-    % check for no difference
-    bf10 = t1smpbf(stats.tstat, 27);
-    assert(bf10 < 0.3, '%s changes with pupil!', plotVars{p});
 end
-disp('nothing changes with pupil');
+fprintf('ANOVA on bins of pupil, all p > %.3f, all bf10 < %.3f \n', ...
+    min(statresults(:, 1)), max(statresults(:, 2)));
 
 end
