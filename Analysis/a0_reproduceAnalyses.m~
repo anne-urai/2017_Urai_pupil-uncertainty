@@ -104,7 +104,6 @@ mediationAnalysis;
 figureS1_MotionEnergy_Filters;
 
 %% analyze some final stuff that's not in the figures
-% reported in text, or only shown in the response to reviewers
 
 % 1. median time between responses
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));

@@ -206,11 +206,12 @@ set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
 
 if length(subjects) > 1,
-    % low vs high
-    [~, pval, ci, stats] = ttest(y1(:, 1), y1(:, end));
-    bf10 = t1smpbf(stats.tstat, 27);
-    fprintf('bias, t(%d) = %.3f, p = %.3f, bf10 = %f \n', stats.df, stats.tstat, pval, bf10);
-    mysigstar(gca, [1 nbins], [0.55 0.55], pval, 'k', 'down');
+    % do statistics
+    s = repmat(1:27, nbins, 1)';
+    ft = repmat(transpose(1:nbins), 1, 27)';
+    f{1} = ft(:);
+    stats = rm_anova(y1(:), s(:), f);
+    mysigstar(gca, [1 nbins], [0.55 0.55], stats.f1.pvalue, 'k', 'down');
 else
     axis tight; xlim([0.5 nbins+0.5]);
 end
