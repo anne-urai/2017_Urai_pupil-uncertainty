@@ -27,6 +27,10 @@ ft_defaults;
 
 for sj = 1:27, a1_PupilAnalysis(sj); end
 
+% check how much of the data is interpolated
+for sj = 1:27, a1a_PupilAnalysis_NaNs(sj); end
+pupilInterpolationCount; % compute a percentage per trial and make an overview
+
 %% motion energy filtering
 % note: since this very is memory and CPU heavy, the outputs of this script
 % have been provided in motionEnergy.zip - consider using those to continue

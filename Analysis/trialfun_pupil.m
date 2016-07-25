@@ -16,8 +16,9 @@ session = cfg.session;
 for j = 1:length(value), % loop through the trials and create the trial matrix on each trl
     
     % check that this is really a fixation trigger
-    if (~isempty(strfind(value{j}, 'blinkbreak_end')) && ~isempty(strfind(value{j+2}, 'ref'))) || ...
-            (~isempty(strfind(value{j+1}, 'fix')) && ~isempty(strfind(value{j+2}, 'ref'))),
+    if (j < length(value) && ~isempty(strfind(value{j}, 'blinkbreak_end')) && ~isempty(strfind(value{j+2}, 'ref'))) || ...
+            (j < length(value) && ~isempty(strfind(value{j+1}, 'fix')) && ~isempty(strfind(value{j+2}, 'ref'))) || ...
+            (j == length(value) && ~isempty(strfind(value{j}, 'blinkbreak_end'))),
         
         trlbegin = sample(j) + pretrig;
         %trlend   = sample(j) + posttrig;

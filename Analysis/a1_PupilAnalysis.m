@@ -86,15 +86,16 @@ for session = unique(sessions),
         newpupil = blink_interpolate(data, blinksmp, 1);
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
         
-        suplabel(sprintf('P%02d_s%d_b%d_preproc.pdf', sj, session, block), 't');
-        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', mypath, sj, session, block), 'pdf');
+        suplabel(sprintf('P%02d-S%d-b%d', sj, session, block), 't');
+        saveas(gcf, sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', mypath, sj, session, block), 'pdf');
         
         % ==================================================================
         % regress out pupil response to blinks and saccades
         % ==================================================================
         
         % for this, use only EL-defined blinksamples
-        % dont add back slow drift for now
+        % dont add back slow drift for now - baseline doesn't make a lot of
+        % sense after this anymore...
         addBackSlowDrift = 0;
         
         pupildata = data.trial{1}(~cellfun(@isempty, strfind(lower(data.label), 'eyepupil')),:);

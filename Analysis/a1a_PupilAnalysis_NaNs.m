@@ -72,12 +72,22 @@ for session = unique(sessions),
         % blink interpolation
         % ==================================================================
         
-        % importantly, put NaNs instead of interpolation!
+        % interpolate but save the idx that were interpolated
         [newpupil, ~, nanIdx] = blink_interpolate(data, blinksmp, 1);
+        
         % make all the nan points actually nan again
-        newpupil(sort(nanIdx)) = NaN;l
+        newpupil(sort(nanIdx)) = NaN;
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
-      
+        
+        % plot the data without nans
+        subplot(413); xlims = get(gca, 'xlim'); ylims = get(gca, 'ylim');
+        subplot(414); plot(data.time{1}, newpupil); ylabel('Interp'); xlim(xlims); ylim(ylims); box off;
+        
+        % save this
+        suplabel(sprintf('P%02d-S%d-b%d', sj, session, block), 't');
+        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', ...
+            mypath, sj, session, block), 'pdf');
+     
         % ==================================================================
         % define trials
         % ==================================================================
@@ -117,11 +127,11 @@ for session = unique(sessions),
         
         % use fieldtrip to resample
         data = ft_resampledata(cfg, data);
-        
+
         cd ..
         disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyecleanNaN.mat', sj, session, block)]);
         % save these datafiles before appending
-        savefast(sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block), 'data');
+        savefast(sprintf('P%02d_s%d_b%02d_eyecleanNaN.mat', sj, session, block), 'data');
         cd(['S' num2str(session)]);
         
     end
