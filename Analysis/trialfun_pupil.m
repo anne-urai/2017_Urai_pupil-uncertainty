@@ -1,6 +1,6 @@
 function [trl, event] = trialfun_pupil(cfg)
 % header and events are already in the asc structures
-% returns a trl 
+% returns a trl
 
 event   = cfg.event;
 value   = {event(find(~cellfun(@isempty,strfind({event.value},'MSG')))).value};
@@ -84,6 +84,42 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
                 case 0
                     resptype = -stimtype;
             end
+        end
+        
+        % feedback
+        if ~isempty(strfind(value{j+5}, 'feedback')),
+            feedbackoffset = sample(j+5);
+            
+            % check feedback type
+            if ~isempty(strfind(value{j+5}, 'feedback_correct1')), % correct
+                feedbacktype = 1;
+            elseif ~isempty(strfind(value{j+5}, 'feedback_correct0')), % error
+                feedbacktype = 0;
+            elseif ~isempty(strfind(value{j+5}, 'feedback_correctNaN')), % no response given
+                continue
+                warning('no response trial removed');
+            end
+        else
+            warning('no feedbackoffset sample found');
+            
+            % load in the behavioural file that corresponds
+            behavfile = dir(sprintf('~/Data/HD1/UvA_pupil/P%02d/Behav/P%02d_s%d_*.mat', cfg.sj, cfg.sj, cfg.session));
+            
+            % if there are several files, continue until the right one is
+            % found....
+            filefound = false; cnt = 1;
+            while ~filefound,
+                load(sprintf('~/Data/HD1/UvA_pupil/P%02d/Behav/%s', cfg.sj, behavfile(cnt).name));
+                if  ~all(isnan(results.correct(blockcnt, :))),
+                    filefound = true;
+                end
+                cnt = cnt + 1;
+            end
+            
+            % get the feedbackoffset (= pupilrebound) between resp and tone
+            feedbackoffset   = setup.pupilreboundtime(blockcnt, trlcnt);
+            feedbackoffset   = round(respoffset + feedbackoffset*1000);
+            feedbacktype     = results.correct(blockcnt, trlcnt);
         end
         
         

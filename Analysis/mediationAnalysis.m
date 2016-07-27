@@ -3,20 +3,19 @@ function mediationAnalysis()
 % diameter and/or RT mediate the effect of uncertainty on switching
 % behaviour
 
+global mypath;
+
 % do this in lavaan (R) or manually in Matlab
 % when using probit regression, these give the same results
 whichLanguage = 'R';
-%whichLanguage = 'Matlab';
-
-global mypath;
-mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
+% whichLanguage = 'Matlab';
 
 % ============================================ %
 % write files
 % ============================================ %
 
 for sj = 1:27,
-   % if ~exist(sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj), 'file'),
+  %  if ~exist(sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj), 'file'),
         
         disp(sj);
         clearvars -except mypath grandavg sj whichLanguage;
@@ -40,7 +39,7 @@ for sj = 1:27,
         % for each trial, compute the average level of uncertainty
         data.uncertainty = arrayfun(@simulateUncertainty, abs(data.motionstrength), ...
             data.correct, sigma*ones(length(data.correct), 1), bound*ones(length(data.correct), 1));
-        
+                
         % =================================================== %
         % step 2a: prepare data for repetition model
         % =================================================== %
@@ -77,7 +76,7 @@ for sj = 1:27,
         % =================================================== %
         
         writetable(data, sprintf('%s/Data/CSV/SEMdata_sj%02d.csv', mypath, sj));
-  %  end
+   % end
 end
 
 % =================================================== %
@@ -204,22 +203,13 @@ end
 % =================================================== %
 
 clf; subplot(4,4,1);
-plotBetasSwarm([dat.a1 dat.a2 dat.b1 dat.b2 dat.c1]);
-set(gca, 'xtick', 1:5, 'xticklabel', {'a1', 'a2', 'b1', 'b2', 'c'''});
+plotBetasSwarm([dat.a dat.b dat.c1]);
+set(gca, 'xtick', 1:5, 'xticklabel', {'a', 'b', 'c'''});
 
 subplot(4,8,4);
-plotBetasSwarm([dat.indirectPup dat.indirectRT]);
+plotBetasSwarm([dat.indirect]);
 set(gca, 'xtick', 1:2, 'xticklabel', {'a1*b1', 'a2*b2'});
 
-subplot(4,8,6);
-plotBetasSwarm([dat.cov2]);
-set(gca, 'xtick', 1, 'xticklabel', {'cov'});
-
-% =================================================== %
-% also show the model-free effect of uncertainty
-% =================================================== %
-
-uncertaintyRepetition_grandaverage;
 print(gcf, '-dpdf', sprintf('%s/Figures/mediationAnalysis.pdf', mypath));
 
 % =================================================== %
@@ -236,14 +226,14 @@ disp('testing the causal steps approach...');
 % (estimate and test path c in the above figure). This step establishes that
 % there is an effect that may be mediated.
 
-[h(1), pval(1)] = ttest(grandavg.c);
+[h(1), pval(1)] = ttest(dat.c);
 
 % Step 2: Show that the causal variable is correlated with the mediator.
 % Use M as the criterion variable in the regression equation and X as a predictor
 % (estimate and test path a).  This step essentially involves treating the mediator
 % as if it were an outcome variable.
 
-[h(2), pval(2)] = ttest(grandavg.a);
+[h(2), pval(2)] = ttest(dat.a);
 
 % Step 3:  Show that the mediator affects the outcome variable.  Use Y as the
 % criterion variable in a regression equation and X and M as predictors
@@ -252,7 +242,7 @@ disp('testing the causal steps approach...');
 % correlated because they are both caused by the causal variable X.  Thus,
 % the causal variable must be controlled in establishing the effect of the mediator on the outcome.
 
-[h(3), pval(3)] = ttest(grandavg.b);
+[h(3), pval(3)] = ttest(dat.b);
 
 % Step 4:  To establish that M completely mediates the X-Y relationship,
 % the effect of X on Y controlling for M (path c') should be zero (see discussion
@@ -260,7 +250,7 @@ disp('testing the causal steps approach...');
 % estimated in the same equation.
 
 % test if c1 is closer to zero than c
-[h(4), pval(4)] = ttest(grandavg.c, grandavg.c1);
+[h(4), pval(4)] = ttest(dat.c, dat.c1);
 
 % test if all these conditions are met!
 if all(pval < 0.05),
