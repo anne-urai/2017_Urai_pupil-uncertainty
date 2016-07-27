@@ -21,6 +21,12 @@ for sj = subjects,
     end
     blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
     
+    % no motionstrength, just coherence
+    newdat = [ blocknrs data.sessionnr data.coherence (data.stim > 0) (data.resp > 0)];
+    
+    dlmwrite(sprintf('2ifc_plainCoh_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
+
     % no modulation, just history
     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0)];
     
