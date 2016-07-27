@@ -70,7 +70,7 @@ parser.add_option ( "-g", "--graphics-path",
         default="figures",
         help="path where the graphical output should be stored" )
 parser.add_option ( "-p", "--data-path",
-        default=os.path.expanduser("~/Data/pupilUncertainty/Data/serialmodel/"),
+        default=os.path.expanduser("~/Data/pupilUncertainty_FigShare/Data/serialmodel/"),
         help="path where the data output should be stored" )
 parser.add_option ( "-t", "--detection",
         action="store_true",

@@ -124,7 +124,8 @@ class history_model ( object ):
 
         self.w, self.pi, self.q, self.loglikelihood, self.nu = self.__em ( X, r )
 
-        # self.history_evaluation ( X, r, p=0.75 )
+        # call this to display stimulus-dependent history features
+        self.history_evaluation ( X, r, p=0.75 )
         self.X = X
         self.r = r
 
@@ -468,6 +469,10 @@ def performance_filter ( r, X, p1=0.75, p0=0.55, hf0=2 ):
 
     difficult = np.zeros ( X.shape[0], 'bool' )
     easy      = np.zeros ( X.shape[0], 'bool' )
+    
+    # here, make sure these are both 1-dimensional
+    #thisShape = np.shape(difficult)
+    #assert thisShape[1] < 1, 'easy and difficult are not vectors'
 
     for c in xrange ( 1, hf0 ):
         for s in stim_levels:
