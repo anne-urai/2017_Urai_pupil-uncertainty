@@ -1,7 +1,6 @@
 function [trl, event] = trialfun_pupil(cfg)
 % header and events are already in the asc structures
-% returns a trl that should be identical to the structure obtained from MEG
-% data
+% returns a trl 
 
 event   = cfg.event;
 value   = {event(find(~cellfun(@isempty,strfind({event.value},'MSG')))).value};
@@ -44,7 +43,8 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
         end
         
         % decode stimulus type
-        coh =  sscanf(value{j+3}, 'MSG %*f block%*d_trial%*d_stim_coh%f_dir%*d_diff%*d');
+        coh =  sscanf(value{j+3}, ...
+            'MSG %*f block%*d_trial%*d_stim_coh%f_dir%*d_diff%*d');
         if coh < .7,
             stimtype = -1; % weaker
         elseif coh > .7,
@@ -60,7 +60,8 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
         end
         
         % difficulty level
-        diff =  sscanf(value{j+3}, 'MSG %*f block%*d_trial%*d_stim_coh%*f_dir%*d_diff%d');
+        diff =  sscanf(value{j+3}, ...
+            'MSG %*f block%*d_trial%*d_stim_coh%*f_dir%*d_diff%d');
         if isempty(diff), diff = NaN; end
         
         % response
@@ -70,7 +71,8 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
             error('no respoffset sample found');
         end
         
-        resp = sscanf(value{j+4}, 'MSG %*f block%*d_trial%*d_resp_key%f_correct%f');
+        resp = sscanf(value{j+4}, ...
+            'MSG %*f block%*d_trial%*d_resp_key%f_correct%f');
         if numel(resp) == 2,
             resptype = resp(1); respcorrect = resp(2);
         elseif numel(resp) == 0,
@@ -84,6 +86,7 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
             end
         end
         
+        
         % feedback
         feedbackoffset = sample(j+5);
         
@@ -94,9 +97,9 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
             feedbacktype = 0;
         elseif ~isempty(strfind(value{j+5}, 'feedback_correctNaN')), % no response given
             continue
-            warning('no response trial removed');
         end
-        assert(isequaln(respcorrect,feedbacktype), 'respcorrect and feedbacktype do not match');
+        assert(isequaln(respcorrect,feedbacktype), ...
+            'respcorrect and feedbacktype do not match');
         
         % fieldtrip allows variable trial length
         trlend = feedbackoffset + posttrig;
@@ -104,7 +107,8 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
         % append all to mimic the MEG's trialinfo
         newtrl   = [trlbegin trlend offset ...
             fixoffset refoffset stimtype stimstrength diff ...
-            stimoffset resptype respcorrect respoffset feedbacktype feedbackoffset trlcnt blockcnt session];
+            stimoffset resptype respcorrect respoffset ...
+            feedbacktype feedbackoffset trlcnt blockcnt session];
         trl      = [trl; newtrl];
     end
     

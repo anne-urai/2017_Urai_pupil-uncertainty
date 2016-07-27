@@ -28,7 +28,7 @@ ft_defaults;
 for sj = 1:27, a1_PupilAnalysis(sj); end
 
 % check how much of the data is interpolated
-for sj = 1:27, a1a_PupilAnalysis_NaNs(sj); end
+for sj = 16:27, a1a_PupilAnalysis_NaNs(sj); end
 pupilInterpolationCount; % compute a percentage per trial and make an overview
 
 %% motion energy filtering
