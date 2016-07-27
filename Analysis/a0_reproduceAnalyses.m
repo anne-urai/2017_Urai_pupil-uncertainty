@@ -4,7 +4,16 @@
 % first, make sure this path matches the place where the data are stored
 % and you unzipped everything
 global mypath;
-mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
+% determine the path to the data
+usr = getenv('USER');
+switch usr
+    case 'aurai' % uke cluster
+        mypath = '~/Data/pupilUncertainty';
+    case 'anne' % macbook pro
+        mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
+        addpath(genpath('~/code/Tools/'));
+        addpath('~/code/pupilUncertainty/Analysis/');
+end
 
 % add the code folder
 addpath([mypath '/Code/Analysis/']);
