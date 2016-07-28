@@ -1,8 +1,8 @@
-% count
+% count the nr of trials with > 50% of samples interpolated
 
 global mypath;
 
-for sj = 1:15,
+for sj = 1:27,
     
     load(sprintf('%s/Data/P%02d_alleyeNaN.mat', mypath, sj));
     
