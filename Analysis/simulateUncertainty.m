@@ -1,9 +1,11 @@
-function unc = simulateUncertainty(x, correct, sigma, bound)
+function unc = simulateUncertainty(x, correct, sigma, bound, n)
 % compute uncertainty for correct and error trials based on stimulus strength
 % x should be absolute, so that only one 'side' is simulated
 
+if ~exist('n', 'var'), n = 10000; end
+
 % simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(10000, 1);
+dvs = x - bound + sigma * randn(n, 1);
 
 if correct == 1,
     % find the mean distance to bound for the correct samples

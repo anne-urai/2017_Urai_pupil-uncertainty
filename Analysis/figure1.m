@@ -18,13 +18,25 @@ data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 b = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
 
 if 0,
+    hold on;
     [binsM, binsR] = divideintobins(data.motionstrength, (data.resp > 0), 20);
-    plot(binsM, binsR); hold on;
+    plot(binsM, binsR, '.'); hold on;
     y = glmval(b, sort(data.motionstrength),  'probit');
+    % this is the code used by glmval
+    % eta = x*beta + offset;
+    % lowerBnd = norminv(eps(dataClass)); upperBnd = -lowerBnd;
+    % ilink = @(eta) normcdf(constrain(eta,lowerBnd,upperBnd));
+
     plot(sort(data.motionstrength), y, '.');
     
     % how to transfer probit measures into normcdf params?
-    plot(sort(data.motionstrength), normcdf(sort(data.motionstrength), b(1), 1/b(2)));
+    plot(sort(data.motionstrength), normcdf(sort(data.motionstrength), b(1), 1/b(2)), '.');
+    plot(sort(data.motionstrength), normcdf(sort(data.motionstrength), -b(1), 1/b(2)), '.');
+    
+    
+    grid on; xlim([-0.05 0.05]);
+    legend({'data', 'glmval', 'normpdf1', 'normpdf2'});
+
 end
 
 % standard deviation at these values is the inverse!
