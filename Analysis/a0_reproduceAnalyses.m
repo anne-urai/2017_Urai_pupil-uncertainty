@@ -11,8 +11,7 @@ switch usr
         mypath = '~/Data/pupilUncertainty';
     case 'anne' % macbook pro
         mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
-        addpath(genpath('~/code/Tools/'));
-        addpath('~/code/pupilUncertainty/Analysis/');
+        addpath(genpath('~/Dropbox/code/Tools/'));
 end
 
 % add the code folder

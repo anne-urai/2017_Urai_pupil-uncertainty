@@ -133,25 +133,32 @@ set(gca, 'xtick', 0, 'xticklabel', {'c'}, ...
 title('Strong evidence');
 
 % ==================================================================
-% confidence split by error vs correct
+% generate a measure of uncertainty for each sample
 % ==================================================================
 
-% make a little function that computes this quantity
-stimlevs = 0:0.01:6;
-confE = nan(size(stimlevs)); confC = nan(size(stimlevs));
-for s = 1:length(stimlevs),
-    [confE(s), confC(s)] = simulateConf(stimlevs(s), sigma);
-end
+model.evs           = unifrnd(-max(abs(data.motionstrength)), max(abs(data.motionstrength)), 1, 1e7);
+model.dvs           = model.evs + normrnd(0, sigma, size(model.evs));
+model.choice        = sign(model.dvs);
+model.correct       = (model.choice == sign(model.evs));
+model.confidence    = tanh(abs(model.dvs));
+model.uncertainty   = 1 - model.confidence;
+
+% ==================================================================
+% plot mean confidence
+% ==================================================================
 
 subplot(4,4,4); hold on;
+[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.confidence(model.correct == 1), 20);
 plot(stimlevs, confC, '-',  'color', cols(2, :));
+[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.confidence(model.correct == 0), 20);
 plot(stimlevs, confE, '-', 'color', cols(1, :));
 
 % also add some points
 stimpts = [strength2 strength1];
 confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
-    [confEpt(s), confCpt(s)] = simulateConf(stimpts(s), sigma);
+    confEpt(s) = mean(model.confidence(model.evs < stimpts(s)*1.1 & model.evs > stimpts(s) * 0.9 & model.correct == 0));
+    confCpt(s) = mean(model.confidence(model.evs < stimpts(s)*1.1 & model.evs > stimpts(s) * 0.9 & model.correct == 1));
 end
 plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
 plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 14);
@@ -169,32 +176,30 @@ set(gca, 'xcolor', 'w');
 l = legend(ploth, {'error', 'correct'});
 lpos = get(l, 'position'); lpos(2) = lpos(2) - 0.15;
 set(l, 'box', 'off', 'position', lpos);
-% ==================================================================
-% uncertainty = 1 - confidence
-% ==================================================================
 
-% make a little function that computes this quantity
-confE = nan(size(stimlevs)); confC = nan(size(stimlevs));
-for s = 1:length(stimlevs),
-    [confE(s), confC(s)] = simulateUnc(stimlevs(s), sigma);
-end
+% ==================================================================
+% plot mean uncertainty below that
+% ==================================================================
 
 subplot(4,4,8); hold on;
+[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.uncertainty(model.correct == 1), 20);
 plot(stimlevs, confC, '-',  'color', cols(2, :));
+[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.uncertainty(model.correct == 0), 20);
 plot(stimlevs, confE, '-', 'color', cols(1, :));
 
 % also add some points
 stimpts = [strength2 strength1];
 confEpt = nan(size(stimpts)); confCpt = nan(size(stimpts));
 for s = 1:length(stimpts),
-    [confEpt(s), confCpt(s)] = simulateUnc(stimpts(s), sigma);
+    confEpt(s) = mean(model.uncertainty(model.evs < stimpts(s)*1.1 & model.evs > stimpts(s) * 0.9 & model.correct == 0));
+    confCpt(s) = mean(model.uncertainty(model.evs < stimpts(s)*1.1 & model.evs > stimpts(s) * 0.9 & model.correct == 1));
 end
 plot(stimpts(1), confEpt(1), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr2, 'MarkerSize', 4);
 plot(stimpts(1), confCpt(1), '.', 'MarkerFaceColor', gr2, 'MarkerEdgeColor', gr2, 'MarkerSize', 14);
-plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
-plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
+ploth(1) = plot(stimpts(2), confEpt(2), '^', 'MarkerFaceColor', 'w', 'MarkerEdgeColor', gr1, 'MarkerSize', 4);
+ploth(2) = plot(stimpts(2), confCpt(2), '.', 'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 14);
 
-hold on; axis square;
+axis square;
 set(gca,'box', 'off', 'tickdir', 'out', 'xlim', [min(stimlevs) max(stimlevs)]);
 xlabel('Evidence');
 ylabel('Uncertainty');
@@ -203,43 +208,65 @@ xlim([-0.5 max(stimlevs)]);
 set(gca, 'ytick', [0:0.5:1]);
 set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 
+% ==================================================================
+% from Sanders, show accuracy vs confidence
+% ==================================================================
+
+subplot(4,4,9); hold on;
+[unc, correct] = divideintobins(model.uncertainty, model.correct, 100);
+plot(unc, correct*100, 'k-');
+ylim([45 100]); set(gca, 'ytick', [50 75 100]); ylabel('Accuracy (%)');
+xlim([-0.05 1.02]); xlabel('Uncertainty');
+plot([0 1], [50 50], 'color', [0.5 0.5 0.5], 'linewidth', 0.5, 'linestyle', ':'); hold on;
+box off; 
+
+% ==================================================================
+% from Sanders, psychFuncs by uncertainty
+% ==================================================================
+
+uncMed = quantile(model.uncertainty, 2); % median
+% PLOT
+subplot(4,4,10);
+hold on;
+colors(1,:) = [0.5 0.5 0.5];
+colors(2,:) = [0.2 0.2 0.2];
+newx = linspace(min(abs(model.evs)), max(abs(model.evs)), 100);
+
+for r = 1:2,
+    switch r
+        case 1
+            trls = find(model.uncertainty < uncMed(1));
+        case 2
+            trls = find(model.uncertainty > uncMed(2));
+    end
+    % [ev, acc] = divideintobins(abs(model.evs(trls)), model.correct(trls), nbins);
+    % fit cumulative weibull to this psychfunc
+    
+    % make weibull fit faster
+    [binnedx, binnedy] = divideintobins(abs(model.evs(trls)), model.correct(trls), 100);
+    [slope, threshold, lapse] = fitWeibull(binnedx, binnedy);
+    h = plot(newx, 100* Weibull([slope, threshold, lapse], newx), 'color', colors(r, :)) ;
+    
+    % datapoints on top
+   % h = plot(ev, acc*100, '.', 'markersize', 12', 'color', colors(r, :));
+   handles{r} = h;
+end
+
+set(gca, 'xlim', [-0.5 5.5], 'ylim', [45 100], 'ytick', 50:25:100);
+xlim([-0.5 5.5]); set(gca, 'xtick', [0 2.75 5.5], 'xticklabel', {'weak', 'medium', 'strong'}, 'xminortick', 'off');
+ylabel('Accuracy (%)'); xlabel('Evidence');
+ box off;
+
+l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
+legend boxoff;
+lpos = get(l, 'position');
+lpos(1) = lpos(1) + 0.05;
+set(l, 'position', lpos);
+
+% save
+
 cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
 print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));
 
-end
 
 
-function [confE, confC] = simulateConf(x, sigma)
-% compute confidence for correct and error trials based on stimulus strength
-
-% assume no bias
-bound = 0;
-
-% simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(100000, 1);
-
-% find the mean distance to bound for the correct samples
-confC = mean(tanh(abs(dvs(dvs > bound) - bound)));
-
-% find the mean distance to bound for error samples
-confE = mean(tanh(abs(dvs(dvs < bound) - bound)));
-
-end
-
-
-function [uncE, uncC] = simulateUnc(x, sigma)
-% compute confidence for correct and error trials based on stimulus strength
-
-% assume no bias
-bound = 0;
-
-% simulate decision variables for this level of stimulus strength
-dvs = x - bound + sigma * randn(100000, 1);
-
-% find the mean distance to bound for the correct samples
-uncC = mean(1 - tanh(abs(dvs(dvs > bound) - bound)));
-
-% find the mean distance to bound for error samples
-uncE = mean(1 - tanh(abs(dvs(dvs < bound) - bound)));
-
-end
