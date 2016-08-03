@@ -1,4 +1,4 @@
-function [] = SjCorrelation(whichmodulator, whichweight, whichFile)
+function [rho] = SjCorrelation(whichmodulator, whichweight, whichFile)
 % plot correlation between subjects
 
 if ~exist('whichweight', 'var'); whichweight = 'response'; end

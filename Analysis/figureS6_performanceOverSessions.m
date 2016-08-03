@@ -8,7 +8,7 @@ for s = 2:6,
     PsychometricFunction(s);
 end
 
-if ~exist(sprintf('%s/GrandAverage/historyweights_plain_session6.mat', mypath), 'file'),
+if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypath), 'file'),
     
     %% run history model for every session
     cd(sprintf('%s/Code/serial-dependencies/data', mypath));
@@ -64,29 +64,22 @@ if ~exist(sprintf('%s/GrandAverage/historyweights_plain_session6.mat', mypath), 
     end
 end
 
-% plot the history strategies for each session
+% plot the history kernels
 for s = 2:6,
     subplot(5,5,s-1+10);
-    decisionStrategies(sprintf('plain_session%d', s), 0, 0);
-    axis tight;
-end
-set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
-
-% show the variance in choice and stimulus weights
-figure;
-colors = cbrewer('div', 'BrBG', 15);
-colors = colors(9:end, :);
-
-% these files only have the previous response and previous stimulus regressors, no pupil or RT interaction
-for s = 2:6,
-    load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, sprintf('plain_session%d', s)));
-    sessionDat.response(s-1, :) = dat.response(:, 1);
-    sessionDat.stimulus(s-1, :) = dat.stimulus(:, 1);
+    FruendKernels(sprintf('plain_session%d', s), 'response');
+    set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.7 0 0.7], ...
+        'ylim', [-.75 .7], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
+    ylabel('');
+    if s == 2, ylabel('Choice weight'); end
+    set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 end
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
 
+% ====================================================================================== %
 %% do repetition bias stats for each session, big ANOVA
+% ====================================================================================== %
 
 % =========================================== %
 % BIAS - ITERATE OVER TWO RESPONSES
@@ -94,7 +87,7 @@ print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
 
 subjects = 1:27;
 clear grandavg;
-lag = 1;
+lag = 1; correctness = []; nbins = 3;
 
 for sj = unique(subjects),
     for session = 2:6,
@@ -211,60 +204,10 @@ ft      = repmat(1:5, [27 1 3]); % session
 f1      = ft(:);
 ft      = permute(repmat(1:3, [27 1 5]), [1 3 2]); % pupil
 f2      = ft(:);
+f{1}    = f1; f{2} = f2;
 
 % use Valentin's function, at some point I should figure out the Matlab anova syntax
 stats = rm_anova(y1(:), s(:), f);
 fprintf('Session F(%d,%d) = %.2f, p = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue);
 fprintf('Pupil F(%d,%d) = %.2f, p = %.3f \n', stats.f2.df(1), stats.f2.df(2), stats.f2.fstats, stats.f2.pvalue);
 fprintf('Interaction F(%d,%d) = %.2f, p = %.3f \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue);
-
-% ========================================================= %
-% plot
-%% ========================================================= %
-
-for session = 2:6,
-    subplot(5,5,session-1);
-    x   = 1:nbins;
-    y1  = squeeze(grandavg.logisticRep(:, session, :));
-    
-    % Use HOLD and ERRORBAR, passing axes handles to the functions.
-    colors = cbrewer('qual', 'Set1', 8);
-    if isempty(correctness),
-        thismarker      = '.';
-        thismarkersize  = 14;
-        thiscolor       = [0 0 0];
-    else
-        switch correctness
-            case 1
-                thismarker      = '.';
-                thismarkersize  = 14;
-                thiscolor       = colors(2,:);
-            case 0
-                thismarker      = '^';
-                thismarkersize  = 4;
-                thiscolor       = colors(1,:);
-        end
-    end
-    
-    % line to indicate 50 % repetition
-    plot([1 3], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
-    h = ploterr(x, nanmean(y1), [], nanstd(y1) ./sqrt(27), ...
-        'k-',  'abshhxy', 0);
-    set(h(1), 'color', thiscolor, ...
-        'markersize', thismarkersize, ...
-        'marker',thismarker);
-    if correctness == 0,
-        set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', thiscolor);
-    end
-    set(h(2), 'color', thiscolor); % line color
-    xticklabs       = repmat({' '}, 1, nbins);
-    xticklabs{1}    = 'low';
-    xticklabs{end}  = 'high';
-    if nbins == 3, xticklabs{2} = 'med'; end
-    set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
-        'xticklabel', xticklabs, 'ylim', [0.42 0.56], 'ytick', [0.4 0.5], ...
-        'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
-    axis square;
-    ylabel('P(repeat)');
-    xlabel('Previous trial pupil');
-end

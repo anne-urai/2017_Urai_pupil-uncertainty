@@ -70,7 +70,7 @@ figure3;
 a5_writeFiles4pythonToolbox;
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
-mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil'};
+mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
 
 % this is easiest to run from the terminal. With Python 2.7 installed, go
@@ -83,8 +83,8 @@ for m = 1:length(mods),
 end
 
 % important: if you want the quick and dirty version without accurate
-% errorbars, change -n1000 to n-10. Otherwise, the code will run bootstraps
-% which can take quite a while.
+% individual errorbars, change -n1000 to n-10. Otherwise, the code will run 
+% bootstraps which can take quite a while.
 
 %% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
@@ -175,6 +175,37 @@ set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 subplot(443); psychFuncShift_Bias('baseline_pupil', 3, []);
 print(gcf, '-dpdf', sprintf('%s/Figures/baselinePupil.pdf', mypath));
+
+% 9. does figure 6 depend on running pupil and RT in the same model?
+subplot(5,5,1); rho1 = SjCorrelation('pupil', 'response', 'pupil');
+ylabel('Pupil * choice weight');
+subplot(5,5,2); rho2 = SjCorrelation('pupil', 'response', 'rt');
+ylabel('RT * choice weight'); set(gca, 'yaxislocation', 'right');
+suplabel('Choice weight', 'x');
+
+% unpaired test between rho's (because the fitted choice weights are not
+% identical anymore)
+[ridiff,cilohi,p] = ridiffci(rho1, rho2, 27, 27, 0.05);
+suplabel(sprintf('delta r = %.3f, p = %.3f', ridiff, p), 't');
+print(gcf, '-dpdf', sprintf('%s/Figures/separateRegressionModels.pdf', mypath));
+
+% 10. variance explained by history as a function of stimulus strength
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plainCoh'));
+dat.variance.stimuli    = reshape(dat.variance.stimuli, [27 5 5]);
+dat.variance.explained  = reshape(dat.variance.explained, [27 5 5]);
+
+% first, average across sessions for each person
+subplot(4,4,[1 2]); hold on; 
+colors = cbrewer('seq', 'Greens', 10); colors = colors(4:end, :);
+for s = 1:5,
+    plot(squeeze(mean(dat.variance.stimuli(:, :, s))), ...
+       100* squeeze(mean(dat.variance.explained(:, :, s))), ...
+        '-', 'color', colors(s, :));
+end
+xlabel('\Delta motion coherence'); ylabel('History contribution (%)');
+l = legend({'2', '3', '4', '5', '6'}, 'Location', 'EastOutside');
+l.Box = 'off';
+print(gcf, '-dpdf', sprintf('%s/Figures/historyContribution.pdf', mypath));
 
 %% there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

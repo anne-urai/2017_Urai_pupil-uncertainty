@@ -386,8 +386,12 @@ class history_model ( object ):
                 probability correct that is considered the border between
                 easy and difficult
         """
-        difficult = performance_filter ( r, X, p, hf0=self.hf0 )
-        easy = np.logical_not ( difficult )
+        difficult, easy = performance_filter ( r, X, p, hf0=self.hf0 )
+        assert np.shape(np.shape(difficult))[0] == 1 , 'difficult is not a vectors'
+        assert np.shape(np.shape(easy))[0] == 1 , 'easy is not a vectors'
+        
+        # AEU: get both output args from performance_filter
+        #easy = np.logical_not ( difficult )
 
         X_ = X.copy ()
         for j in self.applythreshold:
@@ -469,10 +473,10 @@ def performance_filter ( r, X, p1=0.75, p0=0.55, hf0=2 ):
 
     difficult = np.zeros ( X.shape[0], 'bool' )
     easy      = np.zeros ( X.shape[0], 'bool' )
-    
+
     # here, make sure these are both 1-dimensional
-    #thisShape = np.shape(difficult)
-    #assert thisShape[1] < 1, 'easy and difficult are not vectors'
+    assert np.shape(np.shape(difficult))[0] == 1 , 'difficult is not a vectors'
+    assert np.shape(np.shape(easy))[0] == 1 , 'easy is not a vectors'
 
     for c in xrange ( 1, hf0 ):
         for s in stim_levels:
@@ -483,6 +487,10 @@ def performance_filter ( r, X, p1=0.75, p0=0.55, hf0=2 ):
             elif pcorrect > p0:
                 difficult = np.logical_or ( difficult, index )
 
+    # check again
+    assert np.shape(np.shape(difficult))[0] == 1 , 'difficult is not a vectors'
+    assert np.shape(np.shape(easy))[0] == 1 , 'easy is not a vectors'
+   
     return difficult,easy
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ for sj = subjects,
     load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
     
     switch whichmodulator
-        case 'plain'
+        case {'plain', 'plainCoh'} % no modulator
             model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
@@ -25,11 +25,11 @@ for sj = subjects,
             model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
-        case 'fbpupil';
+        case {'fbpupil', 'pupil', 'rt'}, % single modulator
             weights1 = {'response', 'stimulus', ...
                 'pupil', 'response_pupil', 'stimulus_pupil'};
             weights2 = {'', '_pupil'};
-        otherwise
+        otherwise % two modulators
             weights1 = {'response', 'stimulus', ...
                 'pupil', 'response_pupil', 'stimulus_pupil', ...
                 'rt', 'response_rt', 'stimulus_rt'};
@@ -88,6 +88,12 @@ for sj = subjects,
 
     % add the p value for permutation with history
     dat.pvalue(sj) = length(find(model_w_hist.loglikelihood < permutation_wh(:, 1))) ./ length(permutation_wh(:, 1));
+
+    % if possible, get the variance explained
+    try
+        dat.variance.stimuli(sj, :)   = model_w_hist.stimuli;
+        dat.variance.explained(sj, :) = model_w_hist.variance_explained;
+    end
 end
 
 dat.pvalue = dat.pvalue';
