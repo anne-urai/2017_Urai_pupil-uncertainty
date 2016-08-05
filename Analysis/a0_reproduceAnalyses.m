@@ -191,20 +191,28 @@ print(gcf, '-dpdf', sprintf('%s/Figures/separateRegressionModels.pdf', mypath));
 
 % 10. variance explained by history as a function of stimulus strength
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plainCoh'));
-dat.variance.stimuli    = reshape(dat.variance.stimuli, [27 5 5]);
-dat.variance.explained  = reshape(dat.variance.explained, [27 5 5]);
+% dat.variance.stimuli    = reshape(dat.variance.stimuli, [27 5 5]);
+% dat.variance.explained  = reshape(dat.variance.explained, [27 5 5]);
 
 % first, average across sessions for each person
-subplot(4,4,[1 2]); hold on; 
-colors = cbrewer('seq', 'Greens', 10); colors = colors(4:end, :);
-for s = 1:5,
-    plot(squeeze(mean(dat.variance.stimuli(:, :, s))), ...
-       100* squeeze(mean(dat.variance.explained(:, :, s))), ...
-        '-', 'color', colors(s, :));
+% http://stackoverflow.com/questions/36965637/matlab-compute-average-value-corresponding-to-each-column-number-in-matrix
+dat.newvariance.stimuli     = [0.625 1.25 2.5 5 10 20 30];
+dat.newvariance.explained   = nan(27, length(dat.newvariance.stimuli));
+for sj = 1:27,
+    A = [dat.variance.stimuli(sj, :)' dat.variance.explained(sj, :)'];
+    [Aunq,~,Aind] = unique(A(:,1));
+    B = [Aunq,accumarray(Aind,A(:,2),[],@mean)] * 100; % percentage of motion coherence and of history contribtuion
+    dat.newvariance.explained(sj, ismember(dat.newvariance.stimuli, B(:, 1))) = B(:, 2);
 end
+
+subplot(4,4,[1 2]); hold on;
+colors = cbrewer('seq', 'Greens', 10); colors = colors(8:end, :);
+boundedline(dat.newvariance.stimuli, ...
+    squeeze(nanmean(dat.newvariance.explained)), ...
+    squeeze(nanstd(dat.newvariance.explained)) ./ sqrt(sum(~isnan(dat.newvariance.explained))), ...
+    'cmap', colors(1, :));
 xlabel('\Delta motion coherence'); ylabel('History contribution (%)');
-l = legend({'2', '3', '4', '5', '6'}, 'Location', 'EastOutside');
-l.Box = 'off';
+
 print(gcf, '-dpdf', sprintf('%s/Figures/historyContribution.pdf', mypath));
 
 %% there you go! get in touch if you have any further questions.

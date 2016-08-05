@@ -62,6 +62,12 @@ grandavg = join(grandavg, rowfun(@nanmean, data(corrtrls, :), 'inputvariables', 
     'groupingvariables', {'subjnr', 'prevPupilBins'}, 'outputvariablenames', {'slowingCorrect'}), ...
     'keys', {'subjnr', 'prevPupilBins'});
 
+% see if there is PES regardless of pupil size
+PES = rowfun(@nanmean, data(errtrls, :), 'inputvariables', {'rt'}, ...
+    'groupingvariables', {'subjnr',}, 'outputvariablenames', {'slowingError'});
+
+[h, p, ci, stats] = ttest(PES.slowingError);
+
 %% plot all of those
 plotVars = {'bias', 'absbias', 'RT', 'accuracy', 'slowingError'};
 for p = 1:length(plotVars),
