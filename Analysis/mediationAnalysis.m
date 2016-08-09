@@ -196,6 +196,9 @@ switch whichLanguage,
         % an output file will be saved from R
         system('/Library/Frameworks/R.framework/Resources/bin/R < MediationLavaan.R --no-save');
         dat = readtable(sprintf('%s/Data/CSV/SEMdata_lavaan.csv', mypath));
+        
+        %plotBetasSwarm(dat{:, 2:end})
+        %set(gca, 'xtick', 1:11, 'xticklabel', dat.Properties.VariableNames(2:end))
 end
 
 % =================================================== %
