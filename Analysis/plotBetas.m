@@ -9,17 +9,16 @@ global mypath;
 hold on;
 for i = 1:size(beta, 2),
     bar(i, squeeze(nanmean(beta(:, i))), ...
-        'edgecolor', 'none', 'facecolor', colors(i, :));
+        'edgecolor', 'none', 'facecolor', [0.8 0.8 0.8], 'barwidth', 0.4);
 end
-set(gca, 'xcolor', 'k', 'ycolor', 'k');
 
 % add paired datapoints
-hold on;
-plot(beta', '.-', 'color', [0.6 0.6 0.6], 'linewidth', 0.2);
-axis tight; xlim([0.5 size(beta,2) + 0.5]);
-ylims = get(gca, 'ylim');
-yrange = range(ylims);
-ylim([ylims(1) - yrange*0.1 ylims(2) + yrange*0.1]);
+% hold on;
+% plot(beta', '.-', 'color', [0.6 0.6 0.6], 'linewidth', 0.2);
+% axis tight; xlim([0.5 size(beta,2) + 0.5]);
+% ylims = get(gca, 'ylim');
+% yrange = range(ylims);
+% ylim([ylims(1) - yrange*0.1 ylims(2) + yrange*0.1]);
 
 % add error bars for SEM
 h = ploterr(1:size(beta, 2), squeeze(nanmean(beta)), [], ...
@@ -31,8 +30,10 @@ ylabel('Beta weights (a.u.)');
 
 % stats
 % slopes
-[~, pval(1), ~, stat] = ttest(beta(:, 1), 0, 'tail', 'both');
-mysigstar(gca, 1, max(get(gca, 'ylim')), pval(1));
+for i = 1:size(beta, 2),
+    [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
+    mysigstar(gca, i, max(get(gca, 'ylim')), pval);
+end
 
 if size(beta,2) == 2,
     [~, pval(2), ~, stat] = ttest(beta(:, 2), 0, 'tail', 'both');

@@ -83,7 +83,7 @@ for m = 1:length(mods),
 end
 
 % important: if you want the quick and dirty version without accurate
-% individual errorbars, change -n1000 to n-10. Otherwise, the code will run 
+% individual errorbars, change -n1000 to -n10. Otherwise, the code will run 
 % bootstraps which can take quite a while.
 
 %% get the output back into something Matlab can work with

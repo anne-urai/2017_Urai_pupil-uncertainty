@@ -32,7 +32,7 @@ yrange = range(ylims);
 ylim([ylims(1) - yrange*0.2 ylims(2) + yrange*0.1]);
 
 [h, p, ci, stats] = ttest2(mat(subjects{1}), mat(subjects{2}));
-mysigstar(gca, [1 2], min(get(gca, 'ylim')), p);
+mysigstar(gca, [1 2], max(get(gca, 'ylim')), p);
 
 end
 

@@ -60,25 +60,40 @@ for sj = (subjects),
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
     
+    % generate block nrs, NOT identical to session nrs! History effects
+    % should not continue beyond a block
+    blockchange = find(diff(t.trialnr) < 0);
+    blocknrs = zeros(height(t), 1);
+    for b = 1:length(blockchange)-1,
+        blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
+    end
+    blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
+   
+    % z-score RT within each block
+    t.rtNorm = t.rt; % keep the real RT in ms (the units make less sense after z-scoring)
+    for b = unique(blocknrs)',
+        t.rtNorm(blocknrs == b)         = zscore(log(t.rtNorm(blocknrs == b) + 0.1));
+    end
+    
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     disp(['finished sj ' num2str(sj)]);
-    alldat{find(sj==subjects)} = newtrl;
-    
+    alldat{find(sj==subjects)} = t;
+    toc;
 end
 
 if length(subjects) > 5,
     disp('writing to file...');
     alldat2 = cat(1, alldat{:});
     
-    % write to csv for all subjects
-    t = array2table(alldat2, 'VariableNames', ...
-        {'stim', 'coherence',  'difficulty', 'motionstrength', ...
-        'resp', 'rt', 'correct', 'correctM', ...
-        'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
-    
-    writetable(t, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+    %     % write to csv for all subjects
+    %     t = array2table(alldat2, 'VariableNames', ...
+    %         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
+    %         'resp', 'rt', 'correct', 'correctM', ...
+    %         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
+    %         'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
+
+    writetable(alldat2, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 end
 
 end

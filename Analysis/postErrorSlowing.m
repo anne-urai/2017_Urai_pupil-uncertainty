@@ -23,7 +23,7 @@ for sj = unique(data.subjnr)',
     data.rt(sj == data.subjnr)      = zscore(log(data.rt(sj == data.subjnr) + 0.1));
 end
 
-% dont include ones that cross
+% dont include ones that cross blocks 
 data.prevPupilBins([0; diff(data.trialnr)] ~= 1) = NaN;
 
 % recode

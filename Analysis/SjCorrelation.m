@@ -14,26 +14,29 @@ plot([-1 1], [0 0], 'color', [0.5 0.5 0.5], 'linewidth', 0.2);
 plot([0 0 ], [-1 1], 'color', [0.5 0.5 0.5], 'linewidth', 0.2);
 
 % or without errorbars
-scatter(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
+% scatter(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 10, mycolmap, 'filled');
 
 [rho, pval] = corr(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 'type', 'pearson');
+p = polyfit(dat.response(:, 1), dat.([whichweight '_' whichmodulator])(:, 1), 1); % for regression line
+y1 = polyval(p,[-1 1]);
+
 if pval < 0.05,
-    l = lsline; l.Color = 'k';
-    l.LineStyle = '-';
+    l = plot([-1 1], y1); l.Color = 'k';
+    l.LineStyle = '-'; l.LineWidth = 1;
 else
-    l = lsline; l.Color = 'k';
-    l.LineStyle = ':';
+    l = plot([-1 1], y1); l.Color = 'k';
+    l.LineStyle = ':'; l.LineWidth = 1;
 end
 
 % plot with errorbars
-for sj = 1:27, 
+for sj = 1:27,
     hold on;
     % the CI fields have absolute bounds, lower and upper
     h = ploterr(dat.response(sj, 1), dat.([whichweight '_' whichmodulator])(sj, 1), ...
         {dat.responseCI(sj, 1, 1) dat.responseCI(sj, 1, 2)}, ...
-        {dat.([whichweight '_' whichmodulator 'CI'])(sj, 1, 1) ... 
+        {dat.([whichweight '_' whichmodulator 'CI'])(sj, 1, 1) ...
         dat.([whichweight '_' whichmodulator 'CI'])(sj, 1, 2)}, '.', 'abshhxy', 0);
-    set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :), 'markersize', 1);
+    set(h(1), 'color', mycolmap(sj, :), 'markerfacecolor', mycolmap(sj, :), 'markersize', 10);
     set(h(2), 'color', mycolmap(sj, :), 'linewidth', 0.5);
     set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
 end
@@ -42,12 +45,30 @@ title(sprintf('r = %.3f, p = %.3f', rho, pval));
 ylim([-0.45 0.25]); set(gca, 'ytick', [-.4:0.2:0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
 
+% indicate intercept from regression line
+
 switch whichmodulator
     case 'pupil'
-        ylabel('Pupil');
+        ylabel('Pupil * choice weight');
+        
+        % indicate intercept on the left y axis
+        text(-0.56, p(2), '>');
+        
     case 'rt'
-        ylabel('RT');
+        ylabel('RT * choice weight');
         xlabel('Choice weight');
+        
+        % move the axis to the right
+        ax = gca;
+        ax.YLabel.Rotation = 270;
+        ax.YAxisLocation = 'right';
+        
+        % annotate on the right
+        text(0.52, p(2), '<');
+        
+        %  axpos = ax.YLabel.Position;
+        %  axpos(1) = axpos(1) + 2;
+        %  ax.YLabel.Position = axpos;
         
         % between subject stuff
         y1 = dat.([whichweight '_pupil'])(:, 1);
@@ -61,6 +82,7 @@ switch whichmodulator
         [pval, deltaR] = permtest_correlation(x, y1, y2, 0, 1000);
         
         % importantly, in this case they return the same value
+        fprintf('delta r = %.3f, p = %.3f', deltaR, pval);
 end
 axis square; box on;
 
