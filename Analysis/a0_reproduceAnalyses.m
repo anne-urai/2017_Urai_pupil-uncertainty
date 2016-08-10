@@ -9,6 +9,7 @@ usr = getenv('USER');
 switch usr
     case 'aurai' % uke cluster
         mypath = '~/Data/pupilUncertainty';
+        addpath('~/code/pupilUncertainty/Analysis/');
     case 'anne' % macbook pro
         mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
         addpath(genpath('~/Dropbox/code/Tools/'));
