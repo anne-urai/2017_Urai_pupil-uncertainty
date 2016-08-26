@@ -42,9 +42,9 @@ for lag = whichLags,
             case 'dec+fbpupil'
                 data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
             case 'pupil',
-                data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
+                data.decision_pupil = projectout(data.decision_pupil, zscore(data.rtNorm));
             case 'rt'
-                data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
+                data.rt = projectout(zscore(data.rtNorm), data.decision_pupil);
             case 'evidence'
                 data.evidence       = abs(data.motionstrength);
             case 'baseline_pupil' 
@@ -197,7 +197,7 @@ stats = rm_anova(y1(:), s(:), f);
 % mysigstar(gca, [1 nbins], [0.53 0.53], stats.f1xf2.pvalue, 'k', 'down');
 
 switch whichMod
-    case 'pupil'
+    case 'decision_pupil'
         xlabel('Previous trial pupil');
     case 'baseline_pupil'
         xlabel('Baseline pupil');

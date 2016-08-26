@@ -2,8 +2,6 @@ function [] = PupilUncertaintyTimecourse(plotAll)
 % 3. timecourse of regression betas, separately for correct and error
 
 global mypath;
-doStats             = true; % permutation statistics across the group - this takes a while!
-plotIndividual      = false; % plots all the individual beta timecourses, takes forever
 if ~exist('plotall', 'var'); plotAll = false; end % in principle, only the main evidence strength regressor
 
 subjects = 1:27;
@@ -21,7 +19,6 @@ colors = colors([1 2 9], :); % red blue grey
 if exist(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath), 'file'), ...
         load(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath)); % dont redo, takes time;
 else
-    if plotIndividual, figure; end
     for sj = unique(subjects),
         
         pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(3).lock.label, 'EyePupil')==1);
@@ -59,9 +56,9 @@ else
             thistabledat = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
             trls = find(thistabledat(:, 8) == cors(c));
             
-            % add log(RT) as another predictor
+            % add zscored log(RT) as another predictor
             designM = [ones(length(trls), 1) zscore(abs(thistabledat(trls, 4))) ...
-                zscore(log(thistabledat(trls, 6)+0.1))];
+                zscore(thistabledat(trls, 15))];
             
             % regress for each sample
             for s = 1:size(tl, 2),
@@ -80,36 +77,9 @@ else
             end
         end
         
-        if plotIndividual,
-            % plot this sj
-            subplot(6,5,find(sj==subjects));
-            boundedline(1:length(signific), squeeze(grandavg.beta(find(sj==subjects), :, :, 2)), ...
-                permute(squeeze(grandavg.bint(find(sj==subjects), :, :, 2)), [2 3 1]), 'cmap', colors, 'alpha');
-            axis tight;
-            set(gca, 'TickDir', 'out', 'XLim', [0 size(grandavg.beta, 3)], 'box', 'off');
-            ylims = get(gca, 'ylim');
-            plot(find(signific(1, :)<0.05), ylims(1)-0.2*ones(1, length(find(signific(1, :)<0.05))), '.', 'color', colors(1, :));
-            plot(find(signific(2, :)<0.05), ylims(1)-0.3*ones(1, length(find(signific(2, :)<0.05))), '.', 'color', colors(2, :));
-            
-            plotLines(pupilgrandavg.timelock{1}(1).lock, [0], ...
-                pupilgrandavg.timelock{1}(2).lock, [0], ...
-                pupilgrandavg.timelock{1}(3).lock, [0 1], ...
-                pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
-            set(gca, 'xticklabel', []);
-        end
     end
-    
-    if plotIndividual,
-        % subfunction to put lines and xlabels at the right spots
-        suplabel('Time (s)', 'x');
-        suplabel('Beta (a.u.)', 'y');
-        
-        if RTstratification,
-            suplabel('Beta of coherence with RT as additional predictor', 't');
-        else
-            suplabel('Beta of coherence', 't');
-        end
-    end
+    % save for next time
+    savefast(sprintf('%s/Data/GrandAverage/pupilRegressionBetas.mat', mypath), 'grandavg', 'signific'); % dont redo, takes time;
 end
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,4 +1,4 @@
-function [ stimuli] = dots_limitedlifetime(setup, window, dots, block, trial)
+function [stimuli] = dots_limitedlifetime(setup, window, dots, block, trial)
 
 % Generates a dot patch according to a limited lifetime
 % algorithm, see:
@@ -49,6 +49,7 @@ for var = 1:NVAR, %create separate variants
         t1                  = rand(NDOTS,1);
         [t1,t2]             = sort(t1);
         noiseindex          = t2(1:noisedots); %random subset of dots
+        
         % define signal dots
         signalindex         = t2(noisedots+1:end); %the dots that are signal
         

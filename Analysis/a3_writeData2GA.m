@@ -42,8 +42,12 @@ for sj = fliplr(subjects),
     % merge all 6 sessions
     mdats          = cat(1, mdats{:});
     trl            = data.trialinfo;
-    trl(:, 15)     = zeros(size(trl(:,14)));
     
+    % preallocate
+    trl(:, 15)     = nan(size(trl(:,14)));
+    trl(:, 16)     = nan(size(trl(:,14)));
+    trl(:, 17)     = nan(size(trl(:,14)));
+
     % correct for a weird mistake
     if sj == 3,
         trl(find(abs(trl(:, 4) - 0.01) < 0.00001), 4) = 0.0125;
@@ -65,9 +69,13 @@ for sj = fliplr(subjects),
             assert(trl(t,3) .* trl(t,4) - mdats.stim(thist) < 0.001);
             % then add to the trlinfo
             trl(t,15) = mdats.strength(thist);
+            trl(t,16) = mdats.int1(thist);
+            trl(t,17) = mdats.int2(thist);
         catch
             disp('could not match trials!');
             trl(t, 15) = 0; % fill with nan for now
+            trl(t, 16) = 0; % fill with nan for now
+            trl(t, 17) = 0;
         end
     end
     
@@ -80,6 +88,8 @@ for sj = fliplr(subjects),
             wrongtrials = [find(trl(:, 14) == 1); find(trl(:, 14) == 2 & trl(:, 13) > 1)];
         end
         trl(wrongtrials, 15) = 0;
+        trl(wrongtrials, 16) = 0;
+        trl(wrongtrials, 17) = 0;
         
         % this seems to go wrong!
         fprintf('sj %d, %d trials without match found \n', sj, length(find(trl(:, 15)==0)));
@@ -148,9 +158,40 @@ for sj = fliplr(subjects),
     % remove sample idx
     newtrl(:, [1 2 6 9 10 11]) = [];
     
+    % generate block nrs, NOT identical to session nrs! History effects
+    % should not continue beyond a block
+    blockchange = find(diff(newtrl(:, 6)) < 0);
+    blocknrs = zeros(size(newtrl, 1), 1);
+    for b = 1:length(blockchange)-1,
+        blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
+    end
+    blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
+    
+    % z-score RT within each block
+    rtNorm = RT; % keep the real RT in ms (the units make less sense after z-scoring)
+    for b = unique(blocknrs)',
+        rtNorm(blocknrs == b)         = zscore(log(rtNorm(blocknrs == b) + 0.1));
+    end
+    
     % add in reaction times and newcorrect
     newtrl = [newtrl(:, [1:3]) newtrl(:, 9) newtrl(:, 4) RT newtrl(:, 5)...
-        newtrl(:, 10) newtrl(:, [6:8]) trialinfo(:, 1)];
+        newtrl(:, 12) newtrl(:, [6:8]) trialinfo(:, 1) newtrl(:, [10 11]) rtNorm];
+    
+    %     order is now:
+    %     1. stimulus identity
+    %     2. coherence
+    %     3. difficulty level
+    %     9. motionstrength (difference)
+    %     4. choice
+    %     5. feedback
+    %     12. newcorrect
+    %     6. trial nr
+    %     7. block nr
+    %     8. session nr
+    %     baseline pupil
+    %     10. motion int1
+    %     11. motion int2
+    %     12. normalized RT per block
     
     % replace
     timelock(4).lock.trialinfo = newtrl;

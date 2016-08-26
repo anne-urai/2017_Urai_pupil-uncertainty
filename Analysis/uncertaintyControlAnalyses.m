@@ -4,7 +4,12 @@ global mypath;
 mypath = '/Users/anne/Data/pupilUncertainty_FigShare';
 
 % fixed effects
-data = addUncertainty2data;
+%data = addUncertainty2data;
+data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+data.evidence       = data.coherence;
+repetition          = (diff(data.resp) == 0);
+data.repeat         = [repetition; NaN];
+
 CorrelationMatrixUncertainty(data);
 % scatter3dBinned(data); % explore this in 3d
 

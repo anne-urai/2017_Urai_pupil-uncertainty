@@ -19,7 +19,7 @@ for i = 1:2,
             colors = mycolmap(3,:);
             
     end
-    plotBetasSwarmUnpaired(i, mat(subjects{i}, :), colors)
+    plotBetasSwarmUnpaired(i, mat(subjects{i}, :), colors);
 end
 
 % do stats between them
@@ -31,8 +31,9 @@ ylims = get(gca, 'ylim');
 yrange = range(ylims);
 ylim([ylims(1) - yrange*0.2 ylims(2) + yrange*0.1]);
 
-[h, p, ci, stats] = ttest2(mat(subjects{1}), mat(subjects{2}));
-mysigstar(gca, [1 2], max(get(gca, 'ylim')), p);
+% unpaired permutation test
+pval = permtest2(mat(subjects{1}), mat(subjects{2}));
+mysigstar(gca, [1 2], max(get(gca, 'ylim')), pval);
 
 end
 
@@ -56,7 +57,9 @@ ylabel('Beta weights (a.u.)');
 xlim([0.5 size(beta,2) + 0.5]);
 axis tight;
 box off;
-[~, pval, ~, stat] = ttest(beta, 0, 'tail', 'both');
+
+% single sample permutation test
+pval = permtest(beta);
 mysigstar(gca, i, min(get(gca, 'ylim')), pval);
 
 end

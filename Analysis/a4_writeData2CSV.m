@@ -22,7 +22,7 @@ for sj = (subjects),
     % ==================================================================
     
     newtrl = pupilgrandavg.timelock{sj}(4).lock.trialinfo;
-    newtrl = [newtrl(:, 1:11) sj*ones(length(newtrl), 1) newtrl(:, 12)];
+    newtrl = [newtrl(:, 1:11) sj*ones(length(newtrl), 1) newtrl(:, 12:15)];
     
     % ==================================================================
     % get pupil scalars
@@ -58,23 +58,10 @@ for sj = (subjects),
         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
         'resp', 'rt', 'correct', 'correctM', ...
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
-        'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
-    
-    % generate block nrs, NOT identical to session nrs! History effects
-    % should not continue beyond a block
-    blockchange = find(diff(t.trialnr) < 0);
-    blocknrs = zeros(height(t), 1);
-    for b = 1:length(blockchange)-1,
-        blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
-    end
-    blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
-   
-    % z-score RT within each block
-    t.rtNorm = t.rt; % keep the real RT in ms (the units make less sense after z-scoring)
-    for b = unique(blocknrs)',
-        t.rtNorm(blocknrs == b)         = zscore(log(t.rtNorm(blocknrs == b) + 0.1));
-    end
-    
+        'baseline_pupil', ...
+        'int1motion', 'int2motion', 'rtNorm', ...
+        'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
+
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     disp(['finished sj ' num2str(sj)]);

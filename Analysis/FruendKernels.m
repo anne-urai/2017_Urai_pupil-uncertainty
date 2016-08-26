@@ -53,24 +53,17 @@ if strcmp(whichmodulator, 'plain') && strcmp(field, 'response'),
     ylabel(ax(1),'Choice weight') % label left y-axis
     ylabel(ax(2),'|Choice weight|') % label right y-axis
     
-else
+elseif strcmp(field, 'response_pupil'),
     
-    plot(1:7, nanmean(dat.(field)), 'k', 'linewidth', 1);
-    axis square;
-    set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', ...
-        [-0.2 0 0.2], 'ylim', [-.25 .25], 'xlim', [0.5 7.5], ...
-        'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
-    ylabel('Pupil * choice weight');
     
-    if strcmp(field, 'response_pupil'),
-        % indicate significance for each lag
-        clear h;
-        for s = 1:size(dat.(field), 2),
-            h(s) = ttest(dat.(field)(:, s));
-        end
-        h(h < 1) = NaN;
-        plot(1:7, -0.2*h, 'k.', 'markersize', 5);
+    % indicate significance for each lag
+    clear h;
+    for s = 1:size(dat.(field), 2),
+        h(s) = ttest(dat.(field)(:, s));
     end
+    h(h < 1) = NaN;
+    plot(1:7, -0.2*h, 'k.', 'markersize', 5);
+
 end
 xlabel('Lags');
 end

@@ -1,6 +1,6 @@
 function y = Weibull(p, x)
-% Parameters:  p(1) slope
-%             p(2) threshold yeilding ~80% correct
+% Parameters: p(1) slope
+%             p(2) threshold yielding ~80% correct
 %             p(3) lapse rate
 %             x   intensity values.
 

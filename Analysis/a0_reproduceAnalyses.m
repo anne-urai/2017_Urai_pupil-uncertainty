@@ -93,27 +93,23 @@ for m = 1:length(mods),
     a6_retrieveDataFromPython(mods{m}); 
 end
 
-%% reproduce figures 4,5,6 based on the model fits
+%% reproduce figures 4 and 5 based on the model fits
 close all;
 figure4;
 
 close all;
 figure5;
 
-% confirm that pupil only changes sequential biases
-postErrorSlowing;
-
-close all; 
-figure6;
-
 %% also create the supplementary figures
-figureS2_RT;
-figureS4_History_CorrectError;
-figureS3_feedbackpupil;
-figureS5_pupilResponseLagged;
-figureS5_scatterIndividual; 
-figureS6_performanceOverSessions;
-mediationAnalysis;
+figureS1_RT;
+figureS2_performanceOverSessions;
+figureS3_pupilUncertainty;
+figureS4_BiasIllustration;
+figureS5_History_CorrectError;
+figureS6_pupilResponseLagged;
+figureS7_feedbackpupil;
+figureS8_scatterIndividual; 
+% mediationAnalysis;
 figureS1_MotionEnergy_Filters;
 
 %% analyze some final stuff that's not in the figures
@@ -179,9 +175,9 @@ print(gcf, '-dpdf', sprintf('%s/Figures/baselinePupil.pdf', mypath));
 
 % 9. does figure 6 depend on running pupil and RT in the same model?
 subplot(5,5,1); rho1 = SjCorrelation('pupil', 'response', 'pupil');
-ylabel('Pupil * choice weight');
+ylabel('Pupil x choice weight');
 subplot(5,5,2); rho2 = SjCorrelation('pupil', 'response', 'rt');
-ylabel('RT * choice weight'); set(gca, 'yaxislocation', 'right');
+ylabel('RT x choice weight'); set(gca, 'yaxislocation', 'right');
 suplabel('Choice weight', 'x');
 
 % unpaired test between rho's (because the fitted choice weights are not
@@ -206,7 +202,7 @@ for sj = 1:27,
     dat.newvariance.explained(sj, ismember(dat.newvariance.stimuli, B(:, 1))) = B(:, 2);
 end
 
-subplot(4,4,[1 2]); hold on;
+subplot(4,4,1); hold on;
 colors = cbrewer('seq', 'Greens', 10); colors = colors(8:end, :);
 boundedline(dat.newvariance.stimuli, ...
     squeeze(nanmean(dat.newvariance.explained)), ...

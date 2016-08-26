@@ -64,16 +64,32 @@ if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypa
     end
 end
 
-% plot the history kernels
+% plot the history kernels, only mean +- sem
 for s = 2:6,
     subplot(5,5,s-1+10);
+    load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, sprintf('plain_session%d', s)));
+    boundedline(1:7, mean(dat.response), std(dat.response) ./ sqrt(27), 'k');
+    
+    set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.2 0 0.2], ...
+        'ylim', [-.2 .2], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
+    ylabel('');
+    if s == 2, ylabel('Choice weight'); else set(gca, 'yticklabel', []); end
+    set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+    xlabel('Lags'); axis square;
+end
+
+% plot history kernels, only individual data
+for s = 2:6,
+    subplot(5,5,s-1+15);
     FruendKernels(sprintf('plain_session%d', s), 'response');
     set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.7 0 0.7], ...
         'ylim', [-.75 .7], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
     ylabel('');
-    if s == 2, ylabel('Choice weight'); end
+    if s == 2, ylabel('Choice weight'); else set(gca, 'yticklabel', []); end
     set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
+    axis square;
 end
+
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
 

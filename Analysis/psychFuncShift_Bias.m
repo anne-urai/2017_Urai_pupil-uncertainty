@@ -41,9 +41,9 @@ for sj = unique(subjects),
             data.decision_pupil = projectout(data.decision_pupil, zscore(log(data.rt + 0.1)));
         case 'baseline_pupil'
             % move to previous trial so that we split by current trial baseline
-            data.baseline_pupil = circshift((data.baseline_pupil), -1);
+            data.baseline_pupil = circshift(data.baseline_pupil, -1);
         case 'rt'
-            data.rt = projectout(zscore(log(data.rt+0.1)), data.decision_pupil);
+            data.rt = projectout(zscore(data.rtNorm), data.decision_pupil);
         case 'evidence'
             % single-trial evidence strength is absolute motionenergy
             data.evidence = abs(data.motionstrength);
@@ -202,7 +202,7 @@ xticklabs{end} = 'high';
 if nbins == 3, xticklabs{2} = 'med'; end
 
 set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
-    'xticklabel', xticklabs, 'ylim', [0.48 0.56], 'ytick', [0.5 0.56], ...
+    'xticklabel', xticklabs, 'ylim', [0.47 0.56], 'ytick', [0.48:0.02:0.56], ...
     'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
 
 if length(subjects) > 1,
@@ -212,6 +212,7 @@ if length(subjects) > 1,
     f{1} = ft(:);
     stats = rm_anova(y1(:), s(:), f);
     mysigstar(gca, [1 nbins], [0.55 0.55], stats.f1.pvalue, 'k', 'down');
+    disp(stats.f1.pvalue);
 else
     axis tight; xlim([0.5 nbins+0.5]);
 end

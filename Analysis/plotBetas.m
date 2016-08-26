@@ -9,7 +9,7 @@ global mypath;
 hold on;
 for i = 1:size(beta, 2),
     bar(i, squeeze(nanmean(beta(:, i))), ...
-        'edgecolor', 'none', 'facecolor', [0.8 0.8 0.8], 'barwidth', 0.4);
+        'edgecolor', 'none', 'facecolor', colors(i, :), 'barwidth', 0.4);
 end
 
 % add paired datapoints
@@ -31,16 +31,15 @@ ylabel('Beta weights (a.u.)');
 % stats
 % slopes
 for i = 1:size(beta, 2),
-    [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
+   % [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
+    pval = permtest(beta(:, i));
+    disp(pval);
     mysigstar(gca, i, max(get(gca, 'ylim')), pval);
 end
 
 if size(beta,2) == 2,
-    [~, pval(2), ~, stat] = ttest(beta(:, 2), 0, 'tail', 'both');
-    [~, pval(3), ~, stat] = ttest(beta(:,1), beta(:,2));
-    
-    mysigstar(gca, 2, max(get(gca, 'ylim')), pval(2));
-    mysigstar(gca, [1 2], max(get(gca, 'ylim'))*1.1, pval(3));
+    pval = permtest(beta(:, 1), beta(:, 2));
+    mysigstar(gca, [1 2], max(get(gca, 'ylim'))*1.1, pval);
 end
 
 end

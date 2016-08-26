@@ -31,7 +31,7 @@ for r = 1:2,
     % get an overall logistic fit
     b = glmfit(thisdat.motionstrength, thisdat.resp, ...
         'binomial','link','logit');
-    xvals = -3:0.1:3;
+    xvals = -4:0.1:4;
     psychCurve(r, :) = glmval(b, xvals, 'logit');
 end
 

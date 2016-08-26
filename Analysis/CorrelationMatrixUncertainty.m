@@ -5,13 +5,20 @@ global mypath;
 % correlate all to all!
 % =================================================== %
 close all;
-nbins = 5;
-whichVars = {'evidence', 'uncertainty', 'decision_pupil', 'rt', 'repeat'};
+nbins = 3;
+whichVars = {'evidence', 'decision_pupil', 'rt', 'repeat'};
 %whichVars = {'evidence', 'decision_pupil', 'repeat'};
 
-colors = cbrewer('qual', 'Set1', 3);
-for correctness = [0 1],
-    thisdat   = data((data.correct == correctness), :);
+colors = [cbrewer('qual', 'Set1', 2); [0 0 0]];
+colors = colors([1 2 4], :);
+
+for correctness = [0 1 2],
+    
+    if correctness < 2,
+        thisdat   = data((data.correct == correctness), :);
+    else
+        thisdat = data;
+    end
     nsubpl    = length(whichVars);
     
     for i = 1:nsubpl,
@@ -69,7 +76,7 @@ for correctness = [0 1],
             if i > 1 && j ~= i,           set(gca, 'ytick', []); end
             
             if strcmp(whichVars{j}, 'repeat') && j ~= i, ...
-                    set(gca, 'ylim', [0.47 0.56], 'ytick', 0.5, 'ygrid', 'on');
+                    set(gca, 'ylim', [0.47 0.56], 'ytick', [0.48:0.02:0.56], 'ygrid', 'on');
             end
             set(gca, 'tickdir', 'out', 'box', 'off');
         end

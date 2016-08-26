@@ -1,10 +1,10 @@
-function [] = figure1
+function [] = figure1b
 % generate figures to show the uncertainty model from Kepecs et al. 2008
+% in this version, rather than fitting on my data, use Kepecs parameters
 %
 % Anne Urai, 2015
 
 global mypath;
-close all;
 
 % grey shades for different levels of difficulty
 gr1 = [0.2 0.2 0.2];
@@ -14,38 +14,21 @@ gr2 = [0.6 0.6 0.6];
 % 1. decision variable
 % ==================================================================
 
-% sigma from data
-data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-b = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
+% sigma from data - as in Kepecs
+data    = table;
+a       = linspace(0.1, 99.1, 100000);
+b       = fliplr(a);
+data.motionstrength = log(a ./ b);
 
 % standard deviation at these values is the inverse!
-sigma = 1/b(2);
-stim = -15:0.01:15; % x axis for distributions
+sigma = 0.5;
+
+% our stimuli range from -6 to 6
+stim = -6:0.01:6;
 
 % simulate two motionstrength items
-strength1 = 4;
-strength2 = 1;
-
-if 0,
-    hold on;
-    [binsM, binsR] = divideintobins(data.motionstrength, (data.resp > 0), 3);
-    plot(binsM, binsR, '.'); hold on;
-    y = glmval(b, sort(data.motionstrength),  'probit');
-    % this is the code used by glmval
-    % eta = x*beta + offset;
-    % lowerBnd = norminv(eps(dataClass)); upperBnd = -lowerBnd;
-    % ilink = @(eta) normcdf(constrain(eta,lowerBnd,upperBnd));
-
-    plot(sort(data.motionstrength), y, '.');
-    
-    % how to transfer probit measures into normcdf params?
-    plot(sort(data.motionstrength), normcdf(sort(data.motionstrength), b(1), 1/b(2)), '.');
-    plot(sort(data.motionstrength), normcdf(sort(data.motionstrength), -b(1), 1/b(2)), '.');
-    
-    grid on; xlim([-0.05 0.05]);
-    legend({'data', 'glmval', 'normpdf1', 'normpdf2'});
-
-end
+strength1 = 1;
+strength2 = 0.3;
 
 s1 = normpdf(stim, -strength1, sigma);
 s2 = normpdf(stim,  strength1, sigma);
@@ -58,15 +41,15 @@ p(1).Color = gr1; p(2).Color = gr1;
 p(3).Color = gr2; p(4).Color = gr2;
 
 hold on;
-pt = 6;
+pt = 1.8; % illustrate a single DV
 plot(pt, s2(dsearchn(stim', pt)), '.', ...
     'MarkerFaceColor', gr1, 'MarkerEdgeColor', gr1, 'MarkerSize', 10);
 plot([pt pt], [0 s2(dsearchn(stim', pt))], 'color', gr1, 'linestyle', ':');
 
-axis tight; ylim([0 0.2]);
+axis tight; xlim([-3 3]);
 ylabel('Probability density'); xlabel('Decision variable');
-text(-12, 0.18, 'Stimulus A');
-text(2, 0.18, 'Stimulus B');
+text(-2, 0.8, 'Stimulus A');
+text(2, 0.8, 'Stimulus B');
 
 % add legend
 l = legend([p(3), p(1)], {'weak', 'strong'});
@@ -75,7 +58,7 @@ lpos(1) = lpos(1) + 0.12; % right
 lpos(2) = lpos(2) - 0.05; % down
 l.Position = lpos;
 l.Box = 'off';
-text(15, 0.16, 'Evidence');
+text(3, 0.16, 'Evidence');
 
 %offsetAxes(gca, 0.1, 1);
 set(gca, 'xtick', [0 pt], 'xticklabel', {'c', 'dv_i'}, ...
@@ -104,7 +87,7 @@ s4 = normpdf(stim,  strength2, sigma);
 p = plot(stim, s3, ':', stim, s4,  '-', zeros(1, 2), [0 max(s4)], 'k');
 p(1).Color = gr2; p(2).Color = gr2;
 
-axis tight; ylim([0 0.2]); 
+axis tight; xlim([-3 3]);
 ylabel('Probability density');
 title('Weak evidence');
 set(gca, 'ytick', [], 'xtick', [], 'box', 'off');
@@ -125,7 +108,7 @@ s4 = normpdf(stim,  strength1, sigma);
 p = plot(stim, s3, ':', stim, s4,  '-', zeros(1, 2), [0 max(s4)], 'k');
 p(1).Color = gr1; p(2).Color = gr1;
 
-axis tight; ylim([0 0.2]);
+axis tight; xlim([-3 3]);
 xlabel('Decision variable');
 set(gca, 'xtick', 0, 'xticklabel', {'c'}, ...
     'box', 'off', 'tickdir', 'out', 'ytick', []);
@@ -135,7 +118,7 @@ title('Strong evidence');
 % generate a measure of uncertainty for each sample
 % ==================================================================
 
-model.evs           = unifrnd(min(data.motionstrength), max(data.motionstrength), 1, 1e7);
+model.evs           = unifrnd(min(data.motionstrength), max(abs(data.motionstrength)), 1, 1e7);
 model.dvs           = model.evs + normrnd(0, sigma, size(model.evs));
 model.choice        = sign(model.dvs);
 model.correct       = (model.choice == sign(model.evs));
@@ -147,9 +130,9 @@ model.uncertainty   = 1 - model.confidence;
 % ==================================================================
 
 subplot(4,4,4); hold on;
-[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.confidence(model.correct == 1), 20);
+[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.confidence(model.correct == 1), 4);
 plot(stimlevs, confC, '-',  'color', cols(2, :));
-[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.confidence(model.correct == 0), 20);
+[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.confidence(model.correct == 0), 4);
 plot(stimlevs, confE, '-', 'color', cols(1, :));
 
 % also add some points
@@ -211,15 +194,12 @@ set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 % from Sanders, show accuracy vs confidence
 % ==================================================================
 
-nbins = 20;
-[unc, correct] = divideintobins(model.uncertainty, model.correct, nbins);
-
-subplot(5,5,11); cla; hold on;
-plot(correct*100, 'k-'); % show
+subplot(4,4,9); hold on;
+[unc, correct] = divideintobins(model.uncertainty, model.correct, 100);
+plot(unc, correct*100, 'k-');
 ylim([45 100]); set(gca, 'ytick', [50 75 100]); ylabel('Accuracy (%)');
-xlim([-0.02*nbins length(correct)]); xlabel('Uncertainty');
-plot([1 length(correct)], [50 50], 'color', [0.5 0.5 0.5], 'linewidth', 0.5, 'linestyle', ':'); 
-set(gca, 'xtick', [1 length(correct)], 'xticklabel', {'low', 'high'});
+xlim([-0.05 1.02]); xlabel('Uncertainty');
+plot([0 1], [50 50], 'color', [0.5 0.5 0.5], 'linewidth', 0.5, 'linestyle', ':'); hold on;
 box off; 
 
 % ==================================================================
@@ -228,7 +208,7 @@ box off;
 
 uncMed = quantile(model.uncertainty, 2); % median
 % PLOT
-subplot(5,5,16);
+subplot(4,4,10);
 hold on;
 colors(1,:) = [0.5 0.5 0.5];
 colors(2,:) = [0.2 0.2 0.2];
@@ -257,7 +237,8 @@ end
 set(gca, 'xlim', [-0.5 5.5], 'ylim', [45 100], 'ytick', 50:25:100);
 xlim([-0.5 5.5]); set(gca, 'xtick', [0 2.75 5.5], 'xticklabel', {'weak', 'medium', 'strong'}, 'xminortick', 'off');
 ylabel('Accuracy (%)'); xlabel('Evidence');
- box off; 
+ box off;
+
 l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
 legend boxoff;
 lpos = get(l, 'position');
@@ -265,6 +246,7 @@ lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);
 
 % save
+
 cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
 print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));
 

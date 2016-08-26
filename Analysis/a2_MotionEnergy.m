@@ -10,7 +10,6 @@ if ischar(sj), sj = str2double(sj); end
 
 global mypath;
 
-
 % create logfile (handy when running on the cluster, the script will find
 % which subject to work on by itself)
 cd(sprintf('%s/Data/P%02d/', mypath, sj));

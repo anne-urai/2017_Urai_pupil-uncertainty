@@ -18,10 +18,13 @@ for sj = subjects,
 
     % evidence strength
     data.motionstrength = (abs(data.motionstrength));
+    
 
-    % bin
-    [grandavg.ev(sj, :), grandavg.accuracy(sj, :)] = divideintobins(abs(data.motionstrength), data.correct, nbins);
-    [~, grandavg.rt(sj, :)] = divideintobins(data.motionstrength, data.rt, nbins);
+    % bin - this will return MEAN, not MEDIAN RTs
+    [grandavg.ev(sj, :), grandavg.accuracy(sj, :)] = ...
+        divideintobins(abs(data.motionstrength), data.correct, nbins, [], @nanmean);
+    [~, grandavg.rt(sj, :)] = ...
+        divideintobins(data.motionstrength, data.rt, nbins, [], @nanmedian);
 
 end
 
@@ -40,8 +43,9 @@ errorbar(ax(1), nanmean(grandavg.ev), 100*squeeze(nanmean(grandavg.accuracy)), .
     100*squeeze(nanstd(grandavg.accuracy)) ./ sqrt(length(subjects)), ...
     'color', cols(1,:), 'linewidth', 1);
 
-set(ax(1), 'xlim', [0 6], 'xtick', [1 3.5 6], 'ylim', [50 100], ...
-    'ytick', 50:25:100, 'box', 'off', 'ycolor', cols(1,:), 'xticklabel', {'weak', 'medium', 'strong'}); 
+set(ax(1), 'xlim', [0 5.5], 'xtick', [0.5 3 5.5], 'ylim', [45 101], ...
+    'ytick', 50:25:100, 'box', 'off', 'ycolor', ...
+    cols(1,:), 'xticklabel', {'weak', 'medium', 'strong'}); 
 xlabel(ax(1), 'Evidence');
 ylabel(ax(1), 'Accuracy (%)');
 axis(ax(1), 'square');
@@ -50,8 +54,9 @@ hold(ax(2), 'on');
 errorbar(ax(2), nanmean(grandavg.ev), squeeze(nanmean(grandavg.rt)), ...
     squeeze(nanstd(grandavg.rt)) ./ sqrt(length(subjects)), 'color', cols(2,:), 'linewidth', 1);
 
-set(ax(2), 'xlim', [0 6], 'xtick', [1 3.5 6], 'ylim', [0.25 0.6], ...
+set(ax(2), 'xlim', [0 5.5], 'xtick', [0.5 3 5.5], 'ylim', [0.23 0.56], ...
     'ytick', 0.25:0.15:0.55, 'box', 'off', 'ycolor', cols(2,:)); 
+
 xlabel(ax(2), 'Evidence');
 ylabel(ax(2), 'Reaction time (s)');
 axis(ax(2), 'square');

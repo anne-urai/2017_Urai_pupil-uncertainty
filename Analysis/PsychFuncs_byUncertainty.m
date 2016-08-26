@@ -30,9 +30,9 @@ for sj = subjects,
     % project RT out of the pupil and vice versa
     switch field
         case 'rt'
-            data.(field) = projectout(zscore(log(data.(field) + 0.1)), zscore(data.decision_pupil));
+            data.(field) = projectout(zscore(data.rtNorm), zscore(data.decision_pupil));
         case 'decision_pupil'
-            data.(field) = projectout(data.(field), zscore(log(data.rt + 0.1)));
+            data.(field) = projectout(data.(field), zscore(data.rtNorm));
     end
     
     % split by low and high RT

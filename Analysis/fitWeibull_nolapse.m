@@ -1,7 +1,7 @@
-function [slope, threshold, lapse] = fitWeibull(x,y)
+function [slope, threshold, lapse] = fitWeibull_nolapse(x,y)
 
 pBest = fminsearchbnd(@(p) cumWB_LL(p, ...
-    x, y), [1 3 0.01], [0 0 0], [3 6 1]);
+    x, y), [1 3 0], [0 0 0], [3 6 0]);
 
 slope       = pBest(1);
 threshold   = pBest(2);

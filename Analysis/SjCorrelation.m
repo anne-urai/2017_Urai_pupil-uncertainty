@@ -41,7 +41,9 @@ for sj = 1:27,
     set(h(3), 'color', mycolmap(sj, :), 'linewidth', 0.5);
 end
 
-title(sprintf('r = %.3f, p = %.3f', rho, pval));
+axis square; box on;
+
+title(sprintf('r = %.3f, p = %.3f', rho, pval), 'fontsize', 7, 'fontweight', 'normal');
 ylim([-0.45 0.25]); set(gca, 'ytick', [-.4:0.2:0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
 
@@ -84,6 +86,5 @@ switch whichmodulator
         % importantly, in this case they return the same value
         fprintf('delta r = %.3f, p = %.3f', deltaR, pval);
 end
-axis square; box on;
 
 end

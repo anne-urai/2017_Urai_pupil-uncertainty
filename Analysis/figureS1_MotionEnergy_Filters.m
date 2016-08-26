@@ -1,11 +1,15 @@
-function [] =  figS1_MotionEnergy_Filters()
+function [] =  figureS1_MotionEnergy_Filters()
 % show two motionenergy filters to describe the filtering process
 % Anne Urai, 2015
 
 global mypath;
 
 % get a random dataset
-load(sprintf('%s/Data/P17/Behav/P17_s1_2015-02-02_17-47-08.mat', mypath));
+try
+    load(sprintf('%s/Data/P17/Behav/P17_s1_2015-02-02_17-47-08.mat', mypath));
+catch
+    load('/Users/anne/Data/4Klaus/P7_s5_b10_2014-06-19_20-53-38.mat');
+end
 close all
 
 % to avoid window UI bugs
@@ -49,7 +53,6 @@ direc                 = dots.direction;
 counterdir            = dots.direction+180;
 if counterdir > 360, counterdir = counterdir - 360; end
 theta                 = [direc counterdir]; % only those two directions
-
 theta = [90]; % up, for visualization
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,6 +65,10 @@ theta = [90]; % up, for visualization
 x = cfg.srange(1) : 1/cfg.ppd : cfg.srange(2);  % range in space, in degree, spaced by the size in degree of one pixel
 y = cfg.srange(1) : 1/cfg.ppd : cfg.srange(2);  % range in space, in degree, spaced by the size in degree of one pixel
 t = cfg.trange(1) : 1/cfg.frameRate: cfg.trange(2);   % range in time, in s, spaced by framerate
+
+x = linspace(cfg.srange(1), cfg.srange(2), cfg.filtsize(1));
+y = linspace(cfg.srange(1), cfg.srange(2), cfg.filtsize(2));
+t = linspace(cfg.trange(1), cfg.trange(2), cfg.filtsize(3));
 
 % important: use an uneven nr of points, easier for the later convolution
 assert(mod(numel(x), 2) == 1, 'x should have an uneven nr of samples');
@@ -80,6 +87,7 @@ sg      = 0.05;
 
 % constants of the temporal filters
 k       = 60;
+k = 85;
 nslow   = 3;
 nfast   = 5;
 
@@ -118,8 +126,8 @@ lh = legend(ph2); % make t
 lh.String = {'\color[rgb]{0.915294117647059,0.281568627450980,0.287843137254902} g_1', ...
     '\color[rgb]{0.363921568627451,0.575529411764706,0.748392156862745} g_2'};
 
-box off; legend boxoff; axis tight; axis square;
-set(gca, 'xtick', [0 0.1 0.2], 'ytick', [-0.1 0.2]); offsetAxes;
+box off; legend boxoff; axisNotSoTight; axis square;
+set(gca, 'xtick', [0 0.1 0.2], 'ytick', [-0.1 0.2]); % offsetAxes;
 
 % spatial filters
 subplot(442);
@@ -134,9 +142,8 @@ lh = legend(ph2); % make t
 lh.String = {'\color[rgb]{0.915294117647059,0.281568627450980,0.287843137254902} f_1', ...
     '\color[rgb]{0.363921568627451,0.575529411764706,0.748392156862745} f_2'};
 legend boxoff;
-axis tight; axis square; box off;
-set(gca, 'xtick', [-0.7 0 0.7], 'ytick', [-2 3]); offsetAxes;
-
+ axis square; box off; axisNotSoTight;
+set(gca, 'xtick', [-0.7 0 0.7], 'ytick', [-2 3]); %offsetAxes;
 
 for thistheta = 90,
     
@@ -207,10 +214,10 @@ for thistheta = theta,
     filt1   = bsxfun(@times, f1rot, g1) + bsxfun(@times, f2rot, g2);
     filt2   = bsxfun(@times, f2rot, g1) - bsxfun(@times, f1rot, g2);
     
-  % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % plot info about the filters
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+    
     % their 4 combinations
     subplot(4,4,cnt);
     imagesc(x, t, squeeze(sum(filt1, 1))', [-.4 .4]);
