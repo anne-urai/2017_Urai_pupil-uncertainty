@@ -1,14 +1,12 @@
 # pupilUncertainty #
 
 This is the overall repository that replicates all analyses from
-_Urai AE, Braun A, Donner THD. Decision Uncertainty Drives Pupil-linked Arousal Systems and Modulates Sequential Choice Bias._
+_Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias._
 
 ### This repository contains ###
 - Task_2IFC_RandomDots, containing all the code neede to run the behavioural and eye-tracking task. This code runs under PsychToolbox-3 (http://psychtoolbox.org). The scripts s1a and s1b show instructions and examples to the participant (in Dutch), and s3_2IFC_Main.m runs the main experiment.
-The data that were collected are in the Zenodo repository XXX.
-- Analysis, containg all Matlab files to replicate the analyses. Going through the files in alphabetical order will get you from data to final figures. The Data folder contains a few sample files to try out the code.
+- Analysis, containg all Matlab files to replicate the analyses and figures in the paper. 
 - serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model. 
-
 
 ###What to do to replicate our full analyses###
 

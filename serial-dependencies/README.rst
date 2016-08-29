@@ -1,4 +1,4 @@
-**Updated by Anke Braun and Anne Urai, 2015**
+**Updated by Anke Braun and Anne Urai, 2016**
 
 The code as originally provided by Fründ et al (see below) is adapted to allow for a modulatory term, that on a trial-by-trial basis interacts with experimental history. 
 When the data file contains a sixth column, this will be taken as a modulation factor (e.g. pupil) and multiplied with response and stimulus history at every lag.
