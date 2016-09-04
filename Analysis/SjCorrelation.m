@@ -46,6 +46,7 @@ axis square; box on;
 title(sprintf('r = %.3f, p = %.3f', rho, pval), 'fontsize', 7, 'fontweight', 'normal');
 ylim([-0.45 0.25]); set(gca, 'ytick', [-.4:0.2:0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-.4 0 0.4]);
+fprintf('r = %.3f, p = %.3f, bf10 = %.3f \n', rho, pval, corrbf(rho, 27))
 
 % indicate intercept from regression line
 

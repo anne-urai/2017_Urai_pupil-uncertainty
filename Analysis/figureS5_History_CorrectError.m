@@ -6,101 +6,89 @@ close; figure;
 %% use nice shades of red and green
 cols = cbrewer('qual', 'Set1', 8);
 cols = cols([1 2], :);
-
 nbins = 3;
-subplot(441); psychFuncShift_Bias('pupil', nbins, 1);
-title('Correct', 'color', cols(2,:));
-subplot(442); psychFuncShift_Bias('pupil', nbins, 0);
-title('Error', 'color', cols(1,:));
+mods = {'pupil', 'rt'};
+cors = [1 0];
+cnt = 1;
 
-subplot(443); psychFuncShift_Bias('rt', nbins, 1);
-title('Correct', 'color', cols(2,:));
-subplot(444); psychFuncShift_Bias('rt', nbins, 0);
-title('Error', 'color', cols(1,:));
+for m = 1:length(mods),
+    for c = 1:length(cors),
+        grandavg = postPupilBehaviour(mods{m}, nbins, cors(c));
+        subplot(4,4,cnt); cnt = cnt + 1;
+        
+        % Use HOLD and ERRORBAR, passing axes handles to the functions.
+        colors = cbrewer('qual', 'Set1', 8);
+        switch cors(c)
+            case 1
+                thismarker = '.';
+                thismarkersize = 14;
+                thiscolor = colors(2,:);
+            case 0
+                thismarker = '^';
+                thismarkersize = 4;
+                thiscolor = colors(1,:);
+        end
+        
+        % line to indicate 50% repetition
+        y = grandavg.repetition;
+        plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
+        
+        % errorbar
+        h = ploterr(1:nbins, nanmean(y), [], nanstd(y) ./sqrt(27), 'k-',  'abshhxy', 0);
+        set(h(1), 'color', thiscolor, 'markersize', thismarkersize, 'marker',thismarker);
+        
+        % only for error markers, triangle
+        if cors(c) == 0, set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', thiscolor); end
+        set(h(2), 'color', thiscolor); % line color
+        
+        xticklabs       = repmat({' '}, 1, nbins);
+        xticklabs{1}    = 'low';
+        xticklabs{end}  = 'high';
+        if nbins == 3, xticklabs{2} = 'med'; end
+        
+        set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
+            'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
+        axis square; xlim([0.5 nbins+0.5]);
+        
+        % determine y label and limits
+        set(gca, 'ylim', [0.46 0.56], 'ytick', 0.48:0.02:0.56);
+        ylabel('P(repeat)');
+        
+        % do Bayesian ANOVA to get Bayes Factors
+        statdat         = table;
+        statdat.DV      = y(:);
+        statdat.subjnr  = sj(:);
+        statdat.prevPupilBins = ft(:);
+        writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
+        system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+        statres{cnt} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+        
+        yval = max(get(gca, 'ylim'));
+        if statres{cnt}.pvalue < 0.05, % only show if significant
+            mysigstar(gca, [1 nbins], [yval yval], statres{cnt}.pvalue, 'k', 'down');
+        end
+        
+        switch mods{m}
+            case 'pupil'
+                xlabel('Previous trial pupil');
+            case 'rt'
+                xlabel('Previous trial RT');
+            otherwise
+                xlabel(sprintf('Previous trial %s', mods{m}));
+        end
+    end
+end
 
 %% also show the bar graphs of the error and correct fruend-derived model
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 
 colors = cbrewer('qual', 'Set1', 8);
-subplot(4,4,5); plotBetas([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :)); 
+subplot(4,4,5); plotBetasSwarm([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'Pupil x correct', 'Pupil x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
-subplot(4,4,6); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :)); 
+subplot(4,4,6); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS5.pdf', mypath));
-
-%% simulate error versus correct and choice versus stimulus weights
-% 
-% subjects = 1:27;
-% for sj = unique(subjects),
-%     
-%     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-%     data = data((data.sessionnr > 1), :); % get rid of residual learning effects
-%     
-%     % get the variables we need
-%     resp = data.resp; resp(resp == -1) = 0; % predict response identity
-%     motionstrength = zscore(data.motionstrength);
-%     prevResp       = circshift(data.resp, 1);
-%     prevStim       = circshift(data.stim, 1);
-%     prevReward     = circshift(data.correct, 1) .* circshift(data.resp, 1); % Busse: 
-%     prevPunishment = circshift(~data.correct, 1) .* circshift(data.resp, 1);
-%     
-%     % don't use trials that are at the beginning of each block
-%     trlDif = [0; diff(data.trialnr)];
-%     removeTrls = false(size(trlDif));
-%     removeTrls(trlDif < 1) = true;
-%     removeTrls(trlDif > 1) = true;
-%     removeTrls(find(trlDif > 1) + 1) = true;
-%     
-%     % =============================== %
-%     % 1. Fruend-style
-%     % =============================== %
-%     
-%     % make design matrix - intercept will be added automatically
-%     designM = [motionstrength prevResp prevStim];
-%     % in these trials, the history wont be able to predict the response
-%     designM(removeTrls==1, 2:end) = 0;
-%     
-%     % fit
-%     mdl = fitglm(designM, resp, ...
-%         'distr', 'binomial', 'link', 'logit');
-%     grandavg.choice(sj) = mdl.Coefficients.Estimate(3);
-%     grandavg.stim(sj) = mdl.Coefficients.Estimate(4);
-%     
-%     % =============================== %
-%     % 2. Busse-style
-%     % =============================== %
-%     
-%     designM = [motionstrength prevReward prevPunishment];
-%     % in these trials, the history wont be able to predict the response
-%     designM(removeTrls==1, 2:end) = 0;
-%     
-%     % fit
-%     mdl = fitglm(designM, resp, ...
-%         'distr', 'binomial', 'link', 'logit');
-%     grandavg.reward(sj) = mdl.Coefficients.Estimate(3);
-%     grandavg.punishment(sj) = mdl.Coefficients.Estimate(4);
-%  
-% end
-% 
-% % =============================== %
-% % compute Fruend-style correct and error weights
-% % =============================== %
-% 
-% grandavg.correct = grandavg.choice + grandavg.stim;
-% grandavg.error   = grandavg.choice - grandavg.stim;
-% 
-% % plot
-% subplot(441); scatter(grandavg.correct, grandavg.reward); xlabel('Correct'); ylabel('Reward');
-% subplot(442); scatter(grandavg.error, grandavg.punishment); xlabel('Error'); ylabel('Punishment');
-% 
-% %% show the same plot as in Figure 6 but with error and correct
-% 
-% subplot(4,4,1); SjCorrelation('pupil', 'correct');
-% subplot(4,4,2); SjCorrelation('rt', 'correct');
-% 
-% subplot(4,4,3); SjCorrelation('pupil', 'incorrect');
-% subplot(4,4,4); SjCorrelation('rt', 'incorrect');

@@ -37,6 +37,7 @@ ylim([ylims(1) - yrange*0.1 ylims(2) + yrange*0.1]);
 for i = 1:size(beta, 2),
     % [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
     pval = permtest(beta(:, i));
+    disp(pval);
     mysigstar(gca, i, max(get(gca, 'ylim')), pval);
 end
 

@@ -57,10 +57,8 @@ for sj = unique(data.subjnr)',
         if l > 3, % remove last trial when comparing to next one
             thislatency(badtrls) = NaN;
             thislatency(end) = NaN;
-            assert(~any(thislatency < 0)); % if this happens something is wrong!
             
         else
-            assert(~any(thislatency < 0)); % if this happens something is wrong!
             % normalize within each block, just as pupil and normRT
             blocks = unique(blocknrs)';
             nanzscore = @(x) (x - nanmean(x)) ./ nanstd(x);

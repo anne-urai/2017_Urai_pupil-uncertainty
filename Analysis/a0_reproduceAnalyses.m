@@ -115,24 +115,12 @@ figureS1_MotionEnergy_Filters;
 %% analyze some final stuff that's not in the figures
 % reported in text, or only shown in the response to reviewers
 
-% 1. median time between responses
-load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
-timebewteenResp = {};
-for sj = 1:length(pupilgrandavg.timelock),
-   respdiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 9)) ./ 100;
-   trldiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 12));
-   respdiff(trldiff ~= 1) = []; % only use the difference between subsequent trials
-   timebetweenResp{sj} = respdiff;
-end
-timebetweenResp = cat(1, timebetweenResp{:});
-median(timebetweenResp); % long-tailed distribution, so mean is biased
-
 % 3. compute autocorrelation in evidence strength
 stimRep.rho = nan(27, 7);
 stimRep.pval = nan(27, 7);
 for sj = 1:27,
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    for session = unique(data.sessionnr)',
+    for session = 2:6,
         thisdat     = data(find(session==data.sessionnr), :);
         stim1       = abs(thisdat.motionstrength);
         stim1(logical([(diff(thisdat.trialnr) ~= 1); 1])) = NaN;
@@ -143,7 +131,7 @@ for sj = 1:27,
 end
 fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
     nanmean(stimRep.rho(:)), min(stimRep.rho(:)), max(stimRep.rho(:)), ...
-    length(find(stimRep.pval(:) < 0.05)), numel(stimRep.pval));
+    length(find(stimRep.pval(:) < 0.05)), sum(~isnan(stimRep.pval(:))));
 
 % 5. checks on model-based uncertainty and its effect on switching
 uncertaintyControlAnalyses;
@@ -186,31 +174,10 @@ suplabel('Choice weight', 'x');
 suplabel(sprintf('delta r = %.3f, p = %.3f', ridiff, p), 't');
 print(gcf, '-dpdf', sprintf('%s/Figures/separateRegressionModels.pdf', mypath));
 
-% 10. variance explained by history as a function of stimulus strength
-load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plainCoh'));
-% dat.variance.stimuli    = reshape(dat.variance.stimuli, [27 5 5]);
-% dat.variance.explained  = reshape(dat.variance.explained, [27 5 5]);
+% median of ISI
+data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
+ISIs = splitapply(@nanmedian, data.latency_feedbackisi, findgroups(data.subjnr));
 
-% first, average across sessions for each person
-% http://stackoverflow.com/questions/36965637/matlab-compute-average-value-corresponding-to-each-column-number-in-matrix
-dat.newvariance.stimuli     = [0.625 1.25 2.5 5 10 20 30];
-dat.newvariance.explained   = nan(27, length(dat.newvariance.stimuli));
-for sj = 1:27,
-    A = [dat.variance.stimuli(sj, :)' dat.variance.explained(sj, :)'];
-    [Aunq,~,Aind] = unique(A(:,1));
-    B = [Aunq,accumarray(Aind,A(:,2),[],@mean)] * 100; % percentage of motion coherence and of history contribtuion
-    dat.newvariance.explained(sj, ismember(dat.newvariance.stimuli, B(:, 1))) = B(:, 2);
-end
-
-subplot(4,4,1); hold on;
-colors = cbrewer('seq', 'Greens', 10); colors = colors(8:end, :);
-boundedline(dat.newvariance.stimuli, ...
-    squeeze(nanmean(dat.newvariance.explained)), ...
-    squeeze(nanstd(dat.newvariance.explained)) ./ sqrt(sum(~isnan(dat.newvariance.explained))), ...
-    'cmap', colors(1, :));
-xlabel('\Delta motion coherence'); ylabel('History contribution (%)');
-
-print(gcf, '-dpdf', sprintf('%s/Figures/historyContribution.pdf', mypath));
 
 %% there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

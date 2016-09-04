@@ -14,7 +14,7 @@ subjects = 1:27;
 
 % get data
 alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-if ~isempty(strfind(whichmodulator, 'latencies')),
+if ~isempty(strfind(whichmodulator, 'latenc')),
     alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 end
 
@@ -66,10 +66,14 @@ for sj = unique(subjects),
             data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
         case 'pupil',
             whichMod = 'decision_pupil';
-            data.decision_pupil = projectout(data.decision_pupil, data.rtNorm); % take out RT
+            if isempty(correctness),
+                data.decision_pupil = projectout(data.decision_pupil, data.rtNorm); % take out RT
+            end
         case 'rt'
             whichMod = 'rtNorm'; % t
-            data.rtNorm = projectout(data.rtNorm, data.decision_pupil);
+            if isempty(correctness),
+                data.rtNorm = projectout(data.rtNorm, data.decision_pupil);
+            end
         case 'evidence'
             % single-trial evidence strength is absolute motionenergy
             data.evidence = abs(data.motionstrength);
@@ -80,7 +84,7 @@ for sj = unique(subjects),
             end
         case 'rt_withlatencies'
             whichMod = 'rtNorm';
-            data.rtNorm = projectout(data.rtNorm, data.latencies);
+            data.rtNorm = projectout(data.rtNorm, data.latency_total);
         otherwise
             whichMod = whichmodulator;
     end

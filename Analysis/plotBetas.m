@@ -3,6 +3,7 @@ function [] = plotBetas(beta, colors)
 % show the shape of the pupil vs motionstrength pattern
 
 if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', 8); end
+if numel(colors) == 1, colors = colors * ones(size(beta, 1), 3); end
 global mypath;
 
 % barplot with individual datapoints

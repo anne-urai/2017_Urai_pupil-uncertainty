@@ -105,3 +105,18 @@ for sj = unique(data.subjnr)',
         fastResps(sj) = sum(data.rt(data.subjnr == sj) < 0.2) ...
             ./ sum(~isnan(data.rt(data.subjnr == sj)));
 end
+
+%% for rebuttal letter: cumulative distribution
+distFun = @(x) histcounts(x, edges, 'normalization', 'cdf');
+
+figure
+subplot(441); 
+cmap = [0 0 0];
+clear RTs; clear medians;
+for sj = unique(data.subjnr)',
+    RTs(sj, :) = distFun(data.rt(data.subjnr == sj));
+end
+boundedline(plotedges, squeeze(nanmedian(RTs)), permute(squeeze(iqr(RTs)) ./ sqrt(27), [2 3 1]), 'cmap', cmap);
+xlabel('Response time (s)'); ylabel('Cumulative probability');
+xlim([-0.1 1.5]); ylim([-0.05 1]); box off;
+print(gcf, '-dpdf', sprintf('%s/Figures/cumulativeRTs.pdf', mypath));
