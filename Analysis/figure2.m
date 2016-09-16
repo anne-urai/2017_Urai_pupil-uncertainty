@@ -5,7 +5,8 @@ close; figure;
 global mypath;
 
 subplot(551); MotionEnergy_Timecourse;
-subplot(442); MotionEnergy_Probability;
+subplot(551); MotionEnergy_Probability;
+
 
 % add psychometric functions, chronometric functions and RT distributions
 subplot(445); PsychometricFunction('all');

@@ -20,6 +20,7 @@ end
 timebetweenResp = cat(1, timebetweenResp{:});
 median(timebetweenResp); % long-tailed distribution, so mean is biased
 
+if ~exist(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath), 'file'),
 %% compute and add latencies to csv file
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
@@ -58,7 +59,7 @@ for sj = unique(data.subjnr)',
             thislatency(badtrls) = NaN;
             thislatency(end) = NaN;
             assert(~any(thislatency < 0)); % if this happens something is wrong!
-            
+            data.(latencies{l})(data.subjnr == sj) = thislatency;
         else
             assert(~any(thislatency < 0)); % if this happens something is wrong!
             % normalize within each block, just as pupil and normRT
@@ -68,13 +69,16 @@ for sj = unique(data.subjnr)',
             for b = blocks,
                 thislatencyNorm(b==blocknrs) = nanzscore(thislatency(b==blocknrs));
             end
+            data.(latencies{l})(data.subjnr == sj) = thislatencyNorm;
         end
         
-        data.(latencies{l})(data.subjnr == sj) = thislatencyNorm;
     end
 end
 
 writetable(data, sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
+else
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
+end
 
 % check
 for l = 1:length(latencies),
@@ -235,8 +239,6 @@ for s = 1:2,
         mods{s}, statres{m}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
 end
 % save
-print(gcf, '-dpdf', sprintf('%s/Figures/RTadditionalTime.pdf', mypath));
-
 
 %%
 alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
@@ -275,7 +277,6 @@ cd(sprintf('%s/Code/Analysis', mypath));
 a6_retrieveDataFromPython(mods{1});
 
 % print the regression weights
-figure; 
 mods = {'pupil+rt', 'cleanpupil+rt'};
 for m = 1:length(mods),
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, mods{m}));

@@ -83,11 +83,16 @@ end
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 
 colors = cbrewer('qual', 'Set1', 8);
-subplot(4,4,5); plotBetasSwarm([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :));
+subplot(4,4,5); plotBetas([dat.correct(:, 1) dat.incorrect(:, 1)], colors([2 1], :));
+set(gca, 'xtick', 1:2, 'xticklabel', {'Correct', 'Error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
+axis square;
+
+colors = cbrewer('qual', 'Set1', 8);
+subplot(4,4,6); plotBetas([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'Pupil x correct', 'Pupil x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
-subplot(4,4,6); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :));
+subplot(4,4,7); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 

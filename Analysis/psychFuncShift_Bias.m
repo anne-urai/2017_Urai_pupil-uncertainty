@@ -212,6 +212,7 @@ if length(subjects) > 1,
     f{1} = ft(:);
     stats = rm_anova(y1(:), s(:), f);
     mysigstar(gca, [1 nbins], [0.55 0.55], stats.f1.pvalue, 'k', 'down');
+    disp(stats.f1);
     disp(stats.f1.pvalue);
 else
     axis tight; xlim([0.5 nbins+0.5]);

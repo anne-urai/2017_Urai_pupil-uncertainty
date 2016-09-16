@@ -40,7 +40,7 @@ end
 
 % check
 assert(isequal(length(unique(stim)), length(find(nansum(n, 2) > 0))), 'spacing not quite right');
-colormap hot;
+colormap(inferno);
 imagesc(stimlevels, edges, n');
 axis square;
 set(gca, 'ydir', 'normal');
@@ -50,10 +50,8 @@ ylabel({'Motion energy (a.u.)'});
 %offsetAxes
 set(gca, 'tickdir', 'out', 'box', 'off');
 set(gca, 'xcolor', 'k', 'ycolor', 'k');
-xlabs = unique(stim) * 100;
-xlabs = {'-30', ' ', ' ', ' ',  ' ', ' ', ' ', '0',  ' ', ' ', ' ',  ' ', ' ', '30'};
-set(gca, 'xtick', unique(stim), 'xticklabel', xlabs, 'xticklabelrotation', 0);
-set(gca, 'ytick', -6:3:6);
+set(gca, 'xtick', [-0.3 0 0.3], 'xticklabel', [-30 0 30], 'xticklabelrotation', 0);
+set(gca, 'ytick', -6:6:6);
 set(gca, 'XAxisLocation','top');
 
 axpos = get(gca, 'Position');
@@ -63,7 +61,7 @@ drawnow;
 handles = colorbar('Location', 'EastOutside');
 handles.TickDirection = 'out';
 handles.Box = 'off';
-handles.Label.String = 'Probability';
+%handles.Label.String = 'Probability';
 
 % this looks okay, but the colorbar is very wide. Let's change that!
 % get original axes

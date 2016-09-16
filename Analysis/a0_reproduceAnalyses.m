@@ -111,6 +111,8 @@ figureS7_feedbackpupil;
 figureS8_scatterIndividual; 
 % mediationAnalysis;
 figureS1_MotionEnergy_Filters;
+RT_additionalTime;
+
 
 %% analyze some final stuff that's not in the figures
 % reported in text, or only shown in the response to reviewers
@@ -176,7 +178,11 @@ print(gcf, '-dpdf', sprintf('%s/Figures/separateRegressionModels.pdf', mypath));
 
 % median of ISI
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
-ISIs = splitapply(@nanmedian, data.latency_feedbackisi, findgroups(data.subjnr));
+ISIs = splitapply(@nanmedian, data.latency_feedbackisi, findgroups(data.subjnr)) - 2.25;
+
+% check if pupil quality explains fitted betas
+load(sprintf('%s/Data/GrandAverage/historyweights_pupil+rt.mat', mypath));
+load(sprintf('%s/Data/GrandAverage/pupilquality.mat', mypath));
 
 
 %% there you go! get in touch if you have any further questions.
