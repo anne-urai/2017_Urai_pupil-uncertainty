@@ -12,9 +12,9 @@ for m = 1:length(mods),
     % get all the measures as a function of previous trial pupil
     % how about post-error slowing and signed choice bias?
     
+    % serial bias overall bias, sensitivity, lapse rate, and PES.
     grandavg{m} = postPupilBehaviour(mods{m}, nbins, correctness);
-    
-    plotFields = {'sensitivity', 'absoluteBias','pesRegressedout', 'repetition'};
+    plotFields = {'repetition', 'absoluteBias','sensitivity', 'lapse','pesRegressedout'};
     
     for s = 1:length(plotFields),
         
@@ -59,10 +59,18 @@ for m = 1:length(mods),
         if correctness == 0, set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', thiscolor); end
         set(h(2), 'color', thiscolor); % line color
         
-        xticklabs       = repmat({' '}, 1, nbins);
-        xticklabs{1}    = 'low';
-        xticklabs{end}  = 'high';
-        if nbins == 3, xticklabs{2} = 'med'; end
+        switch mods{m}
+            case 'pupil'
+                xticklabs       = repmat({' '}, 1, nbins);
+                xticklabs{1}    = 'low';
+                xticklabs{end}  = 'high';
+                if nbins == 3, xticklabs{2} = 'med'; end
+            case 'rt'
+                xticklabs       = repmat({' '}, 1, nbins);
+                xticklabs{1}    = 'fast';
+                xticklabs{end}  = 'slow';
+                if nbins == 3, xticklabs{2} = 'med'; end
+        end
         
         set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
             'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
@@ -71,7 +79,7 @@ for m = 1:length(mods),
         % determine y label and limits
         switch plotFields{s}
             case 'sensitivity'
-                set(gca, 'ylim', [0.7 0.9], 'ytick', 0.7:0.1:0.9);
+                set(gca, 'ylim', [0.75 0.95], 'ytick', 0.75:0.1:1);
                 ylabel('Slope');
             case 'RT'
                 ylabel('Response time (s)');
@@ -81,39 +89,45 @@ for m = 1:length(mods),
                 % ylabel(plotFields{s});
                 set(gca, 'ylim', [-0.02 0.02], 'ytick', [-0.02 0 0.02]); % in s, so 40 ms
             case 'absoluteBias'
-                set(gca, 'ylim', [0.2 0.4], 'ytick', [0.2 0.3 0.4]);
+                set(gca, 'ylim', [0.3 0.5], 'ytick', [0.2:0.1:0.6]);
                 ylabel('Absolute bias');
             case 'repetition'
-                set(gca, 'ylim', [0.48 0.54], 'ytick', [0.5 0.54]);
+                set(gca, 'ylim', [0.47 0.57], 'ytick', [0.47:0.05:0.57]);
                 ylabel('P(repeat)');
+            case 'lapse'
+                set(gca, 'ylim', [0 0.02], 'ytick', [0:0.01:0.02]);
+                ylabel('P(lapse)');
             otherwise
                 ylabel(plotFields{s});
         end
         
         % do statistics, repeated measures anova across bins
-        if size(grandavg{m}.(plotFields{s}), 1) > 1,
-            
-            sj      = repmat(1:27, nbins, 1)';
-            ft      = repmat(transpose(1:nbins), 1, 27)';
-            f{1}    = ft(:);
-            stats   = rm_anova(y(:), sj(:), f); % from Valentin
-            
-            % do Bayesian ANOVA to get Bayes Factors
-            statdat         = table;
-            statdat.DV      = y(:);
-            statdat.subjnr  = sj(:);
-            statdat.prevPupilBins = ft(:);
-            writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
-            system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
-            statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
-     
-            yval    = max(get(gca, 'ylim'));
-            if stats.f1.pvalue < 0.05, % only show if significant
-                mysigstar(gca, [1 nbins], [yval yval], statres{s}.pvalue, 'k', 'down');
-            end
+        
+        sj      = repmat(1:27, nbins, 1)';
+        ft      = repmat(transpose(1:nbins), 1, 27)';
+        f{1}    = ft(:);
+        stats   = rm_anova(y(:), sj(:), f); % from Valentin
+        
+        
+        % do Bayesian ANOVA to get Bayes Factors
+        statdat         = table;
+        statdat.DV      = y(:);
+        statdat.subjnr  = sj(:);
+        statdat.prevPupilBins = ft(:);
+        writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
+        system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+        statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+        
+        yval    = max(get(gca, 'ylim'));
+        if stats.f1.pvalue < 0.05, % only show if significant
+            mysigstar(gca, [1 nbins], [yval yval], statres{s}.pvalue, 'k', 'down');
         else
-            axis tight;
+            set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', 4, 'marker', 'o');
         end
+        
+        % show stats in the plot
+        title({sprintf('p = %.3f', statres{s}.pvalue); sprintf('BF_{10} = %.3f', statres{s}.bf10)}, ...
+            'fontweight', 'normal');
         
         switch mods{m}
             case 'pupil'
@@ -129,33 +143,35 @@ for m = 1:length(mods),
     % just do stats
     % ========================================================= %
     
-    statsFields = {'sensitivity', 'signedBias', ...
-        'absoluteBias','pesRegressedout', 'repetition', 'RT'};
-    
-    for s = 1:length(statsFields),
-        y       = grandavg{m}.(statsFields{s});
-        sj      = repmat(1:27, nbins, 1)';
-        ft      = repmat(transpose(1:nbins), 1, 27)';
-        f{1}    = ft(:);
-        stats   = rm_anova(y(:), sj(:), f); % from Valentin
+    if 0,
+        statsFields = {'sensitivity', 'signedBias', ...
+            'absoluteBias','pesRegressedout', 'repetition', 'RT', 'lapse'};
+        for s = 1:length(statsFields),
+            y       = grandavg{m}.(statsFields{s});
+            sj      = repmat(1:27, nbins, 1)';
+            ft      = repmat(transpose(1:nbins), 1, 27)';
+            f{1}    = ft(:);
+            stats   = rm_anova(y(:), sj(:), f); % from Valentin
+            
+            % do Bayesian ANOVA to get Bayes Factors
+            statdat         = table;
+            statdat.DV      = y(:);
+            statdat.subjnr  = sj(:);
+            statdat.prevPupilBins = ft(:);
+            writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
+            system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+            statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+        end
         
-        % do Bayesian ANOVA to get Bayes Factors
-        statdat         = table;
-        statdat.DV      = y(:);
-        statdat.subjnr  = sj(:);
-        statdat.prevPupilBins = ft(:);
-        writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
-        system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
-        statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+        % print results
+        for s = 1:length(statres),
+            fprintf('\n %s, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
+                statsFields{s}, statres{s}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
+        end
     end
     
-    % print results
-    for s = 1:length(statres),
-        fprintf('\n %s, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
-            statsFields{s}, statres{s}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
-    end
+    cnt = cnt + 5;
 end
 
 % save
 print(gcf, '-dpdf', sprintf('%s/Figures/figure4_allMeasures_%dbins.pdf', mypath, nbins));
-

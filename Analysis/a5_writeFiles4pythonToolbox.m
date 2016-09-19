@@ -23,13 +23,11 @@ for sj = subjects,
     
     % no motionstrength, just coherence
     newdat = [ blocknrs data.sessionnr data.coherence (data.stim > 0) (data.resp > 0)];
-    
     dlmwrite(sprintf('2ifc_plainCoh_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
     % no modulation, just history
     newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0)];
-    
     dlmwrite(sprintf('2ifc_plain_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
@@ -64,10 +62,9 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_fb+decpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
-    %     % model-based uncertainty
-    %     newdat = [ blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
-    %         data.decision_pupil zscore(data.uncertainty) ];
-    %     dlmwrite(sprintf('2ifc_pupil+uncertainty_sj%02d.txt', sj), ...
-    %         newdat,'delimiter','\t','precision',4);
-    
+    % feedback pupil with decision pupil in the model
+    newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
+        zscore(data.feedback_pupil) zscore(data.decision_pupil)];
+    dlmwrite(sprintf('2ifc_fb+decpupil_sj%02d.txt', sj), ...
+        newdat,'delimiter','\t','precision',4);
 end

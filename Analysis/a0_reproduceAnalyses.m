@@ -3,6 +3,7 @@
 
 % first, make sure this path matches the place where the data are stored
 % and you unzipped everything
+clear all; close all; clc;
 global mypath;
 % determine the path to the data
 usr = getenv('USER');
@@ -105,35 +106,20 @@ figureS1_RT;
 figureS2_performanceOverSessions;
 figureS3_pupilUncertainty;
 figureS4_BiasIllustration;
-figureS5_History_CorrectError;
-figureS6_pupilResponseLagged;
+figureS5_responseBias_byPupil;
+figureS6_History_CorrectError;
+figureS7_pupilResponseLagged;
 figureS7_feedbackpupil;
 figureS8_scatterIndividual; 
 % mediationAnalysis;
 figureS1_MotionEnergy_Filters;
 RT_additionalTime;
 
+% some things that are not in Figures but reported in the text
+stimulusTransitions;
 
 %% analyze some final stuff that's not in the figures
 % reported in text, or only shown in the response to reviewers
-
-% 3. compute autocorrelation in evidence strength
-stimRep.rho = nan(27, 7);
-stimRep.pval = nan(27, 7);
-for sj = 1:27,
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    for session = 2:6,
-        thisdat     = data(find(session==data.sessionnr), :);
-        stim1       = abs(thisdat.motionstrength);
-        stim1(logical([(diff(thisdat.trialnr) ~= 1); 1])) = NaN;
-        [rho, pval] = corr(stim1, circshift(stim1, 1), 'rows', 'complete');
-        stimRep.rho(sj, session) = rho;
-        stimRep.pval(sj, session) = pval;
-    end
-end
-fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
-    nanmean(stimRep.rho(:)), min(stimRep.rho(:)), max(stimRep.rho(:)), ...
-    length(find(stimRep.pval(:) < 0.05)), sum(~isnan(stimRep.pval(:))));
 
 % 5. checks on model-based uncertainty and its effect on switching
 uncertaintyControlAnalyses;
@@ -154,14 +140,6 @@ data    = data(find(data.difficulty == 5), :);
 data.rt = data.rt * 1000;
 RTs     = splitapply(@median, data.rt, findgroups(data.subjnr)); % in ms
 fprintf('mean %.3f, min %.3f, max %.3f', mean(RTs), min(RTs), max(RTs));
-
-% 8. baseline pupil does not predict repetition behaviour
-clf; subplot(441); b = Uncertainty_byErrorCorrect('baseline_pupil');
-subplot(4,7,3); plotBetasSwarm(b, colors([1 2], :));
-set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
-
-subplot(443); psychFuncShift_Bias('baseline_pupil', 3, []);
-print(gcf, '-dpdf', sprintf('%s/Figures/baselinePupil.pdf', mypath));
 
 % 9. does figure 6 depend on running pupil and RT in the same model?
 subplot(5,5,1); rho1 = SjCorrelation('pupil', 'response', 'pupil');

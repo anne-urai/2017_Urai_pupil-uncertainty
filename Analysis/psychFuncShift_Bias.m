@@ -202,8 +202,8 @@ xticklabs{end} = 'high';
 if nbins == 3, xticklabs{2} = 'med'; end
 
 set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins, ...
-    'xticklabel', xticklabs, 'ylim', [0.47 0.56], 'ytick', [0.48:0.02:0.56], ...
-    'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'on');
+    'xticklabel', xticklabs, 'ylim', [0.475 0.54], 'ytick', [0.48:0.02:0.54], ...
+    'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off');
 
 if length(subjects) > 1,
     % do statistics

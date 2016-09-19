@@ -10,6 +10,7 @@ nbins = 3;
 mods = {'pupil', 'rt'};
 cors = [1 0];
 cnt = 1;
+subjects = 1:27;
 
 for m = 1:length(mods),
     for c = 1:length(cors),
@@ -55,9 +56,11 @@ for m = 1:length(mods),
         ylabel('P(repeat)');
         
         % do Bayesian ANOVA to get Bayes Factors
-        statdat         = table;
-        statdat.DV      = y(:);
-        statdat.subjnr  = sj(:);
+        statdat             = table;
+        statdat.DV          = y(:);
+        sj = repmat(1:27, nbins, 1)';
+        statdat.subjnr      = sj(:);
+        ft      = repmat(transpose(1:nbins), 1, 27)';
         statdat.prevPupilBins = ft(:);
         writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
         system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
@@ -96,4 +99,4 @@ subplot(4,4,7); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors(
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS5.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/figureS6.pdf', mypath));

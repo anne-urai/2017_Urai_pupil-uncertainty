@@ -18,12 +18,6 @@ ylim([-0.05 1]);
 
 subplot(442); ExamplePsychFunc(20); title(sprintf('Participant %d', 20));
 subplot(443); ExamplePsychFunc(13); title(sprintf('Participant %d', 13));
-subplot(445); ExamplePsychFuncShift(10); title('Participant 10');
-
-correctness = []; % empty; both correct and error trials will be used
-nbins       = 3;
-
-subplot(446); psychFuncShift_Bias_byResp('pupil', nbins, correctness);
-subplot(447); psychFuncShift_Bias_byResp('rt', nbins, correctness);
+subplot(444); ExamplePsychFuncShift(10); title('Participant 10');
 
 print(gcf, '-dpdf', sprintf('%s/Figures/figureS4.pdf', mypath));

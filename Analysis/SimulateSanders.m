@@ -1,9 +1,9 @@
 
 % stimulus proportions from Kepecs
-a = linspace(99.9, 0.1, 100000);
+a = linspace(99, 1, 1000000);
 b = fliplr(a);
-c = linspace(-7, 7, 100000);
-d = log(a ./ (1 - a));
+% c = linspace(-7, 7, 100000);
+% d = log(a ./ (1 - a));
 
 stimsRatio       = a ./ b;
 stimsLogRatio    = log(stimsRatio);
@@ -17,9 +17,8 @@ plot([(a>b)' log(stimsRatio)']);
 legend('choice', 'logratio');
 
 % get uncertainty values
-sigma               = 0.6;
 model.evs           = stimsLogRatio;
-model.dvs           = model.evs + normrnd(0, sigma, size(model.evs));
+model.dvs           = model.evs + normrnd(0, 0.75, size(model.evs));
 model.choice        = sign(model.dvs);
 model.correct       = (model.choice == sign(model.evs));
 model.confidence    = tanh(abs(model.dvs));
@@ -27,5 +26,8 @@ model.uncertainty   = 1 - model.confidence;
 
 % plot
 [unc, acc] = divideintobins(model.uncertainty, model.correct, 100);
-subplot(333); plot(unc, 100*acc); xlabel('Uncertainty'); ylabel('Accuracy');
+hold on;
+subplot(333);
+plot(unc, 100*acc); xlabel('Uncertainty'); ylabel('Accuracy');
 axis square; box off; xlim([0 1]); ylim([50 100]);
+

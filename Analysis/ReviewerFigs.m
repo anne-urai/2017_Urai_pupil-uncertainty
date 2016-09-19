@@ -29,27 +29,3 @@ fprintf('rho = %.3f, p = %.3f, bf10 = %.3f \n', rho, pval, bf10);
 xlabel('Choice weight'); ylabel('Psychometric threshold');
 print(gcf, '-dpdf', sprintf('%s/Figures/WbThresholdCorrChoiceHistory.pdf', mypath));
 
-%% sequential biases in stimuli
-stimRep.one = nan(27, 7);
-stimRep.two = nan(27, 7);
-
-for sj  = 1:27,
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    for s = unique(data.sessionnr)',
-        stim1 = abs(data.motionstrength(find(data.sessionnr == s)));
-        stim1(diff(data.trialnr(find(data.sessionnr == s))) ~= 1) = NaN;
-        stimRep.one(sj, s) = nanmean(abs(diff(stim1)));
-        
-        stim2 = (data.motionstrength(find(data.sessionnr == s)));
-        stim2(diff(data.trialnr(find(data.sessionnr == s))) ~= 1) = NaN;
-        stimRep.two(sj, s) = nanmean(diff(stim2));
-    end
-end
-
-subplot(221);
-histogram(stimRep.one(:));
-box off;
-xlabel('Sequential motion energy');
-
-subplot(222);
-histogram(stimRep.two(:));

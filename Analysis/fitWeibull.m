@@ -12,6 +12,8 @@ end
 function err = cumWB_LL(p, intensity, responses)
 % see http://courses.washington.edu/matlab1/Lesson_5.html#1
 
+Weibull = @(p, x) 0.5 + (1 - 0.5 - p(3)) * (1-exp(- (x/p(2)).^p(1)));
+
 % compute the vector of responses for each level of intensity
 w   = Weibull(p, intensity);
 

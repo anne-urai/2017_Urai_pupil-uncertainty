@@ -1,4 +1,4 @@
-function [] = RT_additionalTime
+function [] = figureS8_latencies
 
 clearvars -except mypath; close all; clc;
 global mypath;
@@ -12,70 +12,71 @@ cd(sprintf('%s/Code/Analysis', mypath));
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 timebewteenResp = {};
 for sj = 1:length(pupilgrandavg.timelock),
-   respdiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 9)) ./ 100;
-   trldiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 12));
-   respdiff(trldiff ~= 1) = []; % only use the difference between subsequent trials
-   timebetweenResp{sj} = respdiff;
+    respdiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 9)) ./ 100;
+    trldiff = diff(pupilgrandavg.timelock{sj}(1).lock.trialinfo(:, 12));
+    respdiff(trldiff ~= 1) = []; % only use the difference between subsequent trials
+    timebetweenResp{sj} = respdiff;
 end
 timebetweenResp = cat(1, timebetweenResp{:});
 median(timebetweenResp); % long-tailed distribution, so mean is biased
 
-if ~exist(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath), 'file'),
-%% compute and add latencies to csv file
-load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
-
-% get the data that still include sample timings!
-data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-
 % preallocate
 latencies = {'latency_fixation', 'latency_interval', 'latency_rtfeedback', ...
     'latency_feedbackisi', 'latency_total'};
-latidx = [2 1; 6 2; 11 9; 19 11; 20 6];
-for l = 1:length(latencies),
-    data.(latencies{l}) = nan(size(data.rt));
-end
+nanzscore = @(x) (x - nanmean(x)) ./ nanstd(x);
 
-% compute all the latencies in each trial and across trials
-for sj = unique(data.subjnr)',
+if ~exist(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath), 'file'),
+    %% compute and add latencies to csv file
+    load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
     
-    trl         = pupilgrandavg.timelock{sj}(1).lock.trialinfo;
-    trl(:, 19)  = circshift(trl(:, 1), -1);     % shift start of next fixation
-    trl(:, 20)  = circshift(trl(:, 6), -1);     % shift start of next test stim
-    badtrls     = find(diff(trl(:, 12)) ~= 1);  % only use trial with subsequent nrs
+    % get the data that still include sample timings!
+    data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
     
-    % blocknrs for z-scoring
-    blockchange = find(diff(trl(:, 12)) < 0);
-    blocknrs = zeros(size(trl, 1), 1);
-    for b = 1:length(blockchange)-1,
-        blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
-    end
-    blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
-    
+    latidx = [2 1; 6 2; 11 9; 19 11; 20 6];
     for l = 1:length(latencies),
-        % latency between these events in seconds
-        thislatency = (trl(:, latidx(l,1)) - trl(:, latidx(l,2))) ./ 100;
-        
-        if l > 3, % remove last trial when comparing to next one
-            thislatency(badtrls) = NaN;
-            thislatency(end) = NaN;
-            assert(~any(thislatency < 0)); % if this happens something is wrong!
-            data.(latencies{l})(data.subjnr == sj) = thislatency;
-        else
-            assert(~any(thislatency < 0)); % if this happens something is wrong!
-            % normalize within each block, just as pupil and normRT
-            blocks = unique(blocknrs)';
-            nanzscore = @(x) (x - nanmean(x)) ./ nanstd(x);
-            thislatencyNorm = thislatency;
-            for b = blocks,
-                thislatencyNorm(b==blocknrs) = nanzscore(thislatency(b==blocknrs));
-            end
-            data.(latencies{l})(data.subjnr == sj) = thislatencyNorm;
-        end
-        
+        data.(latencies{l}) = nan(size(data.rt));
     end
-end
-
-writetable(data, sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
+    
+    % compute all the latencies in each trial and across trials
+    for sj = unique(data.subjnr)',
+        
+        trl         = pupilgrandavg.timelock{sj}(1).lock.trialinfo;
+        trl(:, 19)  = circshift(trl(:, 1), -1);     % shift start of next fixation
+        trl(:, 20)  = circshift(trl(:, 6), -1);     % shift start of next test stim
+        badtrls     = find(diff(trl(:, 12)) ~= 1);  % only use trial with subsequent nrs
+        
+        % blocknrs for z-scoring
+        blockchange = find(diff(trl(:, 12)) < 0);
+        blocknrs = zeros(size(trl, 1), 1);
+        for b = 1:length(blockchange)-1,
+            blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
+        end
+        blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
+        
+        for l = 1:length(latencies),
+            % latency between these events in seconds
+            thislatency = (trl(:, latidx(l,1)) - trl(:, latidx(l,2))) ./ 100;
+            
+            if l > 3, % remove last trial when comparing to next one
+                thislatency(badtrls) = NaN;
+                thislatency(end) = NaN;
+                assert(~any(thislatency < 0)); % if this happens something is wrong!
+                data.(latencies{l})(data.subjnr == sj) = thislatency;
+            else
+                assert(~any(thislatency < 0)); % if this happens something is wrong!
+                % normalize within each block, just as pupil and normRT
+                blocks = unique(blocknrs)';
+                thislatencyNorm = thislatency;
+                for b = blocks,
+                    thislatencyNorm(b==blocknrs) = nanzscore(thislatency(b==blocknrs));
+                end
+                data.(latencies{l})(data.subjnr == sj) = thislatencyNorm;
+            end
+            
+        end
+    end
+    
+    writetable(data, sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 else
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 end
@@ -110,7 +111,7 @@ fprintf('mean rho: %.3f, range %.3f to %.3f, significant in %d out of 27 partici
 %% next: check whether regressing out these latencies reduces the effect of RT
 correctness = []; % empty; both correct and error trials will be used
 nbins = 3;
-mods = {'rt_withlatencies', 'latency_total'}; 
+mods = {'rt_withlatencies', 'latency_total'};
 figure; cnt = 0;
 for m = 1:length(mods),
     
@@ -267,7 +268,7 @@ for sj = unique(alldata.subjnr)',
     dlmwrite(sprintf('2ifc_cleanpupil+rt_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
 end
-    
+
 % run model and retrieve data
 mods{1} = 'cleanpupil+rt';
 cd(sprintf('%s/Code/serial-dependencies', mypath));
@@ -279,18 +280,18 @@ a6_retrieveDataFromPython(mods{1});
 % print the regression weights
 mods = {'pupil+rt', 'cleanpupil+rt'};
 for m = 1:length(mods),
-load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, mods{m}));
-subplot(4,4,m);
-plotBetas([dat.response_pupil(:, 1) ...
-    dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], 0.5);
-[~, pval, ~, stat] = ttest(dat.response_pupil(:, 1), dat.stimulus_pupil(:, 1));
-mysigstar(gca, [1 2], -0.08, pval);
-[~, pval, ~, stat] = ttest(dat.response_rt(:, 1), dat.stimulus_rt(:, 1));
-mysigstar(gca, [3 4], -0.08, pval);
-xlim([0.5 4.5]);
-set(gca, 'xtick', 1:4, 'xticklabel', ...
-    {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
-    'xticklabelrotation', -30);
+    load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, mods{m}));
+    subplot(4,4,m);
+    plotBetas([dat.response_pupil(:, 1) ...
+        dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], 0.5);
+    [~, pval, ~, stat] = ttest(dat.response_pupil(:, 1), dat.stimulus_pupil(:, 1));
+    mysigstar(gca, [1 2], -0.08, pval);
+    [~, pval, ~, stat] = ttest(dat.response_rt(:, 1), dat.stimulus_rt(:, 1));
+    mysigstar(gca, [3 4], -0.08, pval);
+    xlim([0.5 4.5]);
+    set(gca, 'xtick', 1:4, 'xticklabel', ...
+        {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
+        'xticklabelrotation', -30);
 end
 print(gcf, '-dpdf', sprintf('%s/Figures/cleanPupilWeights.pdf', mypath));
 

@@ -18,7 +18,7 @@ gr2 = [0.6 0.6 0.6];
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 b = glmfit(data.motionstrength, (data.resp > 0), 'binomial', 'link', 'probit');
 
-% standard deviation at these values is the inverse!
+% standard deviation at these values is the inverse
 sigma = 1/b(2);
 stim = -15:0.01:15; % x axis for distributions
 
@@ -35,7 +35,7 @@ if 0,
     % eta = x*beta + offset;
     % lowerBnd = norminv(eps(dataClass)); upperBnd = -lowerBnd;
     % ilink = @(eta) normcdf(constrain(eta,lowerBnd,upperBnd));
-
+    
     plot(sort(data.motionstrength), y, '.');
     
     % how to transfer probit measures into normcdf params?
@@ -44,7 +44,7 @@ if 0,
     
     grid on; xlim([-0.05 0.05]);
     legend({'data', 'glmval', 'normpdf1', 'normpdf2'});
-
+    
 end
 
 s1 = normpdf(stim, -strength1, sigma);
@@ -52,7 +52,7 @@ s2 = normpdf(stim,  strength1, sigma);
 s3 = normpdf(stim, -strength2, sigma);
 s4 = normpdf(stim,  strength2, sigma);
 
-subplot(331);
+subplot(449);
 p = plot(stim, s1, stim, s2, stim, s3, stim, s4, zeros(1, 2), [0 max(s2)], 'k');
 p(1).Color = gr1; p(2).Color = gr1;
 p(3).Color = gr2; p(4).Color = gr2;
@@ -85,7 +85,7 @@ set(gca, 'xtick', [0 pt], 'xticklabel', {'c', 'dv_i'}, ...
 % average confidence
 % ==================================================================
 
-subplot(443);
+subplot(551);
 colors = cbrewer('qual', 'Set1', 8);
 cols = colors([1 2], :);
 
@@ -104,13 +104,13 @@ s4 = normpdf(stim,  strength2, sigma);
 p = plot(stim, s3, ':', stim, s4,  '-', zeros(1, 2), [0 max(s4)], 'k');
 p(1).Color = gr2; p(2).Color = gr2;
 
-axis tight; ylim([0 0.2]); 
+axis tight; ylim([0 0.2]);
 ylabel('Probability density');
 title('Weak evidence');
 set(gca, 'ytick', [], 'xtick', [], 'box', 'off');
 
 % then the easy stimulus
-subplot(4,4,7);
+subplot(556);
 % indicate one correct and one error
 hold on;
 a = area(unique(abs(stim)), normpdf(unique(abs(stim)), strength1, sigma));
@@ -135,21 +135,25 @@ title('Strong evidence');
 % generate a measure of uncertainty for each sample
 % ==================================================================
 
+% sigma = 1;
 model.evs           = unifrnd(min(data.motionstrength), max(data.motionstrength), 1, 1e7);
 model.dvs           = model.evs + normrnd(0, sigma, size(model.evs));
 model.choice        = sign(model.dvs);
 model.correct       = (model.choice == sign(model.evs));
-model.confidence    = tanh(abs(model.dvs));
+% normal cdf on absolute dv, see Lak et al. equation 7
+dv2conf             = @(x, sigma) 0.5 * (1 + erf(abs(x) ./ (sqrt(2)*sigma)));
+model.confidence    = dv2conf(model.dvs, sigma);
 model.uncertainty   = 1 - model.confidence;
 
 % ==================================================================
 % plot mean confidence
 % ==================================================================
 
-subplot(4,4,4); hold on;
-[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.confidence(model.correct == 1), 20);
+nbins = 100;
+subplot(552); hold on;
+[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.confidence(model.correct == 1), nbins);
 plot(stimlevs, confC, '-',  'color', cols(2, :));
-[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.confidence(model.correct == 0), 20);
+[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.confidence(model.correct == 0), nbins);
 plot(stimlevs, confE, '-', 'color', cols(1, :));
 
 % also add some points
@@ -173,17 +177,17 @@ set(gca, 'ytick', [0:0.5:1]);
 set(gca, 'xcolor', 'w');
 
 l = legend(ploth, {'error', 'correct'});
-lpos = get(l, 'position'); lpos(2) = lpos(2) - 0.15;
+lpos = get(l, 'position'); lpos(2) = lpos(2) - 0.10;
 set(l, 'box', 'off', 'position', lpos);
 
 % ==================================================================
 % plot mean uncertainty below that
 % ==================================================================
 
-subplot(4,4,8); hold on;
-[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.uncertainty(model.correct == 1), 20);
+subplot(557); hold on;
+[stimlevs, confC] = divideintobins(abs(model.evs(model.correct == 1)), model.uncertainty(model.correct == 1), nbins);
 plot(stimlevs, confC, '-',  'color', cols(2, :));
-[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.uncertainty(model.correct == 0), 20);
+[stimlevs, confE] = divideintobins(abs(model.evs(model.correct == 0)), model.uncertainty(model.correct == 0), nbins);
 plot(stimlevs, confE, '-', 'color', cols(1, :));
 
 % also add some points
@@ -211,53 +215,44 @@ set(gca, 'xtick', stimpts, 'xticklabel', {'weak', 'strong'});
 % from Sanders, show accuracy vs confidence
 % ==================================================================
 
-nbins = 20;
 [unc, correct] = divideintobins(model.uncertainty, model.correct, nbins);
 
-subplot(5,5,11); cla; hold on;
-plot(correct*100, 'k-'); % show
+subplot(553); cla; hold on;
+plot(unc, correct*100, 'k-'); % show
 ylim([45 100]); set(gca, 'ytick', [50 75 100]); ylabel('Accuracy (%)');
-xlim([-0.02*nbins length(correct)]); xlabel('Uncertainty');
-plot([1 length(correct)], [50 50], 'color', [0.5 0.5 0.5], 'linewidth', 0.5, 'linestyle', ':'); 
-set(gca, 'xtick', [1 length(correct)], 'xticklabel', {'low', 'high'});
-box off; 
+xlim([-0.02 max(unc)]); xlabel('Uncertainty');
+plot([min(unc) max(unc)], [50 50], 'color', [0.5 0.5 0.5], 'linewidth', 0.5, 'linestyle', ':');
+set(gca, 'xtick', [min(unc) max(unc)], 'xticklabel', {'low', 'high'});
+box off;  axis square;
 
 % ==================================================================
 % from Sanders, psychFuncs by uncertainty
 % ==================================================================
 
-uncMed = quantile(model.uncertainty, 2); % median
+uncMed = median(model.uncertainty); % median split
 % PLOT
-subplot(5,5,16);
+subplot(558);
 hold on;
 colors(1,:) = [0.5 0.5 0.5];
 colors(2,:) = [0.2 0.2 0.2];
-newx = linspace(min(abs(model.evs)), max(abs(model.evs)), 100);
-
 for r = 1:2,
     switch r
         case 1
-            trls = find(model.uncertainty < uncMed(1));
+            trls = find(model.uncertainty < uncMed);
         case 2
-            trls = find(model.uncertainty > uncMed(2));
+            trls = find(model.uncertainty > uncMed);
     end
-    % [ev, acc] = divideintobins(abs(model.evs(trls)), model.correct(trls), nbins);
-    % fit cumulative weibull to this psychfunc
-    
+
     % make weibull fit faster
     [binnedx, binnedy] = divideintobins(abs(model.evs(trls)), model.correct(trls), 100);
-    [slope, threshold, lapse] = fitWeibull(binnedx, binnedy);
-    h = plot(newx, 100* Weibull([slope, threshold, lapse], newx), 'color', colors(r, :)) ;
-    
-    % datapoints on top
-   % h = plot(ev, acc*100, '.', 'markersize', 12', 'color', colors(r, :));
-   handles{r} = h;
+    h = plot(binnedx, 100*binnedy, 'color', colors(r, :)) ;
+    handles{r} = h;
 end
 
 set(gca, 'xlim', [-0.5 5.5], 'ylim', [45 100], 'ytick', 50:25:100);
 xlim([-0.5 5.5]); set(gca, 'xtick', [0 2.75 5.5], 'xticklabel', {'weak', 'medium', 'strong'}, 'xminortick', 'off');
 ylabel('Accuracy (%)'); xlabel('Evidence');
- box off; 
+box off;  axis square;
 l = legend([handles{:}], {'low', 'high'}, 'location', 'southeast');
 legend boxoff;
 lpos = get(l, 'position');

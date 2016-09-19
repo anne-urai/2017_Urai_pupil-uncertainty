@@ -19,7 +19,7 @@ if ~isempty(strfind(whichmodulator, 'latenc')),
 end
 
 % to compute matched accuracy, find the bins of motionstrength
-allcohs = unique(alldata.coherence); 
+allcohs = unique(alldata.coherence);
 alldata.cohIdx = nan(size(alldata.coherence));
 for c = 1:length(allcohs),
     alldata.cohIdx(abs(alldata.coherence - allcohs(c)) < 0.001) = c;
@@ -31,7 +31,7 @@ grandavg.meanAcc = nan(length(unique(alldata.subjnr)), length(allcohs));
 for sj = unique(subjects),
     
     % individual sj data, get rid of residual learning effects
-    data = alldata((alldata.subjnr == sj & alldata.sessionnr > 1), :); 
+    data = alldata((alldata.subjnr == sj & alldata.sessionnr > 1), :);
     
     % =========================================== %
     % session-specific threshold
@@ -40,7 +40,7 @@ for sj = unique(subjects),
     [slope, threshold, lapse] = fitWeibull( ...
         abs(data.coherence), data.correct);
     
-    % read out the 60% correct threshold instead of 80%
+    % read out the 70% correct threshold instead of 80%
     newx    = linspace(0, 0.4, 100);
     curve   = Weibull([slope threshold lapse], newx);
     thisthreshold = newx(dsearchn(curve', 0.7));
@@ -85,6 +85,9 @@ for sj = unique(subjects),
         case 'rt_withlatencies'
             whichMod = 'rtNorm';
             data.rtNorm = projectout(data.rtNorm, data.latency_total);
+        case 'baseline_pupil';
+            whichMod = 'baseline_pupil';
+            data.baseline_pupil = circshift(data.baseline_pupil, -1);
         otherwise
             whichMod = whichmodulator;
     end
@@ -93,8 +96,8 @@ for sj = unique(subjects),
     data.resp(data.resp == -1) = 0;
     
     % get an overall logistic fit for normalization
-    grandavg.overallLogistic(sj, :) = glmfit(data.motionstrength, ...
-        data.resp, 'binomial','link','logit');
+    [bias, slope, lapseLow, lapseHigh] = fitLogistic(data.motionstrength,data.resp);
+    grandavg.overallLogistic(sj, :) = [bias slope];
     
     % split into quantiles of the modulator
     if isempty(correctness),
@@ -157,18 +160,11 @@ for sj = unique(subjects),
         thisdat = data(laggedtrls, :);
         
         % =========================================== %
-        % overall logistic
+        % logistic for slope
         % =========================================== %
         
-        try
-            b = glmfit(thisdat.motionstrength, thisdat.resp, ...
-                'binomial','link','logit');
-        catch % if there is perfect separation, this will catch (see error warning above)
-            warning('putting nan in betas!');
-            b = nan(size(b));
-        end
-        
-        grandavg.logistic(sj, u, :) = b;
+        [bias, slope, lapse] = fitLogistic(thisdat.motionstrength,thisdat.resp);
+        grandavg.logistic(sj, u, :) = [bias slope lapse];
         
         % =========================================== %
         % overall RT and accuracy
@@ -199,33 +195,6 @@ for sj = unique(subjects),
         [binnedx, binnedy]        = divideintobins(abs(thisdat.motionstrength), thisdat.correct, 5);
         grandavg.weibullPtsX(sj, u, :) = binnedx;
         grandavg.weibullPtsY(sj, u, :) = binnedy;
-        
-        % =========================================== %
-        % history-dependent logistic
-        % =========================================== %
-        
-        % previous response
-        resps = [0 1];
-        for r = 1:2,
-            
-            % take a further subset of trials with previous response 1 or 0
-            laggedresptrls  = find(data.resp == resps(r));
-            laggedresptrls  = laggedresptrls + 1; % go one trial later
-            laggedresptrls  = intersect(laggedtrls, laggedresptrls);
-            thisdat         = data(laggedresptrls, :);
-            
-            try
-                b = glmfit(thisdat.motionstrength, thisdat.resp, ...
-                    'binomial','link','logit');
-            catch % if there is perfect separation, this will catch (see error warning above)
-                warning('putting nan in betas!');
-                b = nan(size(b));
-            end
-            
-            % save betas
-            grandavg.logisticHistory(sj, r, u, :) = b;
-        end
-        
         % =========================================== %
         % Post-error slowing, Dutilh et al. 2012
         % =========================================== %
@@ -253,6 +222,28 @@ for sj = unique(subjects),
         % also regress out the evidence strength
         data.rt                         = projectout(data.rt, zscore(abs(data.motionstrength)));
         grandavg.pesRegressedout(sj, u) = median(data.rt(errortrls + 1) - data.rt(errortrls - 1));
+        
+        % =========================================== %
+        % history-dependent logistic
+        % =========================================== %
+        
+        % previous response
+        resps = [0 1];
+        for r = 1:2,
+            
+            % take a further subset of trials with previous response 1 or 0
+            laggedresptrls  = find(data.resp == resps(r));
+            laggedresptrls  = laggedresptrls + 1; % go one trial later
+            laggedresptrls  = intersect(laggedtrls, laggedresptrls);
+            thisdat         = data(laggedresptrls, :);
+            
+            [bias, slope, lapseLow, lapseHigh] = fitLogistic(...
+                thisdat.motionstrength, thisdat.resp);
+            % fprintf('%.2f %.2f %.2f %.2f \n', [bias slope lapseLow lapseHigh]);
+            
+            % save betas
+            grandavg.logisticHistory(sj, r, u, :) = [bias slope];
+        end
         
     end % uncertainty bin
 end % sj
@@ -284,6 +275,7 @@ grandavg.logisticHistory = logOdds2Probability(grandavg.logisticHistory(:, :, :,
 grandavg.sensitivity    = grandavg.logistic(:, :, 2);
 grandavg.signedBias     = grandavg.logistic(:, :, 1);
 grandavg.absoluteBias   = abs(grandavg.logistic(:, :, 1));
+grandavg.lapse          = grandavg.logistic(:, :, 3);
 
 % ========================================================= %
 % for matched accuracy, remove the mean accuracy for each level of coherence
@@ -292,7 +284,7 @@ grandavg.absoluteBias   = abs(grandavg.logistic(:, :, 1));
 % only take those trials with evidence < 10% motion coherence
 grandavg.accuracyCorrected = squeeze(nanmean(grandavg.accuracyMatched(:, 1:6, :), 2));
 
-% subtract the mean accuracy 
+% subtract the mean accuracy
 accuracyMatched2 = bsxfun(@minus, grandavg.accuracyMatched, grandavg.meanAcc);
 accuracyMatched3 = squeeze(nanmean(accuracyMatched2, 2));
 grandavg.accuracyMatched = accuracyMatched3;
