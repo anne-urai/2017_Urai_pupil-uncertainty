@@ -94,6 +94,9 @@ for m = 1:length(mods),
             case 'repetition'
                 set(gca, 'ylim', [0.47 0.57], 'ytick', [0.47:0.05:0.57]);
                 ylabel('P(repeat)');
+                %anovaTable = friedman(y);
+                %assert(1==0);
+               % pval = permtest(y(:, 1), y(:, 3));
             case 'lapse'
                 set(gca, 'ylim', [0 0.02], 'ytick', [0:0.01:0.02]);
                 ylabel('P(lapse)');
@@ -102,12 +105,10 @@ for m = 1:length(mods),
         end
         
         % do statistics, repeated measures anova across bins
-        
         sj      = repmat(1:27, nbins, 1)';
         ft      = repmat(transpose(1:nbins), 1, 27)';
         f{1}    = ft(:);
         stats   = rm_anova(y(:), sj(:), f); % from Valentin
-        
         
         % do Bayesian ANOVA to get Bayes Factors
         statdat         = table;
@@ -121,13 +122,15 @@ for m = 1:length(mods),
         yval    = max(get(gca, 'ylim'));
         if stats.f1.pvalue < 0.05, % only show if significant
             mysigstar(gca, [1 nbins], [yval yval], statres{s}.pvalue, 'k', 'down');
+            set(h(1), 'markerfacecolor', 'k', 'markeredgecolor', 'w', 'markersize', 4, 'marker', 'o');
         else
             set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', 4, 'marker', 'o');
+            % show stats in the plot
+            % title({sprintf('p = %.3f', statres{s}.pvalue); sprintf('BF_{10} = %.3f', statres{s}.bf10)}, ...
+            %     'fontweight', 'normal');
+            ylims = get(gca, 'ylim');
+            text(2, 0.9*ylims(2), sprintf('BF10 = %.3f', statres{s}.bf10));
         end
-        
-        % show stats in the plot
-        title({sprintf('p = %.3f', statres{s}.pvalue); sprintf('BF_{10} = %.3f', statres{s}.bf10)}, ...
-            'fontweight', 'normal');
         
         switch mods{m}
             case 'pupil'
@@ -143,31 +146,29 @@ for m = 1:length(mods),
     % just do stats
     % ========================================================= %
     
-    if 0,
-        statsFields = {'sensitivity', 'signedBias', ...
-            'absoluteBias','pesRegressedout', 'repetition', 'RT', 'lapse'};
-        for s = 1:length(statsFields),
-            y       = grandavg{m}.(statsFields{s});
-            sj      = repmat(1:27, nbins, 1)';
-            ft      = repmat(transpose(1:nbins), 1, 27)';
-            f{1}    = ft(:);
-            stats   = rm_anova(y(:), sj(:), f); % from Valentin
-            
-            % do Bayesian ANOVA to get Bayes Factors
-            statdat         = table;
-            statdat.DV      = y(:);
-            statdat.subjnr  = sj(:);
-            statdat.prevPupilBins = ft(:);
-            writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
-            system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
-            statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
-        end
+    statsFields = {'sensitivity', 'signedBias', ...
+        'absoluteBias','pesRegressedout', 'repetition', 'RT', 'lapse'};
+    for s = 1:length(statsFields),
+        y       = grandavg{m}.(statsFields{s});
+        sj      = repmat(1:27, nbins, 1)';
+        ft      = repmat(transpose(1:nbins), 1, 27)';
+        f{1}    = ft(:);
+        stats   = rm_anova(y(:), sj(:), f); % from Valentin
         
-        % print results
-        for s = 1:length(statres),
-            fprintf('\n %s, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
-                statsFields{s}, statres{s}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
-        end
+        % do Bayesian ANOVA to get Bayes Factors
+        statdat         = table;
+        statdat.DV      = y(:);
+        statdat.subjnr  = sj(:);
+        statdat.prevPupilBins = ft(:);
+        writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
+        system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+        statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
+    end
+    
+    % print results
+    for s = 1:length(statres),
+        fprintf('\n %s, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
+            statsFields{s}, statres{s}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
     end
     
     cnt = cnt + 5;

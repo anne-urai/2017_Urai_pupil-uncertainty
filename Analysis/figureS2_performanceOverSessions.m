@@ -224,6 +224,21 @@ f{1}    = f1; f{2} = f2;
 
 % use Valentin's function, at some point I should figure out the Matlab anova syntax
 stats = rm_anova(y1(:), s(:), f);
-fprintf('Session F(%d,%d) = %.2f, p = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue);
-fprintf('Pupil F(%d,%d) = %.2f, p = %.3f \n', stats.f2.df(1), stats.f2.df(2), stats.f2.fstats, stats.f2.pvalue);
-fprintf('Interaction F(%d,%d) = %.2f, p = %.3f \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue);
+
+% ========================================================= %
+% BAYESIAN REPEATED MEASURES ANOVA
+% ========================================================= %
+
+% do Bayesian ANOVA to get Bayes Factors
+statdat         = table;
+statdat.DV      = y1(:);
+statdat.subjnr  = s(:);
+statdat.prevPupilBins = f2(:);
+statdat.session = f1(:);
+writetable(statdat, sprintf('%s/Data/CSV/sessionANOVAdat.csv', mypath));
+system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA_sessions.R --no-save');
+statres = readtable(sprintf('%s/Data/CSV/sessionANOVAresults.csv', mypath)); % fetch results
+
+fprintf('Session F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue, statres.session);
+fprintf('Interaction F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f  \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue, statres.pupil_session);
+
