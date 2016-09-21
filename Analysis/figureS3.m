@@ -1,23 +1,21 @@
 close all; figure;
 global mypath;
 
-% use nice shades of red and green
-colors = cbrewer('qual', 'Set1', 9);
 % error vs correct
-subplot(441); Uncertainty_byErrorCorrect('decision_pupil');
+subplot(441); uncertainty_byErrorCorrect('decision_pupil');
 % subplot(4,7,10); plotBetasSwarm(b, colors([1 2], :));
 % set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 
 % psychometric functions
-subplot(4,4,2);  PsychFuncs_byUncertainty('decision_pupil');
+subplot(4,4,2);  psychFuncs_byUncertainty('decision_pupil');
 %subplot(4,7,24); plotBetasSwarm(1./b, [0.7 0.7 0.7; 0.2 0.2 0.2]);
 %set(gca, 'xtick', [1 2], 'xticklabel', {'low', 'high'});
 %xlabel('Pupil response'); ylabel('Sensitivity (a.u.)');
 %ylim([0 1]);
 
 % other metrics of uncertainty
-subplot(4,4,3); UncertaintyAccuracy('decision_pupil');
+subplot(4,4,3); uncertaintyAccuracy('decision_pupil');
 % subplot(4,7,17); plotBetasSwarm(b(:, 2), [0 0 0]);
 % set(gca, 'xtick', 1, 'xticklabel', []);
 

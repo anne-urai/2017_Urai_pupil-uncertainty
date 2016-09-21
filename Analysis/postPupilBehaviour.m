@@ -42,7 +42,7 @@ for sj = unique(subjects),
     
     % read out the 70% correct threshold instead of 80%
     newx    = linspace(0, 0.4, 100);
-    curve   = Weibull([slope threshold lapse], newx);
+    curve   = weibull([slope threshold lapse], newx);
     thisthreshold = newx(dsearchn(curve', 0.7));
     data.thisthreshold = thisthreshold * ones(size(data.correct));
     
@@ -192,7 +192,7 @@ for sj = unique(subjects),
         
         [slope, threshold, lapse] = fitWeibull(abs(thisdat.motionstrength), thisdat.correct);
         grandavg.weibull(sj, u)   = threshold; % only keep this
-        grandavg.weibullCurve(sj, u, :) = Weibull([slope threshold lapse], linspace(0, 6, 100));
+        grandavg.weibullCurve(sj, u, :) = weibull([slope threshold lapse], linspace(0, 6, 100));
         
         [binnedx, binnedy]        = divideintobins(abs(thisdat.motionstrength), thisdat.correct, 5);
         grandavg.weibullPtsX(sj, u, :) = binnedx;

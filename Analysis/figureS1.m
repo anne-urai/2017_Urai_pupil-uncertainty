@@ -73,20 +73,20 @@ colors = cbrewer('qual', 'Set1', 9);
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 % error vs correct
-subplot(445); [b, bint] = Uncertainty_byErrorCorrect('rt');
-subplot(4,8,11); plotBetasSwarm(b, colors([1 2], :));
+%subplot(445); [b, bint] = Uncertainty_byErrorCorrect('rt');
+%subplot(4,8,11); plotBetasSwarm(b, colors([1 2], :));
 set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 % other metrics of uncertainty
-subplot(4,4,7); b = UncertaintyAccuracy('rt');
+subplot(4,4,5); b = uncertaintyAccuracy('rt');
 hold on; plot([min(get(gca, 'xtick')) max(get(gca, 'xtick'))], [50 50], ':k');
-subplot(4,8,15); plotBetasSwarm(b(:, 2), [0 0 0]);
+subplot(4,8,11); plotBetasSwarm(b(:, 2), [0 0 0]);
 set(gca, 'xtick', 1, 'xticklabel', []);
 ylim([-0.6 0]);
 
 % psychometric functions
-subplot(4,4,9); b = PsychFuncs_byUncertainty('rt');
-subplot(4,8,19); plotBetasSwarm(1./ b, [0.5 0.5 0.5; 0.2 0.2 0.2]);
+subplot(4,4,7); b = psychFuncs_byUncertainty('rt');
+subplot(4,8,15); plotBetasSwarm(1./ b, [0.5 0.5 0.5; 0.2 0.2 0.2]);
 set(gca, 'xtick', [1 2], 'xticklabel', {'fast', 'slow'});
 xlabel('Reaction time'); ylabel('Sensitivity (a.u.)');
 ylim([0 2]);

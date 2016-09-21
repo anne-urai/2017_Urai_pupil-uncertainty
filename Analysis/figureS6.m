@@ -2,7 +2,7 @@
 % reproduces
 clearvars -except mypath;
 global mypath;
-close; figure;
+close all; 
 
 %% use nice shades of red and green
 cols = cbrewer('qual', 'Set1', 8);

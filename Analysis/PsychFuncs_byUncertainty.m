@@ -63,7 +63,7 @@ for r = 1:2,
     
     % show the mean curve for the Weibull fit
     newx = linspace(0.1, 5.5, 100);
-    plot(newx, 100* Weibull(squeeze(nanmean(grandavg.b(:, r, :))), newx), 'color', colors(r, :)) ;
+    plot(newx, 100* weibull(squeeze(nanmean(grandavg.b(:, r, :))), newx), 'color', colors(r, :)) ;
     
     % datapoints on top
     h = ploterr( squeeze(nanmean(grandavg.ev(:, r, :))), squeeze(100* nanmean(grandavg.acc(:, r, :))), ...

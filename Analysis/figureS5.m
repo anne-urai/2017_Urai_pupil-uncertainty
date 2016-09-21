@@ -1,6 +1,6 @@
 
 clearvars -except mypath;
-global mypath;
+global mypath; close all; clc;
 mods = {'pupil', 'rt'};
 nbins = 3;
 for m = 1:2,

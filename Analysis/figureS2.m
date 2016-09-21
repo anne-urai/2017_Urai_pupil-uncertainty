@@ -5,7 +5,7 @@ global mypath;
 %% add psychometric functions, chronometric functions
 for s = 2:6,
     subplot(5,5,s-1);
-    PsychometricFunction(s);
+    psychometricFunction(s);
 end
 
 if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypath), 'file'),
@@ -81,7 +81,7 @@ end
 % plot history kernels, only individual data
 for s = 2:6,
     subplot(5,5,s-1+15);
-    FruendKernels(sprintf('plain_session%d', s), 'response');
+    fruendKernels(sprintf('plain_session%d', s), 'response');
     set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.7 0 0.7], ...
         'ylim', [-.75 .7], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
     ylabel('');

@@ -1,13 +1,13 @@
 clearvars -except mypath; clc; close all;
 global mypath;
 
-subplot(441); SjCorrelation('pupil', 'correct');  %title('Correct');
+subplot(441); sjCorrelation('pupil', 'correct');  %title('Correct');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('Pupil x correct weight');
 xlabel('Choice weight');
 
-subplot(442); SjCorrelation('pupil', 'incorrect'); %title('Incorrect');
+subplot(442); sjCorrelation('pupil', 'incorrect'); %title('Incorrect');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('Pupil x error weight');
@@ -25,14 +25,14 @@ x = dat.response(:, 1);
 xlabel(sprintf('dr = %.3f, p = %.3f \n', rddiff, p));
 
 % now for RT
-subplot(4,4,3);  SjCorrelation('rt', 'correct');
+subplot(4,4,3);  sjCorrelation('rt', 'correct');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('RT x correct weight');
 set(gca, 'yaxislocation', 'left');
 xlabel('Choice weight');
 
-subplot(4,4,4);  SjCorrelation('rt', 'incorrect');
+subplot(4,4,4);  sjCorrelation('rt', 'incorrect');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('RT x error weight');

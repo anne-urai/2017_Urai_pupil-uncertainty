@@ -4,23 +4,23 @@
 close all; 
 global mypath;
 
-subplot(4,4,1); PupilTimecourse(0);
-subplot(4,4,3); PupilUncertaintyTimecourse;
+subplot(4,4,1); pupilTimecourse(0);
+subplot(4,4,3); pupilUncertaintyTimecourse;
 
 % use nice shades of red and green
 colors = cbrewer('qual', 'Set1', 9);
 % error vs correct
-subplot(445); b = Uncertainty_byErrorCorrect('decision_pupil');
+subplot(445); b = uncertainty_byErrorCorrect('decision_pupil');
 cla; plotBetasSwarm(b, colors([1 2], :));
 set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 % other metrics of uncertainty
-subplot(4,4,6); b = UncertaintyAccuracy('decision_pupil');
+subplot(4,4,6); b = uncertaintyAccuracy('decision_pupil');
 cla; plotBetasSwarm(b(:, 2), [0 0 0]);
 set(gca, 'xtick', 1, 'xticklabel', []);
 
 % psychometric functions
-subplot(4,4,7); b = PsychFuncs_byUncertainty('decision_pupil');
+subplot(4,4,7); b = psychFuncs_byUncertainty('decision_pupil');
 cla; plotBetasSwarm(1./b, [0.7 0.7 0.7; 0.2 0.2 0.2]);
 set(gca, 'xtick', [1 2], 'xticklabel', {'low', 'high'});
 xlabel('Pupil response'); ylabel('Sensitivity (a.u.)');

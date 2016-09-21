@@ -8,7 +8,7 @@ figure;
 subplot(442); historyContribution;
 
 % take P10 as an example
-subplot(443); FruendKernels('plain', 'response');
+subplot(443); fruendKernels('plain', 'response');
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 
 subplot(444); decisionStrategies('plain');
@@ -30,13 +30,13 @@ set(gca, 'xtick', 1:4, 'xticklabel', ...
     {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
     'xticklabelrotation', -30);
 
-subplot(4,4,10); SjCorrelation('pupil', 'response');
-subplot(4,4,11); SjCorrelation('rt', 'response');
+subplot(4,4,10); sjCorrelation('pupil', 'response');
+subplot(4,4,11); sjCorrelation('rt', 'response');
 
 % show median split for correlation stuff
-subplot(4,9,35); MedianSplit('pupil', 'response'); 
+subplot(4,9,35); medianSplit('pupil', 'response'); 
 ylim([-0.4 0.15]); ylabel('Pupil x choice weight');
-subplot(4,9,36); MedianSplit('rt', 'response'); 
+subplot(4,9,36); medianSplit('rt', 'response'); 
 ylim([-0.4 0.15]); set(gca, 'yaxislocation', 'right');
 ylabel('RTx choice weight');
 

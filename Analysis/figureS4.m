@@ -16,8 +16,8 @@ ylabel('P(choice = 1)');
 xlabel('Sensory evidence (a.u.)');
 ylim([-0.05 1]); 
 
-subplot(442); ExamplePsychFunc(20); title(sprintf('Participant %d', 20));
-subplot(443); ExamplePsychFunc(13); title(sprintf('Participant %d', 13));
-subplot(444); ExamplePsychFuncShift(10); title('Participant 10');
+subplot(442); examplePsychFunc(20); title(sprintf('Participant %d', 20));
+subplot(443); examplePsychFunc(13); title(sprintf('Participant %d', 13));
+subplot(444); examplePsychFuncShift(10); title('Participant 10');
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS4.pdf', mypath));
