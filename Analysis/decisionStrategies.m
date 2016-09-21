@@ -31,31 +31,15 @@ else
     end
 end
 
-% also show the mean
-h = ploterr(mean(mean(dat.response(:, 1), 2)), mean(mean(dat.stimulus(:, 1), 2)), ...
-    std(mean(dat.response(:, 1), 2)), ...
-    std(mean(dat.stimulus(:, 1), 2)), ...
-    'o', 'abshhxy', 0);
-set(h(1), 'markeredgecolor', 'k', 'markerfacecolor', 'w', 'markersize', 4);
-set(h(2), 'color', 'k');
-set(h(3), 'color', 'k');
+fz = 6;
+text(0, 0.36, 'win stay', 'horizontalalignment', 'center', 'fontsize', fz);
+text(0, 0.32, 'lose switch', 'horizontalalignment', 'center', 'fontsize', fz);
 
-if showexample,
-    % mark the example subject
-    hold on;
-    plot(dat.response(10, 1), dat.stimulus(10, 1), 'ok', 'markersize', 4, 'linewidth', 0.2);
-    
-    % start with text
-    fz = 6;
-    text(0, 0.36, 'win stay', 'horizontalalignment', 'center', 'fontsize', fz);
-    text(0, 0.32, 'lose switch', 'horizontalalignment', 'center', 'fontsize', fz);
-    
-    text(0, -0.32, 'win switch', 'horizontalalignment', 'center', 'fontsize', fz);
-    text(0, -0.36, 'lose stay', 'horizontalalignment', 'center', 'fontsize', fz);
-    
-    text(0.36, .05, 'stay', 'rotation', 270, 'fontsize', fz);
-    text(-0.36, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
-end
+text(0, -0.32, 'win switch', 'horizontalalignment', 'center', 'fontsize', fz);
+text(0, -0.36, 'lose stay', 'horizontalalignment', 'center', 'fontsize', fz);
+
+text(0.36, .05, 'stay', 'rotation', 270, 'fontsize', fz);
+text(-0.36, -.06, 'switch', 'rotation', 90, 'fontsize', fz);
 
 % layout
 maxlim = 0.5;

@@ -7,7 +7,7 @@ for sj  = 1:27,
     stim(stim == -1) = 0;
     stimRep.transition(sj, :) = nanmean(abs(diff(stim)));
 end
-fprintf('prib = %.3f, range %.3f-%.3f \n', ...
+fprintf('transitionprob = %.3f, range %.3f-%.3f \n', ...
     nanmean(stimRep.transition(:)), min(stimRep.transition(:)), max(stimRep.transition(:)));
 
 % correlate with individual weights
@@ -47,7 +47,6 @@ fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
 [rho, pval] = corr(stimRep.rho, dat.stimulus(:, 1));
 bf10 = corrbf(rho, 27);
 fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
-
 
 % correlate with individual pupil x choice weights
 load(sprintf('%s/Data/GrandAverage/historyweights_pupil+rt.mat', mypath));

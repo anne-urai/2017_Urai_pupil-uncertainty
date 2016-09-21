@@ -35,10 +35,7 @@ end
 scatter(ones(1, 27), dat.(field)(:, 1), 10, mycolmap, 'filled');
 
 if strcmp(whichmodulator, 'plain') && strcmp(field, 'response'),
-    
-    % show which one is the example
-    plot(1, dat.(field)(10, 1), 'ok', 'markersize', 4, 'linewidth', 0.2);
-    
+
     % add the group
     [ax, p1, p2] = plotyy(1:7, nanmean(dat.(field)),  ...
         1:7, mean(abs(dat.(field))));
@@ -54,7 +51,6 @@ if strcmp(whichmodulator, 'plain') && strcmp(field, 'response'),
     ylabel(ax(2),'|Choice weight|') % label right y-axis
     
 elseif strcmp(field, 'response_pupil'),
-    
     
     % indicate significance for each lag
     clear h;

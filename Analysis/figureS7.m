@@ -1,6 +1,8 @@
 % plot the history kernels, only mean +- sem
+
+clearvars -except mypath;
 global mypath
-close all
+close all; clc;
 
 nbins = 3;
 grandavg = postPupilBehaviour('baseline_pupil', nbins, []);
@@ -11,7 +13,7 @@ plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
 thiscolor = [0 0 0]; thismarker = '.'; thismarkersize = 14;
 % errorbar
 h = ploterr(1:nbins, nanmean(y), [], nanstd(y) ./sqrt(27), 'k-',  'abshhxy', 0);
-set(h(1), 'color', thiscolor, 'markersize', thismarkersize, 'marker',thismarker);
+set(h(1), 'color', thiscolor, 'markersize', thismarkersize, 'marker', thismarker);
 set(h(2), 'color', thiscolor); % line color
 
 xticklabs       = repmat({' '}, 1, nbins);
@@ -43,8 +45,11 @@ yval = max(get(gca, 'ylim'));
 if statres.pvalue < 0.05, % only show if significant
     mysigstar(gca, [1 nbins], [yval yval], statres{cnt}.pvalue, 'k', 'down');
 end
-xlabel('Baseline pupil'); axis square;
+fprintf('\n ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
+     statres.df1, statres.df2, statres.F, statres.pvalue, statres.bf10);
+xlabel({'Current baseline'; 'pupil diameter'}); axis square;
 
+%% all 7 lags for pupil x choice weight
 subplot(442);
 plot([1 7], [0 0], ':'); hold on;
 set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.1:0.05:0.1], ...
@@ -56,4 +61,4 @@ plot(1, -0.06, '*k', 'markersize', 2);
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 boundedline(1:7, mean(dat.response_pupil), std(dat.response_pupil) ./ sqrt(27), 'k');
 
-print(gcf, '-dpdf', sprintf('%s/Figures/S7_pupilLags.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS7.pdf', mypath));

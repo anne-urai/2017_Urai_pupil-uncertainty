@@ -57,22 +57,19 @@ a3_writeData2GA;
 % timecourses
 a4_writeData2CSV;
 
-%% reproduce figure 1, 2, 3
-close all;
+%% plot figures 1-4
+cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
 figure1;
-
-close all;
 figure2;
-
-close all;
 figure3; 
+figure4; % note: to get Bayes Factors, need R installed!
 
 %% run the python model with modulatory term
 % write away text files that have the format Python needs
 a5_writeFiles4pythonToolbox;
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
-mods = {'plain', 'pupil+rt', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
+mods = {'plain', 'plainCoh', 'pupil+rt', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
 
 % this is easiest to run from the terminal. With Python 2.7 installed, go
@@ -81,87 +78,73 @@ cd(sprintf('%s/Code/serial-dependencies', mypath));
 
 for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+        sprintf('echo $filename; python2.7 analysis.py -fr -n1000 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 
 % important: if you want the quick and dirty version without accurate
 % individual errorbars, change -n1000 to -n10. Otherwise, the code will run 
 % bootstraps which can take quite a while.
 
-%% get the output back into something Matlab can work with
+% get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
 for m = 1:length(mods),
     a6_retrieveDataFromPython(mods{m}); 
 end
 
-%% reproduce figures 4 and 5 based on the model fits
-close all;
-figure4;
-
 close all;
 figure5;
 
 %% also create the supplementary figures
-figureS1_RT;
-figureS2_performanceOverSessions;
-figureS3_pupilUncertainty;
-figureS4_BiasIllustration;
-figureS5_responseBias_byPupil;
-figureS6_History_CorrectError;
-figureS7_pupilResponseLagged;
-figureS7_feedbackpupil;
-figureS8_scatterIndividual; 
-% mediationAnalysis;
-figureS1_MotionEnergy_Filters;
-RT_additionalTime;
-
-% some things that are not in Figures but reported in the text
-stimulusTransitions;
+figureS1;
+figureS2;
+figureS3;
+figureS4;
+figureS5;
+figureS6;
+figureS7;
+figureS8;
+figureS9;
+figureS10; 
+figureS11;
 
 %% analyze some final stuff that's not in the figures
-% reported in text, or only shown in the response to reviewers
 
-% 5. checks on model-based uncertainty and its effect on switching
-uncertaintyControlAnalyses;
+% reported in text
+stimulusTransitions;
 
-% 6. does individual choice tendency correlate with psychometric thresholds?
+% do individual choice tendency correlate with psychometric thresholds?
 data          = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 data.evidence = abs(data.motionstrength);
 pBest         = rowfun(@fitWeibull, data, 'inputvariables', {'evidence', 'correct'}, ...
-    'groupingvariables', {'subjnr', 'sessionnr'}, 'outputvariablenames', {'slope', 'threshold', 'lapse'});
-
+    'groupingvariables', {'subjnr'}, 'outputvariablenames', {'slope', 'threshold', 'lapse'});
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
-scatter(pBest(:, 2), dat.response(:, 1));
-[rho, pval] = corr(pBest(:, 2), dat.response(:, 1));
+scatter(pBest.threshold', dat.response(:, 1));
+[rho, pval] = corr(pBest.threshold, dat.response(:, 1));
 
-% 7. RT for the easiest trials
+% RT for the easiest trials
 data    = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 data    = data(find(data.difficulty == 5), :);
 data.rt = data.rt * 1000;
 RTs     = splitapply(@median, data.rt, findgroups(data.subjnr)); % in ms
-fprintf('mean %.3f, min %.3f, max %.3f', mean(RTs), min(RTs), max(RTs));
+fprintf('RTs for the easiest trials: mean %.3f, min %.3f, max %.3f', mean(RTs), min(RTs), max(RTs));
 
-% 9. does figure 6 depend on running pupil and RT in the same model?
+% does figure 5 depend on running pupil and RT in the same model?
 subplot(5,5,1); rho1 = SjCorrelation('pupil', 'response', 'pupil');
 ylabel('Pupil x choice weight');
 subplot(5,5,2); rho2 = SjCorrelation('pupil', 'response', 'rt');
 ylabel('RT x choice weight'); set(gca, 'yaxislocation', 'right');
 suplabel('Choice weight', 'x');
-
-% unpaired test between rho's (because the fitted choice weights are not
-% identical anymore)
 [ridiff,cilohi,p] = ridiffci(rho1, rho2, 27, 27, 0.05);
 suplabel(sprintf('delta r = %.3f, p = %.3f', ridiff, p), 't');
-print(gcf, '-dpdf', sprintf('%s/Figures/separateRegressionModels.pdf', mypath));
 
 % median of ISI
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 ISIs = splitapply(@nanmedian, data.latency_feedbackisi, findgroups(data.subjnr)) - 2.25;
 
-% check if pupil quality explains fitted betas
+% does the pupil interpolation affect the estimated pupil x choice weight?
 load(sprintf('%s/Data/GrandAverage/historyweights_pupil+rt.mat', mypath));
 load(sprintf('%s/Data/GrandAverage/pupilquality.mat', mypath));
-
+[rho, pval] = corr(dat.response_pupil(:, 1), grandavg.rejectTrials');
 
 %% there you go! get in touch if you have any further questions.
 % Anne Urai, anne.urai@gmail.com / @AnneEUrai

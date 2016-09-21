@@ -69,18 +69,9 @@ for sj = (subjects),
     toc;
 end
 
-if length(subjects) > 5,
-    disp('writing to file...');
-    alldat2 = cat(1, alldat{:});
-    
-    %     % write to csv for all subjects
-    %     t = array2table(alldat2, 'VariableNames', ...
-    %         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
-    %         'resp', 'rt', 'correct', 'correctM', ...
-    %         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
-    %         'baseline_pupil', 'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
-
-    writetable(alldat2, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-end
+% also make 1 big file for all subjects
+disp('writing to file...');
+alldat2 = cat(1, alldat{:});
+writetable(alldat2, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 
 end

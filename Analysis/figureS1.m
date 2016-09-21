@@ -96,21 +96,19 @@ ax = findobj(gcf, 'type', 'axes');
 for a = 1:length(ax),
     pos = get(ax(a), 'position'); pos(4) = 0.15; set(ax(a), 'position', pos);
 end
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS1.pdf', mypath));
+
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS1.pdf', mypath));
 
 %% check how many trials are faster than 200 ms
 for sj = unique(data.subjnr)',
-        %RTs(sj, c, :)  = distFun(data.rt(data.subjnr == sj & data.correct == cors(c)));
-        %medians(sj, c) = nanmedian(data.rt(data.subjnr == sj & data.correct == cors(c)));
         fastResps(sj) = sum(data.rt(data.subjnr == sj) < 0.2) ...
             ./ sum(~isnan(data.rt(data.subjnr == sj)));
 end
 
 %% for rebuttal letter: cumulative distribution
+% this is not in the paper
 distFun = @(x) histcounts(x, edges, 'normalization', 'cdf');
-
-figure
-subplot(441); 
+subplot(4,4,16); 
 cmap = [0 0 0];
 clear RTs; clear medians;
 for sj = unique(data.subjnr)',
@@ -119,4 +117,3 @@ end
 boundedline(plotedges, squeeze(nanmedian(RTs)), permute(squeeze(iqr(RTs)) ./ sqrt(27), [2 3 1]), 'cmap', cmap);
 xlabel('Response time (s)'); ylabel('Cumulative probability');
 xlim([-0.1 1.5]); ylim([-0.05 1]); box off;
-print(gcf, '-dpdf', sprintf('%s/Figures/cumulativeRTs.pdf', mypath));

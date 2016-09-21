@@ -1,5 +1,6 @@
 
 % reproduces
+clearvars -except mypath;
 global mypath;
 close; figure;
 
@@ -49,18 +50,19 @@ for m = 1:length(mods),
         
         set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
             'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
-        axis square; xlim([0.5 nbins+0.5]);
+        axis square; 
         
         % determine y label and limits
-        set(gca, 'ylim', [0.46 0.56], 'ytick', 0.48:0.02:0.56);
+        set(gca, 'ylim', [0.46 0.58], 'ytick', 0.48:0.05:0.58);
         ylabel('P(repeat)');
+        xlim([0.5 nbins+0.5]);
         
         % do Bayesian ANOVA to get Bayes Factors
         statdat             = table;
         statdat.DV          = y(:);
-        sj = repmat(1:27, nbins, 1)';
+        sj                  = repmat(1:27, nbins, 1)';
         statdat.subjnr      = sj(:);
-        ft      = repmat(transpose(1:nbins), 1, 27)';
+        ft                  = repmat(transpose(1:nbins), 1, 27)';
         statdat.prevPupilBins = ft(:);
         writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
         system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
@@ -70,6 +72,8 @@ for m = 1:length(mods),
         if statres{cnt}.pvalue < 0.05, % only show if significant
             mysigstar(gca, [1 nbins], [yval yval], statres{cnt}.pvalue, 'k', 'down');
         end
+        fprintf('\n %s, correct %d, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
+            mods{m}, cors(c), statres{cnt}.df1, statres{cnt}.df2, statres{cnt}.F, statres{cnt}.pvalue, statres{cnt}.bf10);
         
         switch mods{m}
             case 'pupil'
@@ -99,4 +103,4 @@ subplot(4,4,7); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors(
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS6.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS6.pdf', mypath));

@@ -58,6 +58,8 @@ for sj = unique(subjects),
     % =========================================== %
     
     switch whichmodulator
+        case 'fbpupil'
+            whichMod = 'feedback_pupil';
         case 'fb+decpupil'
             whichMod = 'feedback_pupil';
             data.feedback_pupil = projectout(data.feedback_pupil, data.decision_pupil);

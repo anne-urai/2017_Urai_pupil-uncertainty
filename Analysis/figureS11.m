@@ -1,4 +1,4 @@
-function [] =  figureS1_MotionEnergy_Filters()
+function [] =  figureS11()
 % show two motionenergy filters to describe the filtering process
 % Anne Urai, 2015
 
@@ -234,7 +234,7 @@ for thistheta = theta,
 end
 
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS1.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS11.pdf', mypath));
 
 end% function end
 

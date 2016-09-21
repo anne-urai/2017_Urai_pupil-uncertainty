@@ -5,6 +5,8 @@ global mypath;
 close;
 figure;
 
+subplot(442); historyContribution;
+
 % take P10 as an example
 subplot(443); FruendKernels('plain', 'response');
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
@@ -15,7 +17,7 @@ set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 subplot(4,4,9); plotBetas([dat.response_pupil(:, 1) ...
     dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], ...
-    [0 0 0; 0 0 0; 0 0 0; 0 0 0]);
+    0.5*ones(4,3));
 
 % paired stats
 [~, pval, ~, stat] = ttest(dat.response_pupil(:, 1), dat.stimulus_pupil(:, 1));
@@ -38,6 +40,6 @@ subplot(4,9,36); MedianSplit('rt', 'response');
 ylim([-0.4 0.15]); set(gca, 'yaxislocation', 'right');
 ylabel('RTx choice weight');
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figure5.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/Figure5.pdf', mypath));
 
 

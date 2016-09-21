@@ -20,4 +20,4 @@ subplot(442); ExamplePsychFunc(20); title(sprintf('Participant %d', 20));
 subplot(443); ExamplePsychFunc(13); title(sprintf('Participant %d', 13));
 subplot(444); ExamplePsychFuncShift(10); title('Participant 10');
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS4.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS4.pdf', mypath));

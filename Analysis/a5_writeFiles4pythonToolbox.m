@@ -22,7 +22,8 @@ for sj = subjects,
     blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
     
     % no motionstrength, just coherence
-    newdat = [ blocknrs data.sessionnr data.coherence (data.stim > 0) (data.resp > 0)];
+    % this will be used to generate Figure 5b
+    newdat = [blocknrs data.sessionnr data.coherence (data.stim > 0) (data.resp > 0)];
     dlmwrite(sprintf('2ifc_plainCoh_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
@@ -44,7 +45,6 @@ for sj = subjects,
         newdat,'delimiter','\t','precision',4);
     
     % double modulation: decision pupil and rt
-    % log-transform RT, make sure this doesn't include zero!
     newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
         zscore(data.decision_pupil) data.rtNorm];
     dlmwrite(sprintf('2ifc_pupil+rt_sj%02d.txt', sj), ...
@@ -62,9 +62,4 @@ for sj = subjects,
     dlmwrite(sprintf('2ifc_fb+decpupil_sj%02d.txt', sj), ...
         newdat,'delimiter','\t','precision',4);
     
-    % feedback pupil with decision pupil in the model
-    newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.motionstrength > 0) (data.resp > 0) ...
-        zscore(data.feedback_pupil) zscore(data.decision_pupil)];
-    dlmwrite(sprintf('2ifc_fb+decpupil_sj%02d.txt', sj), ...
-        newdat,'delimiter','\t','precision',4);
 end

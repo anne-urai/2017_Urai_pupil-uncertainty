@@ -120,16 +120,13 @@ for m = 1:length(mods),
         statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
         
         yval    = max(get(gca, 'ylim'));
-        if stats.f1.pvalue < 0.05, % only show if significant
+        if stats.f1.pvalue < 0.05, % only show stars if significant
             mysigstar(gca, [1 nbins], [yval yval], statres{s}.pvalue, 'k', 'down');
             set(h(1), 'markerfacecolor', 'k', 'markeredgecolor', 'w', 'markersize', 4, 'marker', 'o');
         else
             set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', 4, 'marker', 'o');
-            % show stats in the plot
-            % title({sprintf('p = %.3f', statres{s}.pvalue); sprintf('BF_{10} = %.3f', statres{s}.bf10)}, ...
-            %     'fontweight', 'normal');
             ylims = get(gca, 'ylim');
-            text(2, 0.9*ylims(2), sprintf('BF10 = %.3f', statres{s}.bf10));
+            text(1, ylims(2), sprintf('Bf_{10} = %.3f', statres{s}.bf10));
         end
         
         switch mods{m}
@@ -175,4 +172,4 @@ for m = 1:length(mods),
 end
 
 % save
-print(gcf, '-dpdf', sprintf('%s/Figures/figure4_allMeasures_%dbins.pdf', mypath, nbins));
+print(gcf, '-dpdf', sprintf('%s/Figures/Figure4.pdf', mypath));

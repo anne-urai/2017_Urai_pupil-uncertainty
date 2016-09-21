@@ -27,5 +27,4 @@ ylabel('P(choice = 1)');
 axis square;
 box off;
 
-
 end

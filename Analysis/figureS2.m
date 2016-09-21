@@ -91,15 +91,11 @@ for s = 2:6,
 end
 
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS2.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS2.pdf', mypath));
 
 % ====================================================================================== %
 %% do repetition bias stats for each session, big ANOVA
 % ====================================================================================== %
-
-% =========================================== %
-% BIAS - ITERATE OVER TWO RESPONSES
-% =========================================== %
 
 subjects = 1:27;
 clear grandavg;
@@ -242,3 +238,10 @@ statres = readtable(sprintf('%s/Data/CSV/sessionANOVAresults.csv', mypath)); % f
 fprintf('Session F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue, statres.session);
 fprintf('Interaction F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f  \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue, statres.pupil_session);
 
+%% wite out for JASP format
+statdat.prevPupilBins = categorical(statdat.prevPupilBins);
+statdat.session = categorical(statdat.session);
+
+test = unstack(statdat, 'DV', {'prevPupilBins'});
+test = unstack(test, {'x1', 'x2', 'x3'}, 'session');
+writetable(test, sprintf('%s/Data/CSV/JASP_AnovaCheck.csv', mypath));

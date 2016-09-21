@@ -140,6 +140,7 @@ model.evs           = unifrnd(min(data.motionstrength), max(data.motionstrength)
 model.dvs           = model.evs + normrnd(0, sigma, size(model.evs));
 model.choice        = sign(model.dvs);
 model.correct       = (model.choice == sign(model.evs));
+
 % normal cdf on absolute dv, see Lak et al. equation 7
 dv2conf             = @(x, sigma) 0.5 * (1 + erf(abs(x) ./ (sqrt(2)*sigma)));
 model.confidence    = dv2conf(model.dvs, sigma);
@@ -260,8 +261,7 @@ lpos(1) = lpos(1) + 0.05;
 set(l, 'position', lpos);
 
 % save
-cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
-print(gcf, '-dpdf', sprintf('%s/Figures/figure1.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/Figure1.pdf', mypath));
 
 
 

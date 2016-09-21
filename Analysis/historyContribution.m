@@ -15,15 +15,11 @@ for sj = 1:27,
     dat.newvariance.explained(sj, ismember(dat.newvariance.stimuli, B(:, 1))) = B(:, 2);
 end
 
-subplot(4,4,1); 
 boundedline(dat.newvariance.stimuli, ...
     squeeze(nanmean(dat.newvariance.explained)), ...
     squeeze(nanstd(dat.newvariance.explained)) ./ sqrt(sum(~isnan(dat.newvariance.explained))), ...
     'cmap', [0 0 0]);
 
 axis square; box off;
-title('TEst');
 ylim([-8 100]); xlim([-2 30]);
-xlabel('motion coherence'); ylabel('History contribution (%)');
-
-print(gcf, '-dpdf', sprintf('%s/Figures/historyContribution.pdf', mypath));
+xlabel('Evidence strength'); ylabel('History contribution (%)');

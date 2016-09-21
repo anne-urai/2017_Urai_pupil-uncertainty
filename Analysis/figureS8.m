@@ -107,6 +107,7 @@ end
 % now see if latencies between this trial and the next change as a function of RT
 fprintf('mean rho: %.3f, range %.3f to %.3f, significant in %d out of 27 participants \n', ...
     mean(rho), min(rho), max(rho), length(find(pval < 0.05)));
+close all;
 
 %% next: check whether regressing out these latencies reduces the effect of RT
 correctness = []; % empty; both correct and error trials will be used
@@ -148,20 +149,10 @@ for m = 1:length(mods),
             end
         end
         
-        switch plotFields{s},
-            case 'repetition'
-                % line to indicate 50 % repetition
-                plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
-            case {'pes', 'pesMatched', 'pesRegressedout'}
-                plot([1 nbins], [0.0 0.0], 'k:', 'linewidth', 0.5); hold on;
-        end
-        
-        % errorbar
+        % line to indicate 50 % repetition
+        plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
         h = ploterr(x, nanmean(y), [], nanstd(y) ./sqrt(27), 'k-',  'abshhxy', 0);
         set(h(1), 'color', thiscolor, 'markersize', thismarkersize, 'marker',thismarker);
-        
-        % only for error markers, triangle
-        if correctness == 0, set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', thiscolor); end
         set(h(2), 'color', thiscolor); % line color
         
         xticklabs       = repmat({' '}, 1, nbins);
@@ -189,7 +180,7 @@ for m = 1:length(mods),
                 set(gca, 'ylim', [0.2 0.4], 'ytick', [0.2 0.3 0.4]);
                 ylabel('Absolute bias');
             case 'repetition'
-                set(gca, 'ylim', [0.48 0.54], 'ytick', 0.48:0.02:0.54);
+                set(gca, 'ylim', [0.46 0.58], 'ytick', 0.48:0.05:0.58);
                 ylabel('P(repeat)');
             otherwise
                 ylabel(plotFields{s});
@@ -228,7 +219,7 @@ for m = 1:length(mods),
             case 'rt'
                 xlabel('Previous trial RT');
             case 'rt_withlatencies'
-                xlabel({'Previous trial RT'; 'latencies removed'});
+                xlabel('Previous trial RT');
             otherwise
                 xlabel(sprintf('Previous trial %s', mods{m}));
         end
@@ -242,46 +233,48 @@ end
 % save
 
 %%
-alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
-% corrplot(alldata, {'decision_pupil', 'latency_fixation', 'latency_interval', 'latency_rtfeedback', 'latency_feedbackisi'})
-cd(sprintf('%s/Code/serial-dependencies/data', mypath));
-figure;
-for sj = unique(alldata.subjnr)',
+mods{1} = 'cleanpupil+rt';
+if ~exist(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, mods{1}), 'file'),
     
-    data = alldata(alldata.subjnr == sj, :);
-    
-    blockchange = find(diff(data.trialnr) < 0);
-    blocknrs = zeros(size(data.rt));
-    for b = 1:length(blockchange)-1,
-        blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
+    alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
+    % corrplot(alldata, {'decision_pupil', 'latency_fixation', 'latency_interval', 'latency_rtfeedback', 'latency_feedbackisi'})
+    cd(sprintf('%s/Code/serial-dependencies/data', mypath));
+    %figure;
+    for sj = unique(alldata.subjnr)',
+        data = alldata(alldata.subjnr == sj, :);
+        
+        blockchange = find(diff(data.trialnr) < 0);
+        blocknrs = zeros(size(data.rt));
+        for b = 1:length(blockchange)-1,
+            blocknrs(blockchange(b)+1:blockchange(b+1)) = blocknrs(blockchange(b))+1;
+        end
+        blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
+        
+        % put all data in
+        cleanpupil = projectout(data.decision_pupil, data.latency_fixation);
+        cleanpupil = projectout(cleanpupil, data.latency_interval);
+        cleanpupil = projectout(cleanpupil, data.latency_rtfeedback);
+        assert(~any(isnan(cleanpupil)));
+        
+        newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0) ...
+            nanzscore(cleanpupil) nanzscore(data.rtNorm)];
+        dlmwrite(sprintf('2ifc_cleanpupil+rt_sj%02d.txt', sj), ...
+            newdat,'delimiter','\t','precision',4);
     end
-    blocknrs(blockchange(end)+1:end) = blocknrs(blockchange(end))+1;
     
-    % put all data in
-    cleanpupil = projectout(data.decision_pupil, data.latency_fixation);
-    cleanpupil = projectout(cleanpupil, data.latency_interval);
-    cleanpupil = projectout(cleanpupil, data.latency_rtfeedback);
-    assert(~any(isnan(cleanpupil)));
-    
-    newdat = [blocknrs data.sessionnr abs(data.motionstrength) (data.stim > 0) (data.resp > 0) ...
-        nanzscore(cleanpupil) nanzscore(data.rtNorm)];
-    dlmwrite(sprintf('2ifc_cleanpupil+rt_sj%02d.txt', sj), ...
-        newdat,'delimiter','\t','precision',4);
+    % run model and retrieve data
+    cd(sprintf('%s/Code/serial-dependencies', mypath));
+    system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{1}), ...
+        sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+    cd(sprintf('%s/Code/Analysis', mypath));
+    a6_retrieveDataFromPython(mods{1});
 end
 
-% run model and retrieve data
-mods{1} = 'cleanpupil+rt';
-cd(sprintf('%s/Code/serial-dependencies', mypath));
-system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{1}), ...
-    sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
-cd(sprintf('%s/Code/Analysis', mypath));
-a6_retrieveDataFromPython(mods{1});
-
 % print the regression weights
-mods = {'pupil+rt', 'cleanpupil+rt'};
+mods = {'cleanpupil+rt'};
 for m = 1:length(mods),
     load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, mods{m}));
-    subplot(4,4,m);
+    subplot(4,4,m+2);
     plotBetas([dat.response_pupil(:, 1) ...
         dat.stimulus_pupil(:, 1)  dat.response_rt(:, 1) dat.stimulus_rt(:, 1)], 0.5);
     [~, pval, ~, stat] = ttest(dat.response_pupil(:, 1), dat.stimulus_pupil(:, 1));
@@ -293,9 +286,8 @@ for m = 1:length(mods),
         {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
         'xticklabelrotation', -30);
 end
-print(gcf, '-dpdf', sprintf('%s/Figures/cleanPupilWeights.pdf', mypath));
 
-
+alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 for sj = unique(alldata.subjnr)',
     [rho1(sj), pval1(sj)] = corr(alldata.decision_pupil(alldata.subjnr == sj), ...
         alldata.latency_interval(alldata.subjnr == sj), 'type', 'spearman');
@@ -308,4 +300,5 @@ fprintf('mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of
 fprintf('mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of 27 observers\n', ...
     mean(rho2), min(rho2), max(rho2), length(find(pval2 < 0.05)));
 
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS8.pdf', mypath));
 

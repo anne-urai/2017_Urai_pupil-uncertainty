@@ -1,19 +1,16 @@
 
+clearvars -except mypath;
 global mypath;
 mods = {'pupil', 'rt'};
 nbins = 3;
 for m = 1:2,
     subplot(4,4,m);
     grandavg{m} = postPupilBehaviour(mods{m}, 3, []);
-    
-    logOdds2Probability = @(x) exp(x) ./ (1 + exp(x));
     plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
     
     for r = 1:2,
         x = [1:3] + (r-1)*0.1;
         y = squeeze(grandavg{m}.logisticHistory(:, r, :));
-
-        % Use HOLD and ERRORBAR, passing axes handles to the functions.
         colors = cbrewer('qual', 'Set2', 3);
         switch r
             case 1
@@ -47,18 +44,21 @@ for m = 1:2,
     
     set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
         'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
-    axisNotSoTight; axis square; xlim([0.5 nbins+0.5]);
-    ylabel('P(choice = 1'); % ylim([0.4 0.53]);
+    axis square; xlim([0.5 nbins+0.5]);
+    ylabel('P(choice = 1');
     
     % do statistics, repeated measures anova across bins
     switch mods{m}
         case 'pupil'
             xlabel('Previous trial pupil');
+            ylim([0.45 0.55]); set(gca, 'ytick', 0.45:0.05:0.55);
         case 'rt'
             xlabel('Previous trial RT');
+            ylim([0.43 0.58]); set(gca, 'ytick', 0.43:0.05:0.58);
+
         otherwise
             xlabel(sprintf('Previous trial %s', mods{m}));
     end
 end
 
-print(gcf, '-dpdf', sprintf('%s/Figures/figureS5.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/FigureS5.pdf', mypath));
