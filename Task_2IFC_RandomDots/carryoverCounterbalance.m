@@ -40,6 +40,7 @@ function condSequence = carryoverCounterbalance(numConds,cbOrder,reps,omitSelfAd
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%CHECK INPUT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if reps < 1
     error('ERROR: reps parameter must be > 0');
 end

@@ -1,3 +1,29 @@
+% This code reproduces the analyses in the paper
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
+% Software is furnished to do so, subject to the following conditions:
+%
+% The above copyright notice and this permission notice shall be included
+% in all copies or substantial portions of the Software.
+% If you use the Software for your own research, cite the paper.
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+% DEALINGS IN THE SOFTWARE.
+%
+% Anne Urai, 2016
+% anne.urai@gmail.com
+
 function [datapoints1, datapoints2, datapoints3, fit1, fit2, fit3, threshold] = FitThreshold_2IFC(dataset, fitting, bootstrapping, BAC)%% fit a psychometric function
 
 load(dataset);
@@ -103,7 +129,7 @@ switch fitting,
                     
                     [severalfits(cnt).beta, severalfits_fval(cnt)] = fminsearchbnd(@(beta) LL_cumWB(datapoints1.mean.difficulty, ...
                         datapoints1.mean.correct, beta(1), beta(2), beta(3), beta(4)), guessbeta, lowerbound, upperbound, options);
-                cnt = cnt + 1;
+                    cnt = cnt + 1;
                 end
             end
         end
@@ -115,38 +141,38 @@ switch fitting,
         
         % ----------- PARAMETRIC BOOTSTRAP FOR WEIBULL PARAMETER CIs -------
         
-%         switch bootstrapping
-%             case 'bootstrap',
-%                 for iboot = 1:nboot,
-%                     
-%                     % get the percent correct based on the weibull fit
-%                     prob = cumWB(datapoints1.all.difficulty, fit1.mean.beta(1), fit1.mean.beta(2), fit1.mean.beta(3), fit1.mean.beta(4));
-%                     % create a mock response set
-%                     % this is the source of randomness in the bootstrap
-%                     boot_resp = binornd(ones(1,size(datapoints1.all.correct,2)), prob(1:size(datapoints1.all.correct,2)));
-%                     
-%                     % change this into parameters for weibull fit
-%                     for idiff = 1:length(datapoints1.mean.difficulty),
-%                         thisdiff = datapoints1.mean.difficulty(idiff);
-%                         % parametric bootstrap for weibull parameters
-%                         boot_corr(idiff) = nanmean(length(find(datapoints1.all.difficulty == thisdiff & boot_resp == 1))/length(find(datapoints1.all.difficulty==thisdiff)));
-%                         
-%                     end % coh
-%                     
-%                     % fit the weibull function to this set of betas
-%                     [fit1.boot.beta(:,iboot), fit1.boot.fval(iboot)] = fminsearchbnd(@(beta) LL_cumWB(datapoints1.mean.difficulty, ...
-%                         boot_corr, beta(1), beta(2), beta(3), beta(4)), guessbeta, lowerbound, upperbound, options);
-%                     
-%                 end % boot
-%                 
-%             case 'nobootstrap'
-%                 %  do nothing
-%         end
+        %         switch bootstrapping
+        %             case 'bootstrap',
+        %                 for iboot = 1:nboot,
+        %
+        %                     % get the percent correct based on the weibull fit
+        %                     prob = cumWB(datapoints1.all.difficulty, fit1.mean.beta(1), fit1.mean.beta(2), fit1.mean.beta(3), fit1.mean.beta(4));
+        %                     % create a mock response set
+        %                     % this is the source of randomness in the bootstrap
+        %                     boot_resp = binornd(ones(1,size(datapoints1.all.correct,2)), prob(1:size(datapoints1.all.correct,2)));
+        %
+        %                     % change this into parameters for weibull fit
+        %                     for idiff = 1:length(datapoints1.mean.difficulty),
+        %                         thisdiff = datapoints1.mean.difficulty(idiff);
+        %                         % parametric bootstrap for weibull parameters
+        %                         boot_corr(idiff) = nanmean(length(find(datapoints1.all.difficulty == thisdiff & boot_resp == 1))/length(find(datapoints1.all.difficulty==thisdiff)));
+        %
+        %                     end % coh
+        %
+        %                     % fit the weibull function to this set of betas
+        %                     [fit1.boot.beta(:,iboot), fit1.boot.fval(iboot)] = fminsearchbnd(@(beta) LL_cumWB(datapoints1.mean.difficulty, ...
+        %                         boot_corr, beta(1), beta(2), beta(3), beta(4)), guessbeta, lowerbound, upperbound, options);
+        %
+        %                 end % boot
+        %
+        %             case 'nobootstrap'
+        %                 %  do nothing
+        %         end
 end
 
 % ------- PLOT ---------------------------------------------------------------------------
 
-figure; 
+figure;
 subplot(211);
 
 switch fitting,
@@ -193,9 +219,9 @@ set(gca, 'XTick', datapoints1.mean.difficulty*100);
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % PSYCHOMETRIC FUNCTION NR2 - D' CORRECTED
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 % subplot(222);
-% 
+%
 % reshape
 datapoints2.all.coherence       = reshape(dots.coherence', 1, setup.nblocks*setup.ntrials);
 datapoints2.all.increment       = reshape(setup.increment', 1, setup.nblocks*setup.ntrials);
@@ -204,119 +230,119 @@ datapoints2.all.response        = reshape(results.response', 1, setup.nblocks*se
 % use 0 (for weaker motion answer) instead of -1
 datapoints2.all.response(datapoints2.all.response == -1) = 0;
 %datapoints2.all.increment(datapoints2.all.increment == 270) = 0;
-% 
+%
 % % ------- BOOTSTRAP DATAPOINTS ---------------------------------------------------------------------------
-% 
+%
 % switch bootstrapping,
 %     case 'bootstrap',
 %         % BOOTSTRAP PARAMS
 %         nboot = 500;
-%         
+%
 %         disp('bootstrapping...');
 %         % bootstrap the obtained values
 %         for iboot = 1:nboot,
 %             % do this separately per level of difficulty!
-%             
+%
 %             for idiff = 1:length(datapoints1.mean.difficulty),
-%                 
+%
 %                 % find the index of the samples with this level of
 %                 % difficulty
 %                 thisdiffidx = find(datapoints1.all.difficulty==datapoints1.mean.difficulty(idiff));
 %                 % get a random sample from all the datapoints with replacement - only for this level of difficulty
 %                 sampleidx = datasample(thisdiffidx, length(thisdiffidx), 'Replace', true);
-%                 
+%
 %                 % get the data for this bootstrap
 %                 datapoints2.this.response   = datapoints2.all.response(sampleidx);
 %                 datapoints2.this.difficulty = datapoints1.all.difficulty(sampleidx);
 %                 datapoints2.this.increment  = datapoints2.all.increment(sampleidx);
-%                 
+%
 %                 % for each difficulty level, calculate the hit and FA rate
 %                 datapoints2.bootstrap.hit(idiff, iboot)  = length(find(datapoints2.this.response(find(datapoints2.this.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.this.increment == 1))==1)) / length(datapoints2.this.response(find(datapoints2.this.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.this.increment == 1)));
 %                 datapoints2.bootstrap.fa(idiff, iboot)   = length(find(datapoints2.this.response(find(datapoints2.this.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.this.increment == -1))==1)) / length(datapoints2.this.response(find(datapoints2.this.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.this.increment == -1)));
-%                 
+%
 %                 % from email Tobi 10 Feb
 %                 datapoints2.bootstrap.dprime(idiff,iboot)     = norminv(datapoints2.bootstrap.hit(idiff, iboot), 0, 1) - norminv(datapoints2.bootstrap.fa(idiff, iboot), 0, 1);
 %                 datapoints2.bootstrap.correctedy(idiff,iboot) = normcdf(0.5*(datapoints2.bootstrap.dprime(idiff,iboot)));
-%                 
+%
 %             end
-%             
+%
 %         end
 %     case 'nobootstrap',
 %         disp('not bootstrapping CIs');
 % end
-% 
+%
 % % average over the bootstrapped values for the mean and CIs
 % switch bootstrapping,
 %     case 'bootstrap'
 %         datapoints2.mean.dprime         = mean(datapoints2.bootstrap.dprime, 2);
 %         datapoints2.mean.correctedy     = mean(datapoints2.bootstrap.correctedy, 2)';
-%         
+%
 %     case 'nobootstrap'
 %         for idiff = 1:length(datapoints1.mean.difficulty),
-%             
+%
 %             % for each difficulty level, calculate the hit and FA rate
 %             datapoints2.mean.hit(idiff)  = length(find(datapoints2.all.response(find(datapoints1.all.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.all.increment == 1))==1)) / length(datapoints2.all.response(find(datapoints1.all.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.all.increment == 1)));
 %             datapoints2.mean.fa(idiff)   = length(find(datapoints2.all.response(find(datapoints1.all.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.all.increment == 0))==1)) / length(datapoints2.all.response(find(datapoints1.all.difficulty == datapoints1.mean.difficulty(idiff) & datapoints2.all.increment == 0)));
 %         end
-%         
+%
 %         % from email Tobi 10 Feb
 %         datapoints2.mean.dprime              = norminv(datapoints2.mean.hit) - norminv(datapoints2.mean.fa);
 %         datapoints2.mean.correctedy          = normcdf(0.5*(datapoints2.mean.dprime));
 % end
-% 
+%
 % % ------- FIT A CUMULATIVE WEIBULL ---------------
 % switch fitting,
 %     case 'fit',
-%         
+%
 %         % !!! use the values that were already stored for the previous function fit
-%         
+%
 %         % find optimal values for beta using fminsearch
 %         [fit2.mean.beta, fit2.mean.fval] = fminsearchbnd(@(beta) LL_cumWB(datapoints1.mean.difficulty, ...
 %             datapoints2.mean.correctedy, beta(1), beta(2), beta(3), beta(4)), guessbeta, lowerbound, upperbound, options);
-%         
+%
 %         % compute the x and y values for plotting
 %         % fit the cumulative Weibull
 %         fit2.y = cumWB(fit1.x, fit2.mean.beta(1), fit2.mean.beta(2), fit2.mean.beta(3), fit2.mean.beta(4));
 %         semilogx(fit1.x*100, fit2.y, '-k', 'LineWidth', 2);
-%         
+%
 %         % add param info
 %         text(20, .5, gca, sprintf('threshold %.2f %% \n slope %.2f \n guessrate %.2f %% \n lapse rate %.2f %%', ...
 %             fit2.mean.beta(1)*100, fit2.mean.beta(2), fit2.mean.beta(3)*100, fit2.mean.beta(4)*100)); hold on;
-%         
+%
 %         % ----------- PARAMETRIC BOOTSTRAP FOR WEIBULL PARAMETER CIs -------
-%         
+%
 %         switch bootstrapping
 %             case 'bootstrap',
 %                 for iboot = 1:nboot,
-%                     
+%
 %                     % get the percent correct based on the weibull fit
 %                     prob = cumWB(datapoints1.all.difficulty, fit2.mean.beta(1), fit2.mean.beta(2), fit2.mean.beta(3), fit2.mean.beta(4));
 %                     % create a mock response set
 %                     % this is the source of randomness in the bootstrap
 %                     boot_resp = binornd(ones(1,size(datapoints2.all.response,2)), prob(1:size(datapoints2.all.response,2)));
-%                     
+%
 %                     % change this into parameters for weibull fit
 %                     for idiff = 1:length(datapoints1.mean.difficulty),
 %                         thisdiff = datapoints1.mean.difficulty(idiff);
 %                         % parametric bootstrap for weibull parameters
 %                         boot_corr(idiff) = nanmean(length(find(datapoints1.all.difficulty == thisdiff & boot_resp == 1))/length(find(datapoints1.all.difficulty==thisdiff)));
-%                         
+%
 %                     end % coh
-%                     
+%
 %                     % fit the weibull function to this set of betas
 %                     [fit2.boot.beta(:,iboot), fit2.boot.fval(iboot)] = fminsearchbnd(@(beta) LL_cumWB(datapoints1.mean.difficulty, ...
 %                         boot_corr, beta(1), beta(2), beta(3), beta(4)), guessbeta, lowerbound, upperbound, options);
-%                     
+%
 %                 end % boot
-%                 
+%
 %             case 'nobootstrap'
 %                 %  do nothing
 %         end
 % end
-% 
+%
 % % plot this
 % semilogx(datapoints1.mean.difficulty*100, datapoints2.mean.correctedy, 'ro', 'MarkerSize',8,  'MarkerFaceColor', 'r');
-% 
+%
 % switch bootstrapping,
 %     case 'bootstrap',
 %         % and the confidence interval errorbars
@@ -324,12 +350,12 @@ datapoints2.all.response(datapoints2.all.response == -1) = 0;
 %         datapoints2.bootstrap.CI.upper = prctile(datapoints2.bootstrap.correctedy', fit1.CI(2));
 %         errorbar(datapoints1.mean.difficulty*100, datapoints2.mean.correctedy, ...
 %             datapoints2.mean.correctedy - datapoints2.bootstrap.CI.lower, datapoints2.bootstrap.CI.upper - datapoints2.mean.correctedy, 'r.');
-%         
+%
 %         % just take the percentiles
 %         fit2.boot.CI.lower = prctile(fit2.boot.beta(1,:)', fit1.CI(1));
 %         fit2.boot.CI.upper = prctile(fit2.boot.beta(1,:)', fit1.CI(2));
 % end
-% 
+%
 % %plot
 % title(sprintf('D''-corrected performance'));
 % xlabel('Motion coherence from baseline (%)'); ylabel('Corrected accuracy (% correct)');
@@ -464,7 +490,7 @@ switch bootstrapping,
         
         % just take the percentiles
         fit3.boot.CI.lower = prctile(fit3.boot.beta(2,:)', fit1.CI(1));
-        fit3.boot.CI.upper = prctile(fit3.boot.beta(2,:)', fit1.CI(2));        
+        fit3.boot.CI.upper = prctile(fit3.boot.beta(2,:)', fit1.CI(2));
 end
 
 title(sprintf('Full response'));

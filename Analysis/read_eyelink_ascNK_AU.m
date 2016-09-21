@@ -6,9 +6,6 @@ function [asc] = read_eyelink_ascNK_AU(filename)
 % NK edit: add blink parsing
 % Use as
 %   asc = read_eyelink_asc(filename)
-% Anne Urai edit
-% 1. parse channel names?
-% 2. add header information
 
 % Copyright (C) 2010, Robert Oostenveld
 %
