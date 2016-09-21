@@ -5,7 +5,7 @@ _Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncert
 
 ### This repository contains ###
 - Task_2IFC_RandomDots, containing all the code neede to run the behavioural and eye-tracking task. This code runs under PsychToolbox-3 (http://psychtoolbox.org). The scripts s1a and s1b show instructions and examples to the participant (in Dutch), and s3_2IFC_Main.m runs the main experiment.
-- Analysis, containg all Matlab files to replicate the analyses and figures in the paper. 
+- Analysis, containg all Matlab and R files to replicate the analyses and figures in the paper. 
 - serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model. 
 
 ###What to do to replicate our full analyses###
