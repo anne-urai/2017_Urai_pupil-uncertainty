@@ -62,9 +62,6 @@ clc;
 subjects = 1:27; 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    data.rt = zscore(log(data.rt + 0.1));
-    
-    %subplot(5,6,sj); plot(data.decision_pupil, data.rt, '.'); axis tight; box off;
     [grandavg.pearson(sj), grandavg.pearsonpval(sj)] = corr(data.decision_pupil, data.rtNorm, 'type', 'pearson');
 end
 % check across the group
