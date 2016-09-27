@@ -31,6 +31,6 @@ function y = logistic(p, x)
 %             x   intensity values.
 
 % include a lapse rate, see Wichmann and Hill parameterisation
-y =  p(3)+(1-p(3)-p(3)) * (1./(1+exp(-p(2).*(x+p(1)))));
+y =  p(3)+(1-p(3)-p(3)) * (1./(1+exp(- (p(2).*x +p(1) ))));
 
 end

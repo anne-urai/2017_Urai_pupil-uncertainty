@@ -132,9 +132,8 @@ figureS9;
 figureS10; 
 figureS11;
 
-%% analyze some final stuff that's not in the figures
+%% analyze final stuff that's not in the figures but reported in the text
 
-% reported in text
 stimulusTransitions;
 
 % do individual choice tendency correlate with psychometric thresholds?
