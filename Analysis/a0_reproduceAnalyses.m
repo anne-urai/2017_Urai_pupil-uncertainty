@@ -103,7 +103,7 @@ cd(sprintf('%s/Code/serial-dependencies', mypath));
 
 for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fr -n1000 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+        sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 
 % important: if you want the quick and dirty version without accurate
