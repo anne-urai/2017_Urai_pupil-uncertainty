@@ -32,8 +32,6 @@ if ~exist('correctness', 'var');        correctness = [];           end
 if ~exist('nbins', 'var');              nbins = 3;                  end
 lag = 1; % look at 1 trial in the past
 
-warning('error', 'stats:glmfit:PerfectSeparation');
-
 % =========================================== %
 
 subjects = 1:27;
@@ -43,15 +41,6 @@ alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 if ~isempty(strfind(whichmodulator, 'latenc')),
     alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath));
 end
-
-% to compute matched accuracy, find the bins of motionstrength
-allcohs = unique(alldata.coherence);
-alldata.cohIdx = nan(size(alldata.coherence));
-for c = 1:length(allcohs),
-    alldata.cohIdx(abs(alldata.coherence - allcohs(c)) < 0.001) = c;
-end
-grandavg.accuracyMatched = nan(length(unique(alldata.subjnr)), length(allcohs), nbins);
-grandavg.meanAcc = nan(length(unique(alldata.subjnr)), length(allcohs));
 
 % loop over subjects
 for sj = unique(subjects),
@@ -71,13 +60,6 @@ for sj = unique(subjects),
     curve   = weibull([slope threshold lapse], newx);
     thisthreshold = newx(dsearchn(curve', 0.7));
     data.thisthreshold = thisthreshold * ones(size(data.correct));
-    
-    % =========================================== %
-    % accuracy per bin of coherence
-    % =========================================== %
-    
-    cohIdx = unique(data.cohIdx);
-    grandavg.meanAcc(sj, cohIdx) = splitapply(@nanmean, data.correct, findgroups(data.cohIdx));
     
     % =========================================== %
     % prepare data to bin by
@@ -206,23 +188,12 @@ for sj = unique(subjects),
             nanmean(thisdat.correct(thisdat.coherence < thisdat.thisthreshold));
         
         % =========================================== %
-        % accuracy per level of evidence
-        % =========================================== %
-        
-        thisAcc = splitapply(@nanmean, thisdat.correct, findgroups(thisdat.cohIdx));
-        grandavg.accuracyMatched(sj, unique(thisdat.cohIdx), u) = thisAcc;
-        
-        % =========================================== %
         % threshold parameter from cumulative Weibull fit
         % =========================================== %
         
         [slope, threshold, lapse] = fitWeibull(abs(thisdat.motionstrength), thisdat.correct);
         grandavg.weibull(sj, u)   = threshold; % only keep this
-        grandavg.weibullCurve(sj, u, :) = weibull([slope threshold lapse], linspace(0, 6, 100));
         
-        [binnedx, binnedy]        = divideintobins(abs(thisdat.motionstrength), thisdat.correct, 5);
-        grandavg.weibullPtsX(sj, u, :) = binnedx;
-        grandavg.weibullPtsY(sj, u, :) = binnedy;
         % =========================================== %
         % Post-error slowing, Dutilh et al. 2012
         % =========================================== %
@@ -267,7 +238,6 @@ for sj = unique(subjects),
             
             [bias, slope, lapseLow, lapseHigh] = fitLogistic(...
                 thisdat.motionstrength, thisdat.resp);
-            % fprintf('%.2f %.2f %.2f %.2f \n', [bias slope lapseLow lapseHigh]);
             
             % save betas
             grandavg.logisticHistory(sj, r, u, :) = [bias slope];
@@ -304,17 +274,5 @@ grandavg.sensitivity    = grandavg.logistic(:, :, 2);
 grandavg.signedBias     = grandavg.logistic(:, :, 1);
 grandavg.absoluteBias   = abs(grandavg.logistic(:, :, 1));
 grandavg.lapse          = grandavg.logistic(:, :, 3);
-
-% ========================================================= %
-% for matched accuracy, remove the mean accuracy for each level of coherence
-% ========================================================= %
-
-% only take those trials with evidence < 10% motion coherence
-grandavg.accuracyCorrected = squeeze(nanmean(grandavg.accuracyMatched(:, 1:6, :), 2));
-
-% subtract the mean accuracy
-accuracyMatched2 = bsxfun(@minus, grandavg.accuracyMatched, grandavg.meanAcc);
-accuracyMatched3 = squeeze(nanmean(accuracyMatched2, 2));
-grandavg.accuracyMatched = accuracyMatched3;
 
 end

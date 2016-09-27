@@ -29,13 +29,12 @@ global mypath;
 
 data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
 data = data(find(data.sessionnr > 1), :);
+
 % outcome vector need to be 0 1 for logistic regression
 data.resp(data.resp == -1) = 0;
-
 [bias, slope, lapse] = fitLogistic(data.motionstrength, data.resp);
 xvals = -5:0.1:5;
-Logistic = @(p, x) p(3)+(1-p(3)-p(3)) * (1./(1+exp(-p(2).*(x+p(1)))));
-psychCurve = Logistic([bias slope lapse], xvals);
+psychCurve = logistic([bias slope lapse], xvals);
 [binnedx, binnedy] = divideintobins(data.motionstrength, data.resp, 15);
 
 %% plot these two in the colors we will also use later on

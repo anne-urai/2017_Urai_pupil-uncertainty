@@ -24,10 +24,11 @@
 % Anne Urai, 2016
 % anne.urai@gmail.com
 
-%% first, make sure this path matches the place where the data are stored
+%% make sure this path matches the place where the data are stored
 % and you unzipped everything
 clear all; close all; clc;
 global mypath;
+
 % determine the path to the data
 usr = getenv('USER');
 switch usr
@@ -61,7 +62,7 @@ ft_defaults;
 for sj = 1:27, a1_PupilAnalysis(sj); end
 
 % check how much of the data is interpolated
-for sj = 16:27, a1a_PupilAnalysis_NaNs(sj); end
+for sj = 1:27, a1a_PupilAnalysis_NaNs(sj); end
 pupilInterpolationCount; % compute a percentage per trial and make an overview
 
 %% motion energy filtering
@@ -85,7 +86,8 @@ cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
 figure1;
 figure2;
 figure3; 
-figure4; % note: to get Bayes Factors, need R installed!
+% note: to get Bayes Factors, need R installed!
+figure4; 
 
 %% run the python model with modulatory term
 % write away text files that have the format Python needs

@@ -109,7 +109,6 @@ for m = 1:length(mods),
                 set(gca, 'ylim', [0.25 0.45]);
             case {'pes', 'pesMatched', 'pesRegressedout'}
                 ylabel('Post-error slowing (s)');
-                % ylabel(plotFields{s});
                 set(gca, 'ylim', [-0.02 0.02], 'ytick', [-0.02 0 0.02]); % in s, so 40 ms
             case 'absoluteBias'
                 set(gca, 'ylim', [0.3 0.5], 'ytick', [0.2:0.1:0.6]);
@@ -117,9 +116,6 @@ for m = 1:length(mods),
             case 'repetition'
                 set(gca, 'ylim', [0.47 0.57], 'ytick', [0.47:0.05:0.57]);
                 ylabel('P(repeat)');
-                %anovaTable = friedman(y);
-                %assert(1==0);
-               % pval = permtest(y(:, 1), y(:, 3));
             case 'lapse'
                 set(gca, 'ylim', [0 0.02], 'ytick', [0:0.01:0.02]);
                 ylabel('P(lapse)');

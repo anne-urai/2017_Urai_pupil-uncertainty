@@ -57,8 +57,7 @@ for r = 1:2,
     
     [bias, slope, lapse] = fitLogistic(thisdat.motionstrength, thisdat.resp);
     xvals = -4:0.1:4;
-    Logistic = @(p, x) p(3)+(1-p(3)-p(3)) * (1./(1+exp(-p(2).*(x+p(1)))));
-    psychCurve(r, :) = Logistic([bias slope lapse], xvals);
+    psychCurve(r, :) = logistic([bias slope lapse], xvals);
 end
 
 %% plot these two in the colors we will also use later on
