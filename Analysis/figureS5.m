@@ -76,11 +76,10 @@ for m = 1:2,
     switch mods{m}
         case 'pupil'
             xlabel('Previous trial pupil');
-            ylim([0.45 0.55]); set(gca, 'ytick', 0.45:0.05:0.55);
+            set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.03:0.54]);
         case 'rt'
             xlabel('Previous trial RT');
-            ylim([0.43 0.58]); set(gca, 'ytick', 0.43:0.05:0.58);
-
+            set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.03:0.54]);
         otherwise
             xlabel(sprintf('Previous trial %s', mods{m}));
     end

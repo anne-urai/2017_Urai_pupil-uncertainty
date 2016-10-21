@@ -30,7 +30,7 @@ if ~exist('colors', 'var'); colors = cbrewer('qual', 'Set1', size(beta, 2));
 hold on; % paired
 
 for i = 1:size(beta, 2),
-    bar(i, squeeze(mean(beta(:, i))), 'edgecolor', 'none', ...
+    bar(i, squeeze(nanmean(beta(:, i))), 'edgecolor', 'none', ...
         'facecolor', [0.8 0.8 0.8], 'barwidth', 0.5);
 end
 
@@ -58,14 +58,15 @@ ylim([ylims(1) - yrange*0.1 ylims(2) + yrange*0.1]);
 
 % stats
 for i = 1:size(beta, 2),
-    % [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
-    pval = permtest(beta(:, i));
+    [~, pval, ~, stat] = ttest(beta(:, i), 0, 'tail', 'both');
+    %pval = permtest(beta(:, i));
     disp(pval);
     mysigstar(gca, i, max(get(gca, 'ylim')), pval);
 end
 
 if size(beta,2) == 2,
-    pval = permtest(beta(:, 1), beta(:, 2));
+    % pval = permtest(beta(:, 1), beta(:, 2));
+    [~, pval, ~, stat] = ttest(beta(:, 1), beta(:, 2));
     mysigstar(gca, [1 2], max(get(gca, 'ylim'))*1.1, pval);
 end
 

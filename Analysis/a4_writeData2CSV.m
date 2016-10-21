@@ -57,8 +57,7 @@ for sj = (subjects),
     pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(4).lock.label, 'EyePupil')==1);
     
     % around the decision peak
-    earlyDecisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, ...
-        find(pupilgrandavg.timelock{sj}(3).lock.time > 0 & pupilgrandavg.timelock{sj}(3).lock.time < 1 ) ), 3));
+    earlyDecisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(3).lock.trial(:, pupilchan, :), 3));
     
     % 250 ms before feedback
     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
@@ -85,7 +84,7 @@ for sj = (subjects),
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'baseline_pupil', ...
         'int1motion', 'int2motion', 'rtNorm', ...
-        'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'earlydecision_pupil'});
+        'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'response_pupil'});
 
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     

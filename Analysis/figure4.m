@@ -110,10 +110,10 @@ for m = 1:length(mods),
                 ylabel('Post-error slowing (s)');
                 set(gca, 'ylim', [-0.02 0.02], 'ytick', [-0.02 0 0.02]); % in s, so 40 ms
             case 'absoluteBias'
-                set(gca, 'ylim', [0.3 0.5], 'ytick', [0.2:0.1:0.6]);
+                set(gca, 'ylim', [0.2 0.4], 'ytick', [0.2:0.1:0.6]);
                 ylabel('Absolute bias');
             case 'repetition'
-                set(gca, 'ylim', [0.47 0.57], 'ytick', [0.47:0.05:0.57]);
+                set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.03:0.54]);
                 ylabel('P(repeat)');
             case 'lapse'
                 set(gca, 'ylim', [0 0.02], 'ytick', [0:0.01:0.02]);
@@ -140,9 +140,7 @@ for m = 1:length(mods),
         yval    = max(get(gca, 'ylim'));
         if stats.f1.pvalue < 0.05, % only show stars if significant
             mysigstar(gca, [1 nbins], [yval yval], statres{s}.pvalue, 'k', 'down');
-            set(h(1), 'markerfacecolor', 'k', 'markeredgecolor', 'w', 'markersize', 4, 'marker', 'o');
         else
-            set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', 4, 'marker', 'o');
             ylims = get(gca, 'ylim');
             text(1, ylims(2), sprintf('Bf_{10} = %.3f', statres{s}.bf10));
         end

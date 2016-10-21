@@ -78,7 +78,7 @@ for m = 1:length(mods),
         axis square; 
         
         % determine y label and limits
-        set(gca, 'ylim', [0.46 0.58], 'ytick', 0.48:0.05:0.58);
+        set(gca, 'ylim', [0.46 0.57], 'ytick', 0.47:0.05:0.57);
         ylabel('P(repeat)');
         xlim([0.5 nbins+0.5]);
         

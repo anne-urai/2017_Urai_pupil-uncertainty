@@ -28,13 +28,10 @@ function [b, bint] = uncertainty_byErrorCorrect(field, nbins)
 global mypath;
 
 % get all data
-data = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
-subjects = 1:27; % for this analysis, use all SJ!
-
+subjects = unique(alldata.subjnr)'; 
 if ~exist('nbins', 'var'); nbins = 6; end
-data.xval   = abs(data.motionstrength);
-data.rpebin = nan(size(data.xval));
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
@@ -43,8 +40,8 @@ data.rpebin = nan(size(data.xval));
 grandavg.(field).data = nan(length(subjects), 2, nbins);
 
 for sj = subjects,
-    
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    % get data from this subject
+    data = alldata(alldata.subjnr == sj, :);
     
     % if looking at the baseline, get the one from the next trial
     switch field
@@ -83,9 +80,9 @@ for sj = subjects,
     % project RT out of the pupil and vice versa
     switch field
         case 'rt'
-            data.(field) = projectout(zscore(data.rtNorm), zscore(data.decision_pupil));
+            data.(field) = projectout(nanzscore(data.rtNorm), nanzscore(data.decision_pupil));
         case 'decision_pupil'
-            data.(field) = projectout(data.decision_pupil, zscore(data.rtNorm));
+            data.(field) = projectout(data.decision_pupil, nanzscore(data.rtNorm));
     end
     
     % loop over error and correct
@@ -96,16 +93,20 @@ for sj = subjects,
         trls = find(data.subjnr == sj & data.correct == corr);
         
         % include RT as a regressor
-        mdl = fitlm(zscore(data.motionstrength(trls)),  ...
-            zscore(data.(field)(trls)));
-        
-        % SAVE BETAS FOR THIS PARTICIPANT
-        grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
-            mdl.Coefficients.Estimate;
-        bint = mdl.coefCI; coef = mdl.Coefficients.Estimate;
-        grandavg.(field).bint(find(sj==subjects), find(corr==cors), :) = bint(2,2) - coef(2);
+        try
+            mdl = fitlm(nanzscore(data.motionstrength(trls)),  ...
+                nanzscore(data.(field)(trls)));
+            
+            % SAVE BETAS FOR THIS PARTICIPANT
+            grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
+                mdl.Coefficients.Estimate;
+            bint = mdl.coefCI; coef = mdl.Coefficients.Estimate;
+            grandavg.(field).bint(find(sj==subjects), find(corr==cors), :) = bint(2,2) - coef(2);
+        catch
+            grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
+                nan(size(mdl.Coefficients.Estimate));
+        end
     end
-    
 end
 
 % PLOT
@@ -116,12 +117,11 @@ cols = colors([1 2], :);
 hold on;
 markers = {'^', '.'}; markersizes = [4 14];
 for co = 1:2,
-    
     % use double error bars
-    h = ploterr(squeeze(mean(grandavg.xMean(:, co, :))), ...
-        squeeze(mean(grandavg.(field).data(:, co, :))), ...
-        squeeze(std(grandavg.xMean(:, co, :))) / sqrt(length(subjects)), ...
-        squeeze(std(grandavg.(field).data(:, co, :))) / sqrt(length(subjects)), ...
+    h = ploterr(squeeze(nanmean(grandavg.xMean(:, co, :))), ...
+        squeeze(nanmean(grandavg.(field).data(:, co, :))), ...
+        squeeze(nanstd(grandavg.xMean(:, co, :))) / sqrt(length(subjects)), ...
+        squeeze(nanstd(grandavg.(field).data(:, co, :))) / sqrt(length(subjects)), ...
         'k-',  'abshhxy', 0);
     
     set(h(1), 'color', cols(co, :), ...

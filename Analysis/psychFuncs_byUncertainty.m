@@ -29,13 +29,15 @@ global mypath;
 nbins = 6;
 
 % can try this also with all subjects
-subjects        = 1:27;
+alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+subjects = unique(alldata.subjnr)'; 
+
 grandavg.ev     = nan(length(subjects), 2, nbins);
 grandavg.acc    = nan(length(subjects), 2, nbins);
 
 for sj = subjects,
     
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    data = alldata(alldata.subjnr == sj, :);
     
     % split by low and high RT
     rtMed = quantile(data.(field), 2);

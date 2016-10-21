@@ -29,7 +29,8 @@ global mypath;
 nbins = 12;
 
 % can try this also with all subjects
-subjects = 1:27;
+alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+subjects = unique(alldata.subjnr)'; 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
@@ -40,7 +41,7 @@ grandavg.acc    = nan(length(subjects), nbins);
 grandavg.b      = nan(length(subjects), 2);
 
 for sj = subjects,
-    data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
+    data = alldata(alldata.subjnr == sj, :);
     
     % bin
     [grandavg.rt(sj, :), grandavg.acc(sj, :)] = divideintobins(data.(field), data.correct, nbins);
@@ -48,14 +49,18 @@ for sj = subjects,
     % project RT out of the pupil and vice versa
     switch field
         case 'rt'
-            data.(field) = projectout(zscore(data.rtNorm), zscore((data.decision_pupil)));
+            data.(field) = projectout((data.rtNorm), (data.decision_pupil));
         case 'decision_pupil'
-            data.(field) = projectout(zscore(data.decision_pupil), zscore(data.rtNorm));
+            data.(field) = projectout((data.decision_pupil), (data.rtNorm));
     end
     
     % also do logistic regression
-    grandavg.b(sj, :) = glmfit(zscore(data.(field)), data.correct, ...
+    try
+    grandavg.b(sj, :) = glmfit(nanzscore(data.(field)), data.correct, ...
         'binomial','link','logit');
+    catch
+        assert(1==0);
+    end
 end
 
 h = boundedline(1:nbins, 100* nanmean(grandavg.acc), ...
