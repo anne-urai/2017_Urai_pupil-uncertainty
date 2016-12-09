@@ -1,25 +1,24 @@
-# pupilUncertainty #
-
 This is the overall repository that replicates all analyses from
-_Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias._
+_Urai AE, Braun A, Donner THD. (2017) Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias. Nature Communications (forthcoming) _
 
 ### This repository contains ###
-- Task_2IFC_RandomDots, containing all the code neede to run the behavioural and eye-tracking task. This code runs under PsychToolbox-3 (http://psychtoolbox.org). The scripts s1a and s1b show instructions and examples to the participant (in Dutch), and s3_2IFC_Main.m runs the main experiment.
-- Analysis, containg all Matlab and R files to replicate the analyses and figures in the paper. 
-- serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model. 
+
+- Task_2IFC_RandomDots, containing all the code needed to run the behavioural and eye-tracking task. This code runs under PsychToolbox-3 (http://psychtoolbox.org). The scripts s1a and s1b show instructions and examples to the participant (in Dutch), and s3_2IFC_Main.m runs the main experiment.
+- Analysis, containing all Matlab and R files to replicate the analyses and figures in the paper.
+- serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model.
 
 ###What to do to replicate our full analyses###
 
 1. Get the data and code
-  1. download and unzip all the files from FigShare
-  2. put all the folders P01-P27 inside the Data folder to recreate the folder structure we want to work with
-  3. put the MotionEnergy folder inside the Data folder
-  4. get the repository with the code from GitHub and change the name of the folder to Code
+  1. download and unzip the data files from FigShare, http://dx.doi.org/10.6084/m9.figshare.4300043, and put everything in a folder called Data. Note that you won't need
+  2. get the repository with the code from GitHub and change the name of the folder to Code.
   5. put both Code and Data in a folder called pupilUncertainty, you'll need the name of this path.
 
 2. Rerun the analyses
   * open a0_reproduceAnalyses.m and follow instructions
   * if you're missing functions, they can almost certainty be found in my Tools folder https://github.com/anne-urai/Tools
+
+If you have any questions, open an issue or get in touch with Anne @AnneEUrai / anne.urai@gmail.com
 
 ###LICENSE###
 

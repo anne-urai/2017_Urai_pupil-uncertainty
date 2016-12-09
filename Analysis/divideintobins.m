@@ -29,6 +29,8 @@ function [binnedx, binnedy, stdx, stdy, rho, pval] = divideintobins(x, y, nbins,
 % response of y for each x
 
 if ~exist('corrtype', 'var'); corrtype = 'Spearman'; end
+if ~exist('nbins', 'var'); nbins = 3; end
+
 %assert(~any(isnan(x)), 'x contains nans');
 %assert(~any(isnan(y)), 'y contains nans');
 if ~exist('summaryFunc', 'var'); summaryFunc = @nanmean; end % to allow for median
@@ -48,6 +50,8 @@ if nbins == length(unique(x)),
         mybins(i) = mean(thisx(i:i+1));
     end
     binIdx = discretize(x, [-inf mybins inf]);
+elseif nbins == 2,
+    binIdx = discretize(x, [-inf median(x) inf]);
 else
     binIdx = discretize(x, [-inf quantile(x, nbins-1) inf]);
 end
