@@ -1,5 +1,5 @@
 This is the overall repository that replicates all analyses from
-_Urai AE, Braun A, Donner THD. (2017) Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias. Nature Communications (forthcoming)_
+_Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias._
 
 ### This repository contains ###
 
@@ -10,7 +10,7 @@ _Urai AE, Braun A, Donner THD. (2017) Pupil-linked arousal is driven by decision
 ###What to do to replicate our full analyses###
 
 1. Get the data and code
-  1. download and unzip the data files from <a href="http://dx.doi.org/10.6084/m9.figshare.4300043" target="_blank">FigShare</a>, and put everything in a folder called Data. Note that you won't need
+  1. download and unzip the data files from FigShare _http://dx.doi.org/10.6084/m9.figshare.4300043_, and put everything in a folder called Data. Note that you can skip the individual raw P??.zip files if you're not interested in redoing the pupil preprocessing and motion filtering. In that case, getting just the Processed.zip file will do.
   2. get the repository with the code from GitHub and change the name of the folder to Code.
   5. put both Code and Data in a folder called pupilUncertainty, you'll need the name of this path.
 
@@ -18,7 +18,7 @@ _Urai AE, Braun A, Donner THD. (2017) Pupil-linked arousal is driven by decision
   * open a0_reproduceAnalyses.m and follow instructions
   * if you're missing functions, they can almost certainty be found in my Tools folder https://github.com/anne-urai/Tools
 
-If you have any questions, open an issue or get in touch with Anne @AnneEUrai / anne.urai@gmail.com
+If you have any questions, open an issue or get in touch @AnneEUrai / anne.urai@gmail.com
 
 ###LICENSE###
 
