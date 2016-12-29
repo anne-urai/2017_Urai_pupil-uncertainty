@@ -128,14 +128,14 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
             global mypath;
             
             % load in the behavioural file that corresponds
-            behavfile = dir(sprintf('%s/Data/P%02d/Behav/P%02d_s%d_*.mat', ...
+            behavfile = dir(sprintf('%s/Data/Raw/P%02d/Behav/P%d_s%d_*.mat', ...
                 mypath, cfg.sj, cfg.sj, cfg.session));
             
             % if there are several files, continue until the right one is
             % found....
             filefound = false; cnt = 1;
             while ~filefound,
-                load(sprintf('%s/Data/P%02d/Behav/%s', mypath, cfg.sj, behavfile(cnt).name));
+                load(sprintf('%s/Data/Raw/P%02d/Behav/%s', mypath, cfg.sj, behavfile(cnt).name));
                 if  ~all(isnan(results.correct(blockcnt, :))),
                     filefound = true;
                 end

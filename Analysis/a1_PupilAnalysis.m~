@@ -72,8 +72,7 @@ for session = unique(sessions),
     for block = unique(blocks),
         clearvars -except sj session block subjects sessions blocks pathname regressout mypath
         
-        % dont redo if this exists
-        if exist(sprintf('%s/Data/Raw/P%02d/P%02d_s%d_b%02d_eyeclean.mat', mypath, sj, sj, session, block), 'file'),
+        if exist(sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block), 'file'),
             continue;
         end
         
@@ -200,7 +199,7 @@ for session = unique(sessions),
         
         disp(['Saving... ' sprintf('P%02d_s%d_b%02d_eyeclean.mat', sj, session, block)]);
         % save these datafiles before appending
-        savefast(sprintf('%s/Data/Raw/P%02d/P%02d_s%d_b%02d_eyeclean.mat', mypath, sj, sj, session, block), 'data');
+        savefast(sprintf('%s/Data/Raw/P%02d/P%02d_s%d_b%02d_eyeclean.mat', mypath, sj, session, block), 'data');
         
     end
 end
