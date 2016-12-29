@@ -7,15 +7,15 @@ _Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncert
 - Analysis, containing all Matlab and R files to replicate the analyses and figures in the paper.
 - serial-dependencies, a modification of https://bitbucket.org/mackelab/serial_decision/ that includes a modulatory interaction term in the history model.
 
-###What to do to replicate our full analyses###
+###What to do to replicate the full analyses###
 
 1. Get the data and code
-  1. download and unzip the data files from FigShare _http://dx.doi.org/10.6084/m9.figshare.4300043_, and put everything in a folder called Data. Note that you can skip the individual raw P??.zip files if you're not interested in redoing the pupil preprocessing and motion filtering. In that case, getting just the Processed.zip file will do.
-  2. get the repository with the code from GitHub and change the name of the folder to Code.
+  1. download and unzip the data files from FigShare _http://dx.doi.org/10.6084/m9.figshare.4300043_, and put everything in a folder called Data. Note that you can skip the individual P??.zip files if you're not interested in redoing the pupil preprocessing and motion filtering. In that case, getting just the GrandAverage.zip and CSV.zip files will do.
+  2. get the GitHub code repository and change the name of the folder to Code.
   5. put both Code and Data in a folder called pupilUncertainty, you'll need the name of this path.
 
 2. Rerun the analyses
-  * open a0_reproduceAnalyses.m and follow instructions
+  * open a0_reproduceAnalyses.m, specify the path to code + data and follow instructions
   * if you're missing functions, they can almost certainty be found in my Tools folder https://github.com/anne-urai/Tools
 
 If you have any questions, open an issue or get in touch @AnneEUrai / anne.urai@gmail.com

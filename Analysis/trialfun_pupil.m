@@ -136,11 +136,14 @@ for j = 1:length(value), % loop through the trials and create the trial matrix o
             filefound = false; cnt = 1;
             while ~filefound,
                 load(sprintf('%s/Data/Raw/P%02d/Behav/%s', mypath, cfg.sj, behavfile(cnt).name));
-                if  ~all(isnan(results.correct(blockcnt, :))),
-                    filefound = true;
+                try
+                    if  ~all(isnan(results.correct(blockcnt, :))),
+                        filefound = true;
+                    end
                 end
                 cnt = cnt + 1;
             end
+            assert(filefound == 1, 'could not find the right file');
             
             % get the feedbackoffset (= pupilrebound) between resp and tone
             feedbackoffset   = setup.pupilreboundtime(blockcnt, trlcnt);

@@ -80,7 +80,7 @@ set(groot, ...
 addpath('~/Documents/fieldtrip/');
 ft_defaults;
 
-for sj = 1:27, a1_PupilAnalysis(sj); end
+for sj = fliplr(1:27), a1_PupilAnalysis(sj); end
 
 % check how much of the data is interpolated
 for sj = 1:27, a1a_PupilAnalysis_NaNs(sj); end

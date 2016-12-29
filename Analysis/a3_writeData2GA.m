@@ -50,6 +50,7 @@ for sj = fliplr(subjects),
     clear mdats mdat
     for session = sessions,
         load(sprintf('%s/Data/MotionEnergy/motionenergy_P%02d_s%d.mat', mypath, sj, session));
+        mdat = rmfield(mdat, 'timecourse');
         
         % transform into table
         mdat = structfun(@transpose, mdat, 'uniformoutput', 0);

@@ -1,25 +1,25 @@
 function a1_PupilAnalysis(sj)
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -31,13 +31,17 @@ function a1_PupilAnalysis(sj)
 % will be removed, and data will be epoched and put into a FieldTrip-like
 % structure with a trialinfo matrix that will later be used to create csv
 % files.
-% make sure to get several eye-related functions from 
+% make sure to get several eye-related functions from
 % https://github.com/anne-urai/Tools/tree/master/eye
 
 global mypath;
 
 % if we're running this on torque, make sure the input arg is a number
 if ischar(sj), sj = str2double(sj); end
+
+if exist(sprintf('%s/Data/P%02d_alleye.mat', mypath, sj), 'file'),
+    return;
+end
 
 % subject specific folder call P01, with one session S1-S6 containing all
 % the pupil files
@@ -86,6 +90,8 @@ for session = unique(sessions),
         if ~exist(ascfile.name, 'file'),
             
             % IF NECESSARY, CONVERT TO ASC
+            % point to the location of edf2asc, can be found on
+            % github.com/anne-urai/Tools/eye (for Linux and Mac)
             if exist('~/code/Tools/eye/edf2asc-linux', 'file'),
                 system(sprintf('%s %s -input -failsafe', '~/code/Tools/eye/edf2asc-linux', edffile.name));
             else
@@ -117,7 +123,7 @@ for session = unique(sessions),
         data.trial{1}(find(strcmp(data.label, 'EyePupil')==1),:) = newpupil;
         
         suplabel(sprintf('P%02d-S%d-b%d', sj, session, block), 't');
-        saveas(gcf, sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', mypath, sj, session, block), 'pdf');
+        % saveas(gcf, sprintf('%s/Figures/P%02d_s%d_b%d_preproc.pdf', mypath, sj, session, block), 'pdf');
         
         % ==================================================================
         % regress out pupil response to blinks and saccades
@@ -133,7 +139,7 @@ for session = unique(sessions),
         % put back in fieldtrip format
         data.trial{1}(~cellfun(@isempty, strfind(lower(data.label), 'eyepupil')),:) = newpupil;
         
-        saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', mypath, sj, session, block), 'pdf');
+        % saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', mypath, sj, session, block), 'pdf');
         
         % ==================================================================
         % zscore since we work with the bandpassed signal
@@ -210,7 +216,7 @@ end
 % ==================================================================
 
 % check if the full dataset is not there yet
-cd(sprintf('%s/Data/P%02d/', mypath, sj));
+cd(sprintf('%s/Data/Raw/P%02d/', mypath, sj));
 eyelinkfiles = dir(sprintf('P%02d*_eyeclean.mat', sj));
 
 % make sure these are in the right order!
@@ -227,6 +233,10 @@ cfg = [];
 cfg.inputfile = {eyelinkfiles.name};
 cfg.outputfile = sprintf('%s/Data/P%02d_alleye.mat', mypath, sj);
 ft_appenddata(cfg);
+
+% to save disk space
+cd(sprintf('%s/Data/Raw/P%02d', mypath, sj));
+delete('P*_eyeclean.mat');
 
 end
 

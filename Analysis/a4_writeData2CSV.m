@@ -36,6 +36,11 @@ global mypath;
 % we already have all the info we need in the grandaverage file
 load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
+if ~exist(sprintf('%s/Data/CSV', mypath), 'file'),
+    cd(sprintf('%s/Data', mypath));
+    mkdir('CSV');
+end
+
 subjects = 1:length(pupilgrandavg.timelock);
 for sj = (subjects),
     tic;
