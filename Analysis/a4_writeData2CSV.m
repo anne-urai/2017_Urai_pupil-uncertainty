@@ -83,6 +83,12 @@ for sj = (subjects),
     % write to csv for each individual
     % ==================================================================
     
+    if any(isnan(newtrl(:)));
+        % remove some weird trials
+        newtrl(find(isnan(mean(newtrl, 2))), :) = [];
+    end
+    assert(~any(isnan(newtrl(:))), 'nans remaining');
+    
     t = array2table(newtrl, 'VariableNames', ...
         {'stim', 'coherence',  'difficulty', 'motionstrength', ...
         'resp', 'rt', 'correct', 'correctM', ...
@@ -90,7 +96,7 @@ for sj = (subjects),
         'baseline_pupil', ...
         'int1motion', 'int2motion', 'rtNorm', ...
         'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'response_pupil'});
-
+    
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     disp(['finished sj ' num2str(sj)]);

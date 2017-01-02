@@ -1,25 +1,25 @@
 function a6_retrieveDataFromPython(whichmodulator)
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -38,8 +38,12 @@ for sj = subjects,
     % ======= model WITH pupil term =========== %
     % ============================================ %
     
+    try
     load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
     load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
+    catch
+        fprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat \n', mypath, whichmodulator, sj);continue;
+    end
     
     switch whichmodulator
         case {'plain', 'plainCoh'} % no modulator
@@ -69,7 +73,7 @@ for sj = subjects,
     
     % for bootstrapped values, also multiply with the bootstrapped slope
     bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
-
+    
     cnt = 0;
     for w = 1:length(weights1),
         
@@ -88,9 +92,9 @@ for sj = subjects,
     
     % change into correct and error from stimulus and response
     % see Fruend et al, supplement A4
-    % note: these are identical to reward and punishment weights 
+    % note: these are identical to reward and punishment weights
     % from Busse et al, Abrahamyan et al
-
+    
     cnt = 0;
     for w = 1:length(weights2),
         dat.(['correct' weights2{w}])(sj, :) = ...
@@ -105,29 +109,31 @@ for sj = subjects,
         % combine them
         boot_correct   = boot_choice + boot_stim;
         boot_incorrect = boot_choice - boot_stim;
-
+        
         % CIs in absolute bound values
         dat.(['correct' weights2{w} 'CI'])(sj, :, :) = prctile(boot_correct, [100*alpha/2,100*(1-alpha/2)])';
         dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = prctile(boot_incorrect, [100*alpha/2,100*(1-alpha/2)])';
         
     end
-
-    % add the p value for permutation with history
-    dat.pvalue(sj) = length(find(model_w_hist.loglikelihood < permutation_wh(:, 1))) ./ length(permutation_wh(:, 1));
-
-    % if possible, get the variance explained
+    
     try
+        % add the p value for permutation with history
+        dat.pvalue(sj) = length(find(model_w_hist.loglikelihood < permutation_wh(:, 1))) ./ length(permutation_wh(:, 1));
+        
+        % if possible, get the variance explained
         dat.variance.stimuli(sj, :)   = model_w_hist.stimuli;
         dat.variance.explained(sj, :) = model_w_hist.variance_explained;
     end
 end
 
-dat.pvalue = dat.pvalue';
-switch whichmodulator
-    case 'plain'
-        % how many alternators have significant history couplings?
-        altSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) < 0));
-        repSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) > 0));
+try
+    dat.pvalue = dat.pvalue';
+    switch whichmodulator
+        case 'plain'
+            % how many alternators have significant history couplings?
+            altSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) < 0));
+            repSignfic = length(find(dat.pvalue < 0.05 & dat.response(:, 1) > 0));
+    end
 end
 
 % save for group plots

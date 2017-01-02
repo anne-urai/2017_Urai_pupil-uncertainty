@@ -1,24 +1,24 @@
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -49,14 +49,14 @@ cd([mypath '/Code/Analysis/']);
 % you're missing (mainly for plotting and some stats).
 
 % if you're not interested in preprocessing and want to quickly reproduce
-% the figures, I'd recommend getting just the CSV, serialmodel and GrandAverage 
+% the figures, I'd recommend getting just the CSV, serialmodel and GrandAverage
 % folders that will allow you to skip the first 4 steps described here.
 
 %% set some defaults for plottingset(groot, ...
 set(groot, ...
     'DefaultFigureColormap', viridis, ...
     'DefaultFigureColor', 'w', ...
-    'DefaultAxesColorOrder', linspec, ...
+    'DefaultAxesColorOrder', linspecer, ...
     'DefaultAxesLineWidth', 0.5, ...
     'DefaultAxesXColor', 'k', ...
     'DefaultAxesYColor', 'k', ...
@@ -106,35 +106,41 @@ a4_writeData2CSV;
 cd(mypath); if ~exist('Figures', 'dir'); mkdir Figures; end
 figure1;
 figure2;
-figure3; 
+figure3;
 % note: to get Bayes Factors, need R installed!
-figure4; 
+figure4;
 
 %% run the python model with modulatory term
 % write away text files that have the format Python needs
 a5_writeFiles4pythonToolbox;
 
 % then, call the terminal from Matlab (not sure if this would work on Windows)
-mods = {'plain', 'plainCoh', 'pupil+rt', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
 if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data/serialmodel', mypath)); end
 
 % this is easiest to run from the terminal. With Python 2.7 installed, go
 % to the folder mypath/Code/serial-dependencies
 cd(sprintf('%s/Code/serial-dependencies', mypath));
 
+mods = {'plain', 'plainCoh', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
 for m = 1:length(mods),
     system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
         sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 
+mods2 = {'pupil+rt'};
+for m = 1:length(mods2),
+    system([sprintf('for sj in 13 14 26 27; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods2{m}), ...
+        sprintf('echo $filename; python2.7 analysis.py -fr -n1000 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+end
+
 % important: if you want the quick and dirty version without accurate
-% individual errorbars, change -n1000 to -n10. Otherwise, the code will run 
+% individual errorbars, change -n1000 to -n10. Otherwise, the code will run
 % bootstraps which can take quite a while.
 
 % get the output back into something Matlab can work with
 cd(sprintf('%s/Code/Analysis', mypath));
 for m = 1:length(mods),
-    a6_retrieveDataFromPython(mods{m}); 
+    a6_retrieveDataFromPython(mods{m});
 end
 
 close all;
@@ -150,7 +156,7 @@ figureS6;
 figureS7;
 figureS8;
 figureS9;
-figureS10; 
+figureS10;
 figureS11;
 
 %% analyze final stuff that's not in the figures but reported in the text

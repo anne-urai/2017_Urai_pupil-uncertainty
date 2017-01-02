@@ -76,13 +76,14 @@ for m = 1:2,
     switch mods{m}
         case 'pupil'
             xlabel('Previous trial pupil');
-            set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.03:0.54]);
+            set(gca, 'ylim', [0.45 0.55], 'ytick', [0.45:0.05:0.55]);
         case 'rt'
             xlabel('Previous trial RT');
-            set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.03:0.54]);
+            set(gca, 'ylim', [0.44 0.56], 'ytick', [0.44:0.05:0.56]);
         otherwise
             xlabel(sprintf('Previous trial %s', mods{m}));
     end
+    
 end
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS5.pdf', mypath));

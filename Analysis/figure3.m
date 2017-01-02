@@ -62,8 +62,8 @@ clc;
 subjects = 1:27; 
 for sj = unique(subjects),
     data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
-    [grandavg.pearson(sj), grandavg.pearsonpval(sj)] = corr(data.decision_pupil, data.rtNorm, 'type', 'pearson');
+    [thispearson(sj), thispearsonpval(sj)] = corr(data.decision_pupil, data.rtNorm, 'type', 'pearson', 'rows', 'complete');
 end
 % check across the group
 fprintf('average r: %.3f range: %.3f to %.3f, significant in %d out of %d observers \n', ...
-    mean(grandavg.pearson), min(grandavg.pearson), max(grandavg.pearson), length(find(grandavg.pearsonpval < 0.05)), 27)
+    mean(thispearson), min(thispearson), max(thispearson), length(find(thispearsonpval < 0.05)), 27)

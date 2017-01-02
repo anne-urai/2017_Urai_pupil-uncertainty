@@ -105,12 +105,14 @@ for sj = fliplr(subjects),
     end
     
     % for some subjects, the dot coordinates were lost
-    if sj == 12 || sj == 4 || sj == 3 || sj == 8,
+    if ismember(sj, [3 4 5 8 12]), 
         
         % replace those missing values with the means from other trials
         wrongtrials = find(trl(:, 15) == 0);
         if sj == 3,
             wrongtrials = [find(trl(:, 14) == 1); find(trl(:, 14) == 2 & trl(:, 13) > 1)];
+        elseif sj == 5,
+            wrongtrials = find(trl(:, 14) == 1 & trl(:, 13) < 4);
         end
         trl(wrongtrials, 15) = 0;
         trl(wrongtrials, 16) = 0;
@@ -166,6 +168,20 @@ for sj = fliplr(subjects),
     
     cfg         = [];
     cfg.trials  = find(data.trialinfo(:, 14) > 1);
+    data        = ft_selectdata(cfg, data);
+    
+    % ==================================================================
+    % REMOVE WEIRD TRIALS
+    % ==================================================================
+    
+    cfg         = [];
+    cfg.trials  = find(data.trialinfo(:, 14) > 1);
+    for t = cfg.trials',
+        if all(isnan(data.trial{t}(find(strcmp(data.label, 'EyePupil')==1), :))),
+            cfg.trials(t) = NaN;
+        end
+    end
+    cfg.trials(isnan(cfg.trials)) = [];
     data        = ft_selectdata(cfg, data);
     
     % ==================================================================
@@ -422,7 +438,7 @@ trialinfo(:,3)  = projectout(feedbackscalars, trialinfo(:, 2));
 % trialinfo(:, 4) = endoftrlscalar;
 
 % check this all went well
-assert(~any(isnan(trialinfo(:))));
+% assert(~any(isnan(trialinfo(:))));
 
 end
 

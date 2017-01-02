@@ -31,12 +31,13 @@ correctness = []; % empty; both correct and error trials will be used
 nbins = 3;
 mods = {'pupil', 'rt'}; cnt = 0;
 for m = 1:length(mods),
-
+    
     % get all the measures as a function of previous trial pupil
     grandavg{m} = postPupilBehaviour(mods{m}, nbins, correctness);
     disp(mods{m});
     
-    plotFields = {'repetition', 'absoluteBias','sensitivity', 'lapse','pesRegressedout'};
+    plotFields = {'repetition', 'lapse', 'absoluteBias', ...
+        'sensitivity', 'lapse','pesRegressedout'};
     
     for s = 1:length(plotFields),
         
@@ -86,12 +87,12 @@ for m = 1:length(mods),
                 xticklabs       = repmat({' '}, 1, nbins);
                 xticklabs{1}    = 'low';
                 xticklabs{end}  = 'high';
-                if nbins == 3, xticklabs{2} = 'med'; end
+                % if nbins == 3, xticklabs{2} = 'med'; end
             case 'rt'
                 xticklabs       = repmat({' '}, 1, nbins);
                 xticklabs{1}    = 'fast';
                 xticklabs{end}  = 'slow';
-                if nbins == 3, xticklabs{2} = 'med'; end
+                % if nbins == 3, xticklabs{2} = 'med'; end
         end
         
         set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
@@ -134,6 +135,8 @@ for m = 1:length(mods),
         statdat.subjnr  = sj(:);
         statdat.prevPupilBins = ft(:);
         writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
+        
+        % point to your version of R here
         [status, cmdout] = system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
         statres{s} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
         
@@ -161,6 +164,7 @@ for m = 1:length(mods),
     
     statsFields = {'sensitivity', 'signedBias', ...
         'absoluteBias','pesRegressedout', 'repetition', 'RT', 'lapse'};
+    
     for s = 1:length(statsFields),
         y       = grandavg{m}.(statsFields{s});
         sj      = repmat(1:27, nbins, 1)';
@@ -183,7 +187,7 @@ for m = 1:length(mods),
         fprintf('\n %s, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
             statsFields{s}, statres{s}.df1, statres{s}.df2, statres{s}.F, statres{s}.pvalue, statres{s}.bf10);
     end
-    cnt = cnt + 5;
+    cnt = cnt + length(plotFields);
 end
 
 % save

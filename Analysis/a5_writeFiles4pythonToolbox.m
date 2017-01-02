@@ -36,6 +36,13 @@ for sj = subjects,
     % remove first session
     data = data(find(data.sessionnr > 1), :);
     
+    % avoid errors
+    NaNtrls = find(isnan(data.decision_pupil));
+    if ~isempty(NaNtrls),
+        assert(1==0);
+    end
+    data(NaNtrls, :) = [];
+    
     % generate block nrs, NOT identical to session nrs! History effects
     % should not continue beyond a block
     blockchange = find(diff(data.trialnr) < 0);

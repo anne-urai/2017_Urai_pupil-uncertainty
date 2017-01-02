@@ -26,11 +26,11 @@
 
 function y = logistic(p, x)
 % Parameters: p(1) bias
-%             p(2) slopw
+%             p(2) slope
 %             p(3) lapse rate
 %             x   intensity values.
 
 % include a lapse rate, see Wichmann and Hill parameterisation
-y =  p(3)+(1-p(3)-p(3)) * (1./(1+exp(- ( p(2).*x +p(1) ))));
+y =  p(3)+(1-p(3)-p(3)) * (1./(1+exp(- ( p(1) + p(2).*x ))));
 
 end

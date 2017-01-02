@@ -106,7 +106,7 @@ for sj = unique(subjects),
     data.resp(data.resp == -1) = 0;
     
     % get an overall logistic fit for normalization
-    [bias, slope, lapseLow, lapseHigh] = fitLogistic(data.motionstrength,data.resp);
+    [bias, slope, lapseLow, lapseHigh] = fitLogistic(data.motionstrength, data.resp);
     grandavg.overallLogistic(sj, :) = [bias slope];
     
     % split into quantiles of the modulator

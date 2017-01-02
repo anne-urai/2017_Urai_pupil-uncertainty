@@ -138,7 +138,7 @@ for session = unique(sessions),
         newpupil = blink_regressout(pupildata, data.fsample, blinksmp, saccsmp, 1, addBackSlowDrift);
         % put back in fieldtrip format
         data.trial{1}(~cellfun(@isempty, strfind(lower(data.label), 'eyepupil')),:) = newpupil;
-        
+        drawnow;
         % saveas(gcf,  sprintf('%s/Figures/P%02d_s%d_b%d_projectout.pdf', mypath, sj, session, block), 'pdf');
         
         % ==================================================================

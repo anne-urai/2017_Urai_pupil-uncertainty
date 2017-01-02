@@ -28,7 +28,7 @@ function [bias, slope, lapseLow, lapseHigh] = fitLogistic(x,y)
 
 % make gamma and lambda symmetrical
 pBest = fminsearchbnd(@(p) logistic_LL(p, ...
-    x, y), [0 1 0.01], [-6 0 0], [6 50 0.05]);
+    x, y), [0 1 0.01], [-6 0 0], [6 50 0.1]);
 
 bias        = pBest(1);
 slope       = pBest(2);

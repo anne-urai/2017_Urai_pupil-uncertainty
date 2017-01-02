@@ -120,6 +120,7 @@ if plotTotalAverage,
 end
 
 % plot
+hold on;
 ph = boundedline(1:size(alltimelock, 3), squeeze(nanmean(alltimelock)), ...
     permute(squeeze(nanstd(alltimelock)) / sqrt(length(subjects)), [2 3 1]), ...
     'cmap', cols);
