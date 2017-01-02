@@ -65,6 +65,9 @@ if ~exist(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath), 'fil
     for sj = unique(data.subjnr)',
         
         trl         = pupilgrandavg.timelock{sj}(1).lock.trialinfo;
+        sjidx       = (find(data.subjnr == sj));
+        assert(length(trl) == length(sjidx));
+    
         trl(:, 19)  = circshift(trl(:, 1), -1);     % shift start of next fixation
         trl(:, 20)  = circshift(trl(:, 6), -1);     % shift start of next test stim
         badtrls     = find(diff(trl(:, 12)) ~= 1);  % only use trial with subsequent nrs
@@ -94,7 +97,11 @@ if ~exist(sprintf('%s/Data/CSV/2ifc_data_allsj_withlatencies.csv', mypath), 'fil
                 for b = blocks,
                     thislatencyNorm(b==blocknrs) = nanzscore(thislatency(b==blocknrs));
                 end
-                data.(latencies{l})(data.subjnr == sj) = thislatencyNorm;
+                try
+                data.(latencies{l})(find(data.subjnr == sj)) = thislatencyNorm;
+                catch
+                    assert(1==0);
+                end
             end
             
         end
@@ -319,9 +326,9 @@ for sj = unique(alldata.subjnr)',
         alldata.latency_rtfeedback(alldata.subjnr == sj), 'type', 'spearman');
 end
 
-fprintf('mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of 27 observers \n', ...
+fprintf('latency interval: mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of 27 observers \n', ...
     mean(rho1), min(rho1), max(rho1), length(find(pval1 < 0.05)));
-fprintf('mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of 27 observers\n', ...
+fprintf('latency rtfeedback: mean Spearman''s rho %.3f, range %.3f to %.3f, significant in %d out of 27 observers\n', ...
     mean(rho2), min(rho2), max(rho2), length(find(pval2 < 0.05)));
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS8.pdf', mypath));

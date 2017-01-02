@@ -78,7 +78,7 @@ for m = 1:length(mods),
         axis square;
 
         % determine y label and limits
-        set(gca, 'ylim', [0.46 0.57], 'ytick', 0.47:0.05:0.57);
+        set(gca, 'ylim', [0.45 0.56], 'ytick', 0.45:0.05:0.55);
         ylabel('P(repeat)');
         xlim([0.5 nbins+0.5]);
 
@@ -117,15 +117,18 @@ load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
 colors = cbrewer('qual', 'Set1', 8);
 subplot(4,4,5); plotBetas([dat.correct(:, 1) dat.incorrect(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'Correct', 'Error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
-axis square;
+axis square; ylim([-0.1 0.2]);
+
 
 colors = cbrewer('qual', 'Set1', 8);
 subplot(4,4,6); plotBetas([dat.correct_pupil(:, 1) dat.incorrect_pupil(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'Pupil x correct', 'Pupil x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
 axis square;
+ylim([-0.1 0]);
 
 subplot(4,4,7); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
-axis square;
+axis square; ylim([-0.1 0]);
+
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS6.pdf', mypath));

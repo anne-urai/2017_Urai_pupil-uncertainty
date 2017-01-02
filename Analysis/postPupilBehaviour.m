@@ -81,9 +81,7 @@ for sj = unique(subjects),
             end
         case 'rt'
             whichMod = 'rtNorm'; % t
-            if isempty(correctness),
-                data.rtNorm = projectout(data.rtNorm, data.decision_pupil);
-            end
+            data.rtNorm = projectout(data.rtNorm, data.decision_pupil);
         case 'evidence'
             % single-trial evidence strength is absolute motionenergy
             data.evidence = abs(data.motionstrength);

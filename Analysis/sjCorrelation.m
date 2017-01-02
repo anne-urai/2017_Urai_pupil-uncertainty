@@ -28,6 +28,7 @@ function [rho] = sjCorrelation(whichmodulator, whichweight, whichFile)
 if ~exist('whichweight', 'var'); whichweight = 'response'; end
 if ~exist('whichFile', 'var'); whichFile = 'pupil+rt'; end
 
+disp(whichFile);
 global mypath;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichFile));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));

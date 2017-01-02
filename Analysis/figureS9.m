@@ -57,7 +57,7 @@ for m = 1:length(mods),
     axis square; xlim([0.5 nbins+0.5]);
     
     % determine y label and limits
-    set(gca, 'ylim', [0.48 0.54], 'ytick', [0.48:0.02:0.54]);
+    set(gca, 'ylim', [0.47 0.53], 'ytick', [0.47:0.03:0.53]);
     ylabel('P(repeat)');
     
     % do statistics, repeated measures anova across bins

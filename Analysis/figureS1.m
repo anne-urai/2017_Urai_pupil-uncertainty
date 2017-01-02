@@ -37,7 +37,7 @@ data.rt(data.rt < 0) = NaN;
 ylims = [-0.005 .11];
 
 % 1. RT distribution for each subject
-subplot(441); 
+subplot(441); hold on;
 cmap = [0 0 0];
 clear RTs; clear medians;
 for sj = unique(data.subjnr)',

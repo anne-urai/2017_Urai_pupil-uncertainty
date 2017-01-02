@@ -85,7 +85,13 @@ for sj = (subjects),
     
     if any(isnan(newtrl(:)));
         % remove some weird trials
-        newtrl(find(isnan(mean(newtrl, 2))), :) = [];
+        rmTrls = find(isnan(mean(newtrl, 2)));
+        newtrl(rmTrls, :) = [];
+        for l = 1:4,
+            pupilgrandavg.timelock{sj}(l).lock.trial(rmTrls, :, :) = [];
+            pupilgrandavg.timelock{sj}(l).lock.trialinfo(rmTrls, :) = [];
+            pupilgrandavg.timelock{sj}(l).lock.bl(rmTrls) = [];
+        end
     end
     assert(~any(isnan(newtrl(:))), 'nans remaining');
     
@@ -108,5 +114,8 @@ end
 disp('writing to file...');
 alldat2 = cat(1, alldat{:});
 writetable(alldat2, sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
+
+% save the pupilgrandavg file with removed trials
+save(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath), 'pupilgrandavg');
 
 end

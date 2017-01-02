@@ -40,12 +40,12 @@ fprintf('transitionprob = %.3f, range %.3f-%.3f \n', ...
 load(sprintf('%s/Data/GrandAverage/historyweights_plain.mat', mypath));
 [rho, pval] = corr(stimRep.transition, dat.response(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
+fprintf('stimrep correlation with choice weight: r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
 
 % and stimulus weights
 [rho, pval] = corr(stimRep.transition, dat.stimulus(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
+fprintf('stimrep correlation with stimulus weight: r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
 
 
 %% compute autocorrelation in evidence strength
@@ -59,7 +59,7 @@ for sj = 1:27,
     stimRep.rho(sj) = rho;
     stimRep.pval(sj) = pval;
 end
-fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
+fprintf('evidence strength autocorrelation rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions \n', ...
     nanmean(stimRep.rho(:)), min(stimRep.rho(:)), max(stimRep.rho(:)), ...
     length(find(stimRep.pval(:) < 0.05)), sum(~isnan(stimRep.pval(:))));
 
@@ -67,20 +67,20 @@ fprintf('rho = %.3f, range %.3f-%.3f, significant in %d out of %d sessions', ...
 load(sprintf('%s/Data/GrandAverage/historyweights_plain.mat', mypath));
 [rho, pval] = corr(stimRep.rho, dat.response(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
+fprintf('evstrength autocorr correlation with choiceweight r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
 
 % and stimulus weights
 [rho, pval] = corr(stimRep.rho, dat.stimulus(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
+fprintf('evstrength autocorr correlation with stimweight r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
 
 % correlate with individual pupil x choice weights
 load(sprintf('%s/Data/GrandAverage/historyweights_pupil+rt.mat', mypath));
 [rho, pval] = corr(stimRep.rho, dat.response_pupil(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
+fprintf('evstrength autocorr correlation with pupil*choiceweight = %.3f, p = %.3f, BF10 = %.3f \n', rho, pval, bf10);
 
 % and stimulus weights
 [rho, pval] = corr(stimRep.rho, dat.response_rt(:, 1));
 bf10 = corrbf(rho, 27);
-fprintf('r = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);
+fprintf('evstrength autocorr correlation with rt*choiceweight = %.3f, p = %.3f, BF10 = %.3f', rho, pval, bf10);

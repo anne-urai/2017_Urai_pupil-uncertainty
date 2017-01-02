@@ -51,7 +51,7 @@ set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ..
 xlim([0.5 nbins+0.5]);
 
 % determine y label and limits
-set(gca, 'ylim', [0.46 0.56], 'ytick', 0.48:0.02:0.56);
+set(gca, 'ylim', [0.45 0.55], 'ytick', 0.45:0.05:0.55);
 ylabel('P(repeat)');
 
 % do Bayesian ANOVA to get Bayes Factors

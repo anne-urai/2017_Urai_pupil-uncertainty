@@ -36,7 +36,7 @@ for m = 1:length(mods),
     grandavg{m} = postPupilBehaviour(mods{m}, nbins, correctness);
     disp(mods{m});
     
-    plotFields = {'repetition', 'lapse', 'absoluteBias', ...
+    plotFields = {'repetition', 'absoluteBias', ...
         'sensitivity', 'lapse','pesRegressedout'};
     
     for s = 1:length(plotFields),
@@ -108,7 +108,7 @@ for m = 1:length(mods),
                 ylabel('Response time (s)');
                 set(gca, 'ylim', [0.25 0.45]);
             case {'pes', 'pesMatched', 'pesRegressedout'}
-                ylabel('Post-error slowing (s)');
+                ylabel('PES (s)');
                 set(gca, 'ylim', [-0.02 0.02], 'ytick', [-0.02 0 0.02]); % in s, so 40 ms
             case 'absoluteBias'
                 set(gca, 'ylim', [0.2 0.4], 'ytick', [0.2:0.1:0.6]);
