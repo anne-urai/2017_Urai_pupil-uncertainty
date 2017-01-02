@@ -1,25 +1,25 @@
 
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -27,7 +27,7 @@
 
 clearvars -except mypath;
 global mypath;
-close all; 
+close all;
 
 % use nice shades of red and green
 cols = cbrewer('qual', 'Set1', 8);
@@ -42,7 +42,7 @@ for m = 1:length(mods),
     for c = 1:length(cors),
         grandavg = postPupilBehaviour(mods{m}, nbins, cors(c));
         subplot(4,4,cnt); cnt = cnt + 1;
-        
+
         % Use HOLD and ERRORBAR, passing axes handles to the functions.
         colors = cbrewer('qual', 'Set1', 8);
         switch cors(c)
@@ -55,33 +55,33 @@ for m = 1:length(mods),
                 thismarkersize = 4;
                 thiscolor = colors(1,:);
         end
-        
+
         % line to indicate 50% repetition
         y = grandavg.repetition;
         plot([1 nbins], [0.5 0.5], 'k:', 'linewidth', 0.5); hold on;
-        
+
         % errorbar
         h = ploterr(1:nbins, nanmean(y), [], nanstd(y) ./sqrt(27), 'k-',  'abshhxy', 0);
         set(h(1), 'color', thiscolor, 'markersize', thismarkersize, 'marker',thismarker);
-        
+
         % only for error markers, triangle
         if cors(c) == 0, set(h(1), 'markerfacecolor', 'w', 'markeredgecolor', thiscolor); end
         set(h(2), 'color', thiscolor); % line color
-        
+
         xticklabs       = repmat({' '}, 1, nbins);
         xticklabs{1}    = 'low';
         xticklabs{end}  = 'high';
         if nbins == 3, xticklabs{2} = 'med'; end
-        
+
         set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
             'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5, 'box', 'off', 'xminortick', 'off', 'yminortick', 'off');
-        axis square; 
-        
+        axis square;
+
         % determine y label and limits
         set(gca, 'ylim', [0.46 0.57], 'ytick', 0.47:0.05:0.57);
         ylabel('P(repeat)');
         xlim([0.5 nbins+0.5]);
-        
+
         % do Bayesian ANOVA to get Bayes Factors
         statdat             = table;
         statdat.DV          = y(:);
@@ -90,16 +90,16 @@ for m = 1:length(mods),
         ft                  = repmat(transpose(1:nbins), 1, 27)';
         statdat.prevPupilBins = ft(:);
         writetable(statdat, sprintf('%s/Data/CSV/ANOVAdat.csv', mypath));
-        system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA.R --no-save');
+        system('/Library/Frameworks/R.framework/Resources/bin/R < bayesFactorANOVA.R --no-save');
         statres{cnt} = readtable(sprintf('%s/Data/CSV/ANOVAresults.csv', mypath)); % fetch results
-        
+
         yval = max(get(gca, 'ylim'));
         if statres{cnt}.pvalue < 0.05, % only show if significant
             mysigstar(gca, [1 nbins], [yval yval], statres{cnt}.pvalue, 'k', 'down');
         end
         fprintf('\n %s, correct %d, ANOVA F(%d,%d) = %.3f, p = %.3f, bf10 = %.3f \n', ...
             mods{m}, cors(c), statres{cnt}.df1, statres{cnt}.df2, statres{cnt}.F, statres{cnt}.pvalue, statres{cnt}.bf10);
-        
+
         switch mods{m}
             case 'pupil'
                 xlabel('Previous trial pupil');

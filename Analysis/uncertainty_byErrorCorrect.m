@@ -1,25 +1,25 @@
 function [b, bint] = uncertainty_byErrorCorrect(field, nbins)
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -30,7 +30,7 @@ global mypath;
 % get all data
 alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
 warning('error', 'stats:LinearModel:RankDefDesignMat'); % stop if this happens
-subjects = unique(alldata.subjnr)'; 
+subjects = unique(alldata.subjnr)';
 if ~exist('nbins', 'var'); nbins = 6; end
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,24 +42,35 @@ grandavg.(field).data = nan(length(subjects), 2, nbins);
 for sj = subjects,
     % get data from this subject
     data = alldata(alldata.subjnr == sj, :);
-    
+
     % if looking at the baseline, get the one from the next trial
     switch field
         case 'baseline_pupil'
             data.baseline_pupil = circshift(zscore(data.baseline_pupil), -1);
     end
-    
+
+    % project RT out of the pupil and vice versa
+    switch field
+        case 'rt'
+            data.(field) = projectout(nanzscore(data.rtNorm), nanzscore(data.decision_pupil));
+        case 'decision_pupil'
+            data.(field) = projectout(data.decision_pupil, nanzscore(data.rtNorm));
+            case 'decision_pupil_only'
+            % for S3, don't take out RT
+            data.(field) = data.decision_pupil;
+    end
+
     % normalization etc
     data.motionstrength = (abs(data.motionstrength));
-    
+
     % loop over error and correct
     cors = [0 1];
     for corr = cors,
-        
+
         % RATHER THAN DISCRETE CATEGORIES, BIN BY motionenergy
         clear trls;
         trls = find(data.subjnr==sj & data.correct==corr);
-        
+
         switch field
             case 'rt'
                 summaryFunc = @nanmedian;
@@ -68,7 +79,7 @@ for sj = subjects,
                 summaryFunc = @nanmean;
                 distFunc    = @naniqr;
         end
-        
+
         % get the mean pupil dilation out
         [grandavg.xMean(find(sj==subjects), find(corr==cors), :), ...
             grandavg.(field).data(find(sj==subjects), find(corr==cors), :), ...
@@ -76,27 +87,19 @@ for sj = subjects,
             grandavg.(field).wgt(find(sj==subjects), find(corr==cors), :)] = ...
             divideintobins(data.motionstrength(trls), data.(field)(trls), nbins, [], summaryFunc);
     end
-    
-    % project RT out of the pupil and vice versa
-    switch field
-        case 'rt'
-            data.(field) = projectout(nanzscore(data.rtNorm), nanzscore(data.decision_pupil));
-        case 'decision_pupil'
-            data.(field) = projectout(data.decision_pupil, nanzscore(data.rtNorm));
-    end
-    
+
     % loop over error and correct
     cors = [0 1];
     for corr = cors,
-        
+
         % FIT BETAS ON THE FULL MODEL, NOT BINNED
         trls = find(data.subjnr == sj & data.correct == corr);
-        
+
         % include RT as a regressor
         try
             mdl = fitlm(nanzscore(data.motionstrength(trls)),  ...
                 nanzscore(data.(field)(trls)));
-            
+
             % SAVE BETAS FOR THIS PARTICIPANT
             grandavg.(field).regline(find(sj==subjects), find(corr==cors), :) = ...
                 mdl.Coefficients.Estimate;
@@ -123,7 +126,7 @@ for co = 1:2,
         squeeze(nanstd(grandavg.xMean(:, co, :))) / sqrt(length(subjects)), ...
         squeeze(nanstd(grandavg.(field).data(:, co, :))) / sqrt(length(subjects)), ...
         'k-',  'abshhxy', 0);
-    
+
     set(h(1), 'color', cols(co, :), ...
         'markersize', markersizes(co), ...
         'marker', markers{co});
@@ -141,7 +144,7 @@ xlim([-0.2 5.6]); set(gca, 'xtick', 0:2.75:5.5, ...
     'xticklabel',  {'weak', 'medium', 'strong'}, 'xminortick', 'off');
 
 switch field
-    case 'decision_pupil'
+    case {'decision_pupil', 'decision_pupil_only'}
         ylim([0.2 0.61]); set(gca, 'ytick', [0.2 0.4 0.6]);
         ylabel('Pupil response (z)');
         savefast(sprintf('%s/Data/GrandAverage/grandavg_pupil_uncertainty.mat', mypath), 'grandavg');

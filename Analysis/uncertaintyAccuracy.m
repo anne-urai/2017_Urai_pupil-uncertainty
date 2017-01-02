@@ -30,7 +30,7 @@ nbins = 12;
 
 % can try this also with all subjects
 alldata = readtable(sprintf('%s/Data/CSV/2ifc_data_allsj.csv', mypath));
-subjects = unique(alldata.subjnr)'; 
+subjects = unique(alldata.subjnr)';
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAKE OVERVIEW OF THE PUPIL UNCERTAINTY CORRELATION FOR ALL THESE DIFFERENT FIELDS
@@ -42,18 +42,20 @@ grandavg.b      = nan(length(subjects), 2);
 
 for sj = subjects,
     data = alldata(alldata.subjnr == sj, :);
-    
-    % bin
-    [grandavg.rt(sj, :), grandavg.acc(sj, :)] = divideintobins(data.(field), data.correct, nbins);
-    
+
     % project RT out of the pupil and vice versa
     switch field
         case 'rt'
             data.(field) = projectout((data.rtNorm), (data.decision_pupil));
         case 'decision_pupil'
             data.(field) = projectout((data.decision_pupil), (data.rtNorm));
+            case 'decision_pupil_only'
+            data.(field) = data.decision_pupil;
     end
-    
+
+    % bin
+    [grandavg.rt(sj, :), grandavg.acc(sj, :)] = divideintobins(data.(field), data.correct, nbins);
+
     % also do logistic regression
     try
     grandavg.b(sj, :) = glmfit(nanzscore(data.(field)), data.correct, ...
@@ -73,7 +75,7 @@ switch field
         ylim([45 90]); set(gca, 'ytick', [50:20:100]);
         xlabel('Reaction time');
         set(gca,  'xticklabel', {'fast', 'med', 'slow'});
-    case 'decision_pupil'
+    case {'decision_pupil', 'decision_pupil_only'}
         xlabel('Pupil response');
         ylim([68 80]); set(gca, 'ytick', [70:10:100]);
         set(gca,  'xticklabel', {'low', 'medium', 'high'});
