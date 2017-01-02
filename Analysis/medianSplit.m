@@ -1,4 +1,4 @@
-function [] = medianSplit(whichmodulator, field)
+function [] = medianSplit(whichmodulator, field, whichFile)
 % This code reproduces the analyses in the paper
 % Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
 % by decision uncertainty and alters serial choice bias.
@@ -25,6 +25,7 @@ function [] = medianSplit(whichmodulator, field)
 % Anne Urai, 2016
 % anne.urai@gmail.com
 
+if ~exist('whichFile', 'var'); whichFile = 'pupil+rt'; end
 
 global mypath;
 load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
