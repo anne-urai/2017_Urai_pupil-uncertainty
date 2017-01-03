@@ -12,7 +12,7 @@
 cd $PBS_O_WORKDIR
 chmod g=wx $PBS_JOBNAME
 
-filename=$(printf "data/2ifc_pupil+rt_sj%02d.txt" $sjnum) # get the name based on the input argument
+filename=$(printf "data/2ifc_rt_sj%02d.txt" $sjnum) # get the name based on the input argument
 echo $filename
 
 python2.7 analysis.py -fr -n1000 -p ~/Data/pupilUncertainty/Data/serialmodel/ \
