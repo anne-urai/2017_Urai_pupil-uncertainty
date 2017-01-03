@@ -79,7 +79,7 @@ if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypa
     cd(sprintf('%s/Code/serial-dependencies', mypath));
     for session = 2:6,
         system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_plain_session%d_sj%%02d.txt" $sj);', session), ...
-            sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel" $filename; sleep 5; done', mypath)]);
+            sprintf('echo $filename; python2.7 analysis.py -n10 -p "%s/Data/serialmodel" $filename; sleep 5; done', mypath)]);
     end
     
     % retrieve those in matlab
@@ -114,7 +114,6 @@ for s = 2:6,
     set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
     axis square;
 end
-
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS2.pdf', mypath));
 
@@ -260,10 +259,10 @@ writetable(statdat, sprintf('%s/Data/CSV/sessionANOVAdat.csv', mypath));
 system('/Library/Frameworks/R.framework/Resources/bin/R < BayesFactorANOVA_sessions.R --no-save');
 statres = readtable(sprintf('%s/Data/CSV/sessionANOVAresults.csv', mypath)); % fetch results
 
-fprintf('Session F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue, statres.session);
-fprintf('Interaction F(%d,%d) = %.2f, p = %.3f, Bf10 = %.3f  \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue, statres.pupil_session);
+fprintf('Session F(%d,%d) = %.3f, p = %.3f, Bf10 = %.3f \n', stats.f1.df(1), stats.f1.df(2), stats.f1.fstats, stats.f1.pvalue, statres.session);
+fprintf('Interaction F(%d,%d) = %.3f, p = %.3f, Bf10 = %.3f  \n', stats.f1xf2.df(1), stats.f1xf2.df(2), stats.f1xf2.fstats, stats.f1xf2.pvalue, statres.pupil_session);
 
-%% wite out for JASP format
+%% wite out for JASP format to double check degrees of freedom
 statdat.prevPupilBins = categorical(statdat.prevPupilBins);
 statdat.session = categorical(statdat.session);
 

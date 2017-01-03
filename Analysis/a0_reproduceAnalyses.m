@@ -161,10 +161,11 @@ figureS3;
 figureS4;
 figureS5;
 figureS6;
-figureS7;
+figures7;
 figureS8;
 figureS9;
 figureS10;
+figureS11;
 % figureS11;
 
 %% analyze final stuff that's not in the figures but reported in the text
