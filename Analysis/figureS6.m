@@ -128,7 +128,7 @@ ylim([-0.1 0]);
 
 subplot(4,4,7); plotBetas([dat.correct_rt(:, 1) dat.incorrect_rt(:, 1)], colors([2 1], :));
 set(gca, 'xtick', 1:2, 'xticklabel', {'RT x correct', 'RT x error'}, 'xticklabelrotation', -30); %ylim([-0.35 0.3]);
-axis square; ylim([-0.1 0]);
+axis square; ylim([-0.1 0.01]);
 
 
 print(gcf, '-dpdf', sprintf('%s/Figures/FigureS6.pdf', mypath));

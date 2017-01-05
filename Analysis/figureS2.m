@@ -46,6 +46,9 @@ if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypa
         for session = 2:6,
             data = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
             
+          
+    
+            
             if sj == 15,
                 % this person did half a session 3 and half a session 6 + full session 7
                 % change this so that each chunk has 10 blocks in it
@@ -57,6 +60,10 @@ if ~exist(sprintf('%s/Data/GrandAverage/historyweights_plain_session6.mat', mypa
             
             data = data(find(data.sessionnr == session), :);
             
+              numtrials(cnt) = height(data);
+            cnt = cnt + 1;
+        end
+    end
             % generate block nrs, NOT identical to session nrs! History effects
             % should not continue beyond a block
             blockchange = find(diff(data.trialnr) < 0);

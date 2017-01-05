@@ -27,13 +27,13 @@
 clearvars -except mypath; clc; close all;
 global mypath;
 
-subplot(441); sjCorrelation('pupil', 'correct');  %title('Correct');
+subplot(441); sjCorrelation('pupil', 'correct', 'pupil+rt');  %title('Correct');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('Pupil x correct weight');
 xlabel('Choice weight');
 
-subplot(442); sjCorrelation('pupil', 'incorrect'); %title('Incorrect');
+subplot(442); sjCorrelation('pupil', 'incorrect', 'pupil+rt'); %title('Incorrect');
 ylim([-0.7 0.5]); set(gca, 'ytick', [-0.4 0 0.4]);
 xlim([-0.5 0.5]); set(gca, 'xtick', [-0.4 0 0.4]);
 ylabel('Pupil x error weight');

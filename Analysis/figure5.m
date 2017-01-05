@@ -66,4 +66,5 @@ ylim([-0.4 0.15]); set(gca, 'yaxislocation', 'right');
 ylabel('RTx choice weight');
 axis square;
 
-print(gcf, '-dpdf',  sprintf('%s/Figures/Figure5.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/Figure5.pdf', mypath));
+print(gcf, '-depsc', sprintf('%s/Figures/Figure5.eps', mypath));

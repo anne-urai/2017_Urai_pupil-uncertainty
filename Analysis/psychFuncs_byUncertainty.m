@@ -1,4 +1,4 @@
-function [b] = PsychFuncs_byUncertainty(field)
+function [b] = psychFuncs_byUncertainty(field)
 % This code reproduces the analyses in the paper
 % Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
 % by decision uncertainty and alters serial choice bias.
@@ -49,7 +49,7 @@ for sj = subjects,
             data.(field) = data.decision_pupil;
     end
 
-    % split by low and high RT
+    % split by low and high RT, into tertiles
     rtMed = quantile(data.(field), 2);
 
     for r = 1:2,
