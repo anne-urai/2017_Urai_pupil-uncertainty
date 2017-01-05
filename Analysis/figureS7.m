@@ -55,8 +55,8 @@ set(gca, 'xtick', 1:4, 'xticklabel', ...
     {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
     'xticklabelrotation', -30); axis square;
 
-subplot(3,3,1); sjCorrelation('pupil', 'response', 'pupil+rt_separate');
-subplot(3,3,2); sjCorrelation('rt', 'response', 'pupil+rt_separate');
+subplot(4,4,10); sjCorrelation('pupil', 'response', 'pupil+rt_separate');
+subplot(4,4,11); sjCorrelation('rt', 'response', 'pupil+rt_separate');
 
 % show median split for correlation stuff
 subplot(4,4, 15); medianSplit('pupil', 'response',  'pupil+rt_separate');

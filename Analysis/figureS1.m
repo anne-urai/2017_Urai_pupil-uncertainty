@@ -45,7 +45,7 @@ for sj = unique(data.subjnr)',
     medians(sj) = nanmedian(data.rt(data.subjnr == sj));
 end
 boundedline(plotedges, squeeze(nanmedian(RTs)), permute(squeeze(iqr(RTs)) ./ sqrt(27), [2 3 1]), 'cmap', cmap);
-plot([median(medians) median(medians)], [0 ylims(2)], ':', 'color', 'k');
+plot([mean(medians) mean(medians)], [0 ylims(2)], ':', 'color', 'k');
 xlabel('Response time (s)'); ylabel('Fraction of trials');
 xlim([-0.1 1.5]); ylim(ylims); box off;
 
@@ -60,7 +60,7 @@ for sj = unique(data.subjnr)',
 end
 cmap = cbrewer('seq', 'Greens', 7); cmap = cmap(2:end, :);
 h = boundedline(plotedges, squeeze(nanmedian(RTs)), permute(squeeze(iqr(RTs)) ./ sqrt(27), [2 3 1]), 'cmap', cmap);
-for d = 1:5, plot([median(medians(:, d)) median(medians(:, d))], [0 ylims(2)], ':', 'color', cmap(d, :)); end
+for d = 1:5, plot([mean(medians(:, d)) mean(medians(:, d))], [0 ylims(2)], ':', 'color', cmap(d, :)); end
 xlabel('Response time (s)'); ylabel('Fraction of trials');
 xlim([-0.1 1.5]); ylim(ylims); box off;
 legend(h, {'weak', '', '', '', 'strong'});
@@ -77,10 +77,10 @@ for sj = unique(data.subjnr)',
 end
 cmap = cbrewer('qual', 'Set1', 2);
 h = boundedline(plotedges, squeeze(median(RTs)), permute(squeeze(iqr(RTs)) ./ sqrt(27), [2 3 1]), 'cmap', cmap);
-for d = 1:2, plot([median(medians(:, d)) median(medians(:, d))], [0 ylims(2)], ':', 'color', cmap(d, :)); end
+for d = 1:2, plot([mean(medians(:, d)) mean(medians(:, d))], [0 ylims(2)], ':', 'color', cmap(d, :)); end
 xlabel('Response time (s)'); ylabel('Fraction of trials');
 xlim([-0.1 1.5]); ylim(ylims); box off;
-legend(h, {'error', 'corrcect'});
+legend(h, {'error', 'corrcect'}); legend boxoff;
 
 % use nice shades of red and green
 colors = cbrewer('qual', 'Set1', 9);
@@ -89,7 +89,7 @@ load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 % error vs correct
 %subplot(445); [b, bint] = Uncertainty_byErrorCorrect('rt');
 %subplot(4,8,11); plotBetasSwarm(b, colors([1 2], :));
-set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
+%set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 % other metrics of uncertainty
 subplot(4,4,5); b = uncertaintyAccuracy('rt');
