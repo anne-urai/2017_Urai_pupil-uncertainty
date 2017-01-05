@@ -28,7 +28,7 @@ function [] = medianSplit(whichmodulator, field, whichFile)
 if ~exist('whichFile', 'var'); whichFile = 'pupil+rt'; end
 
 global mypath;
-load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt'));
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichFile));
 load(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath));
 
 % split between repeaters and alternators

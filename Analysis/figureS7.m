@@ -36,9 +36,8 @@ dat2 = load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'rt'))
 dat = dat1.dat; 
 dat.response_rt = dat2.dat.response_pupil;
 dat.stimulus_rt = dat2.dat.stimulus_pupil;
-dat.response_rtCI = nan(size(dat1.dat.response_pupilCI));
-dat.response_pupilCI = nan(size(dat1.dat.response_pupilCI));
-dat.responseCI = zeros(size(dat.responseCI));
+dat.response_rtCI = dat2.dat.response_pupilCI;
+%dat.responseCI = zeros(size(dat.responseCI));
 save(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'pupil+rt_separate'));
 
 subplot(4,4,9); plotBetas([dat.response_pupil(:, 1) ...
@@ -56,8 +55,8 @@ set(gca, 'xtick', 1:4, 'xticklabel', ...
     {'Pupil x choice', 'Pupil x stimulus', 'RT x choice', 'RT x stimulus'}, ...
     'xticklabelrotation', -30); axis square;
 
-subplot(4,4,10); sjCorrelation('pupil', 'response', 'pupil+rt_separate');
-subplot(4,4,11); sjCorrelation('rt', 'response', 'pupil+rt_separate');
+subplot(3,3,1); sjCorrelation('pupil', 'response', 'pupil+rt_separate');
+subplot(3,3,2); sjCorrelation('rt', 'response', 'pupil+rt_separate');
 
 % show median split for correlation stuff
 subplot(4,4, 15); medianSplit('pupil', 'response',  'pupil+rt_separate');

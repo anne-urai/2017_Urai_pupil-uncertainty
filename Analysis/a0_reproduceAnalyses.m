@@ -161,7 +161,7 @@ figureS3;
 figureS4;
 figureS5;
 figureS6;
-figures7;
+figureS7;
 figureS8;
 figureS9;
 figureS10;
