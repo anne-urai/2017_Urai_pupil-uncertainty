@@ -76,9 +76,7 @@ for sj = unique(subjects),
             data.decision_pupil = projectout(data.decision_pupil, data.feedback_pupil);
         case 'pupil',
             whichMod = 'decision_pupil';
-            if isempty(correctness),
-                data.decision_pupil = projectout(data.decision_pupil, data.rtNorm); % take out RT
-            end
+            data.decision_pupil = projectout(data.decision_pupil, data.rtNorm); % take out RT
         case 'rt'
             whichMod = 'rtNorm'; % t
             data.rtNorm = projectout(data.rtNorm, data.decision_pupil);
