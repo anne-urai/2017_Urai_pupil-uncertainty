@@ -1,5 +1,6 @@
 This is the overall repository that replicates all analyses from
-_Urai AE, Braun A, Donner THD. Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias._
+_Urai AE, Braun A, Donner TH. (2017) Pupil-linked arousal is driven by decision uncertainty and alters serial choice bias. Nature Communications, 8: 14637.
+http://www.nature.com/articles/ncomms14637_
 
 ### This repository contains ###
 
