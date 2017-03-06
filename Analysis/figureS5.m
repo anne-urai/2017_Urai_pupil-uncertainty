@@ -27,7 +27,6 @@
 clearvars -except mypath;
 global mypath; close all; clc;
 mods = {'pupil', 'rt'};
-nbins = 3;
 for m = 1:2,
     subplot(4,4,m);
     grandavg{m} = postPupilBehaviour(mods{m}, 3, []);
@@ -65,6 +64,10 @@ for m = 1:2,
             xticklabs{1}    = 'fast';
             xticklabs{end}  = 'slow';
             if nbins == 3, xticklabs{2} = 'med'; end
+        otherwise
+            xticklabs       = repmat({' '}, 1, nbins);
+            xticklabs{1}    = 'low';
+            xticklabs{end}  = 'high';
     end
     
     set(gca, 'xlim', [0.5 nbins+0.5], 'xtick', 1:nbins,  'xticklabel', xticklabs, ...
