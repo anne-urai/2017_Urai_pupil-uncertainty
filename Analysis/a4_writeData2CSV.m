@@ -73,11 +73,13 @@ for sj = (subjects),
     feedbackPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         find(pupilgrandavg.timelock{sj}(4).lock.time > 0.515 & pupilgrandavg.timelock{sj}(4).lock.time < 0.765 ) ), 3));
     
+    feedbackPupil_baseline = feedbackPupil - decisionPupil;
+
     endofTrlPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
         end-(0.1*data.fsample):end), 3));
     
     % put together
-    newtrl = [newtrl decisionPupil feedbackPupil endofTrlPupil earlyDecisionPupil];
+    newtrl = [newtrl decisionPupil feedbackPupil endofTrlPupil earlyDecisionPupil feedbackPupil_baseline];
     
     % ==================================================================
     % write to csv for each individual
@@ -101,7 +103,7 @@ for sj = (subjects),
         'trialnr', 'blocknr', 'sessionnr', 'subjnr',  ...
         'baseline_pupil', ...
         'int1motion', 'int2motion', 'rtNorm', ...
-        'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'response_pupil'});
+        'decision_pupil', 'feedback_pupil', 'trialend_pupil', 'response_pupil', 'feedback_pupil_blcorr'});
     
     writetable(t, sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     

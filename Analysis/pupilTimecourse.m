@@ -1,25 +1,25 @@
 function [] = pupilTimecourse(plotTotalAverage)
 % This code reproduces the analyses in the paper
-% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
-% by decision uncertainty and alters serial choice bias. 
-% 
-% Permission is hereby granted, free of charge, to any person obtaining a 
-% copy of this software and associated documentation files (the "Software"), 
-% to deal in the Software without restriction, including without limitation 
-% the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-% and/or sell copies of the Software, and to permit persons to whom the 
+% Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven
+% by decision uncertainty and alters serial choice bias.
+%
+% Permission is hereby granted, free of charge, to any person obtaining a
+% copy of this software and associated documentation files (the "Software"),
+% to deal in the Software without restriction, including without limitation
+% the rights to use, copy, modify, merge, publish, distribute, sublicense,
+% and/or sell copies of the Software, and to permit persons to whom the
 % Software is furnished to do so, subject to the following conditions:
-% 
-% The above copyright notice and this permission notice shall be included 
+%
+% The above copyright notice and this permission notice shall be included
 % in all copies or substantial portions of the Software.
 % If you use the Software for your own research, cite the paper.
-% 
-% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+% OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 % DEALINGS IN THE SOFTWARE.
 %
 % Anne Urai, 2016
@@ -60,7 +60,7 @@ if plotTotalAverage,
         pupilgrandavg.timelock{1}(2).lock, [0], ...
         pupilgrandavg.timelock{1}(3).lock, [0 1], ...
         pupilgrandavg.timelock{1}(4).lock, [0 1 2]);
-  
+    
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,6 +75,16 @@ load(sprintf('%s/Data/GrandAverage/pupilgrandaverage.mat', mypath));
 
 % append all the mean timecourses per condition
 for sj = unique(subjects),
+    
+    pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(1).lock.label, 'EyePupil')==1);
+    
+    %     % baseline correct at feedback
+    %     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
+    %         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
+    %
+    %     pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :) = bsxfun(@minus, ...
+    %         pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :), decisionPupil);
+    %
     thistable = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     cors = [0 1];
@@ -99,7 +109,6 @@ for sj = unique(subjects),
                         abs(thistable.motionstrength) > motionstrengthquantiles(2) );
             end
             
-            pupilchan       = find(strcmp(pupilgrandavg.timelock{sj}(1).lock.label, 'EyePupil')==1);
             
             cnt = cnt + 1;
             % get all timelock

@@ -65,7 +65,7 @@ for prevcorrect = 1:2,
         % add some stuff
         data.prevcorrect            = circshift(data.correct, 1);
         data.prevresp               = circshift(data.resp, 1);
-        data.prevmotionstrength     = circshift(data.motionstrength, 1);
+        data.prevmotionstrength     = circshift(zscore(log(data.rt + 0.5)) + 10, 1);
         
         % plot
         subplot(5,6,spidx(sj));
@@ -155,6 +155,6 @@ for prevcorrect = 1:2,
     
     suplabel('Previous stimulus strength', 'x');
     suplabel('Current choice bias', 'y');
-    print(gcf, '-dpdf', sprintf('%s/Figures/boundUpdate_curve_%s.pdf', mypath, name));
+    print(gcf, '-dpdf', sprintf('%s/Figures/boundUpdate_curve_%s_rt.pdf', mypath, name));
 end
 end

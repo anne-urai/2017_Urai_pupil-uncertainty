@@ -34,7 +34,7 @@ subplot(4,4,3); pupilUncertaintyTimecourse;
 colors = cbrewer('qual', 'Set1', 9);
 % error vs correct
 subplot(445); b = uncertainty_byErrorCorrect('decision_pupil');
-cla; plotBetasSwarm(b, colors([1 2], :));
+subplot(446); plotBetasSwarm(b, colors([1 2], :)); axis square;
 set(gca, 'xtick', [1 2], 'xticklabel', {'Error', 'Correct'});
 
 % other metrics of uncertainty
