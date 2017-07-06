@@ -81,10 +81,8 @@ for sj = unique(subjects),
     %     % baseline correct at feedback
     %     decisionPupil = squeeze(nanmean(pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, ...
     %         find(pupilgrandavg.timelock{sj}(4).lock.time < 0 & pupilgrandavg.timelock{sj}(4).lock.time > -0.250 ) ), 3));
-    %
     %     pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :) = bsxfun(@minus, ...
     %         pupilgrandavg.timelock{sj}(4).lock.trial(:, pupilchan, :), decisionPupil);
-    %
     thistable = readtable(sprintf('%s/Data/CSV/2ifc_data_sj%02d.csv', mypath, sj));
     
     cors = [0 1];

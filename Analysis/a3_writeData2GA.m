@@ -341,7 +341,7 @@ for locking = 1:4,
         case 'fb'
             offset      = data_blcorr.trialinfo(:,11) - data_blcorr.trialinfo(:,1);
             prestim     = 1;
-            poststim    = 2;
+            poststim    = 4;
     end
     
     % shift the offset and do timelocking
