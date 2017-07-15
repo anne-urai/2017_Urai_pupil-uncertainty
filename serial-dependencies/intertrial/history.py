@@ -196,7 +196,7 @@ def gram_schmidt ( X ):
 
 # AEU: change this to independent lags
 def history_impulses ( eta=[-1,0.5,0.25], nlags=7 ):
-    
+
     """Determine impulse responses of history features
 
     :Parameters:
@@ -265,8 +265,44 @@ def history_features ( h, r_or_z ):
 
     for i in xrange ( m ):
         hf[1:,i] = np.convolve ( h[:,i], r_or_z, 'full' )[0:n-1]
-        
-    # added: orthogonalize design matrix     
+
+    # added: orthogonalize design matrix
+    # hf = gram_schmidt (hf)
+
+    return hf
+
+def history_features_stim (h, r_or_z, d):
+    """Determine the values of a history feature
+
+    :Parameters:
+        *d* Difficulty of each trial, if 0 there will be no stimulus weight assigned
+        *h*
+            The impulse responses for all history features. This should be a matrix containing the impulse
+            responses in the colums
+        *r_or_z*
+            a vector of the data that should go into the history (i.e. responses r or stimulus identities z).
+
+    :Returns:
+        a matrix with one column for every column in "imp" and one row for every entry in "r_or_z"
+    """
+
+    if 0 in h.shape:
+        return None
+
+    assert len ( h.shape ) == 2, "h should be 2d"
+    r_or_z = np.array ( r_or_z, 'd' )
+    hf = np.zeros ( (len(r_or_z), h.shape[1]), 'd' )
+    n,m = hf.shape
+
+    # see slack message Anke 15 July 2017: when there is no stimulus evidence, also set this history feature to zero
+    for j in xrange ( len(r_or_z)):
+    if d[j] == 0:
+        r_or_z[j] = 0
+
+    for i in xrange ( m ):
+        hf[1:,i] = np.convolve ( h[:,i], r_or_z, 'full' )[0:n-1]
+
+    # added: orthogonalize design matrix
     # hf = gram_schmidt (hf)
 
     return hf
@@ -306,7 +342,7 @@ def get_code ( x, code_out, code_in ):
 
 def get_w0 ( d ):
     """Determine starting values for stimulus related parameters
-    
+
     :Parameters:
         *d*
             a matrix of the same form as returned by DataSet.getsummary(). The
