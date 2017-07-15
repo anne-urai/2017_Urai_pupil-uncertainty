@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
 # -*- coding: ascii -*-
-
 
 __doc__ = """
 Copyright (C) 2014 Ingo Fruend
