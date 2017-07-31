@@ -194,8 +194,11 @@ def gram_schmidt ( X ):
 # sys.stderr.write ( "WARNING USING ONLY 1Back feature!\n" )
 # def history_impulses ( eta=[-1], nlags=7 ):
 
+# original
+# def history_impulses ( eta=[-1,0.5,0.25], nlags=7 ):
+
 # AEU: change this to independent lags
-def history_impulses ( eta=[-1,0.5,0.25], nlags=7 ):
+def history_impulses ( eta=[-1,-2,-3,-4,-5,-6,-7], nlags=7 ):
 
     """Determine impulse responses of history features
 
@@ -294,12 +297,11 @@ def history_features_stim (h, r_or_z, d):
     hf = np.zeros ( (len(r_or_z), h.shape[1]), 'd' )
     n,m = hf.shape
 
-    # see slack message Anke 15 July 2017: when there is no stimulus evidence, also set this history feature to zero
-    for j in xrange ( len(r_or_z)):
-    if d[j] == 0:
-        r_or_z[j] = 0
-
     for i in xrange ( m ):
+        # see slack message Anke 15 July 2017: when there is no stimulus evidence, also set this history feature to zero
+        for j in xrange ( len(r_or_z)):
+            if d[j] == 0:
+                r_or_z[j] = 0
         hf[1:,i] = np.convolve ( h[:,i], r_or_z, 'full' )[0:n-1]
 
     # added: orthogonalize design matrix
