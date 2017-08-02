@@ -52,4 +52,41 @@ xlim([0.5 7]); ylim([-0.2 0.2]);
 offsetAxes;
 print(gcf, '-dpdf', sprintf('%s/Figures/lags_persubgroup.pdf', mypath));
 
+ %% =========================== %
+ 
+figure;
+load(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, 'plain'));
+
+colors = cbrewer('div', 'Spectral', 11);
+subplot(441); hold on;
+lags = 1:7;
+plot([1 7], [0 0], 'color', 'k', 'linewidth', 0.1);
+
+b1 = boundedline(lags, nanmean(dat.response), ...
+    nanstd(dat.response) ./sqrt(27), 'alpha', ...
+    'cmap', colors(11, :) );
+b2 = boundedline(lags, nanmean(dat.stimulus), ...
+    nanstd(dat.stimulus) ./sqrt(27), 'alpha', ...
+    'cmap', colors(9, :) );
+xlabel('Lags'); ylabel('Weight');
+axis square; set(gca, 'xtick', 1:7);
+xlim([0.5 7]); ylim([-0.2 0.2]);
+offsetAxes;
+
+% STATS
+[h, pval1] = ttest(dat.response);
+yval = -0.14;
+plot(find(h==1), yval*ones(1, length(find(h==1))), '-', ...
+    'color', colors(11, :), 'markersize', 4);
+[h, pval1] = ttest(dat.stimulus);
+yval = -0.17;
+plot(find(h==1), yval*ones(1, length(find(h==1))), '-', ...
+    'color', colors(9, :), 'markersize', 4);
+
+text(7.2, -0.135, 'Choice', 'color', colors(11, :), 'FontSize', 6);
+text(7.2, -0.175, 'Stimulus', 'color', colors(9, :), 'FontSize', 6);
+
+% SAVE
+print(gcf, '-dpdf', sprintf('%s/Figures/lags_choicestim.pdf', mypath));
+
 end

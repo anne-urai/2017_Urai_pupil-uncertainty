@@ -198,7 +198,8 @@ def gram_schmidt ( X ):
 # def history_impulses ( eta=[-1,0.5,0.25], nlags=7 ):
 
 # AEU: change this to independent lags
-def history_impulses ( eta=[-1,-2,-3,-4,-5,-6,-7], nlags=7 ):
+# def history_impulses ( eta=[-1,-2,-3,-4,-5,-6,-7], nlags=7 ):
+def history_impulses ( eta=[-1,0.5,0.25], nlags=7 ):
 
     """Determine impulse responses of history features
 
