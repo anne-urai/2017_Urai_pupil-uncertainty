@@ -33,6 +33,7 @@ subplot(442); historyContribution;
 
 % take P10 as an example
 subplot(443); fruendKernels('plain', 'response');
+%subplot(442); fruendKernels('plain', 'stimulus');
 set(gca, 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 0.5);
 
 subplot(444); decisionStrategies('plain');
@@ -66,5 +67,5 @@ ylim([-0.4 0.15]); set(gca, 'yaxislocation', 'right');
 ylabel('RTx choice weight');
 axis square;
 
-print(gcf, '-dpdf', sprintf('%s/Figures/Figure5.pdf', mypath));
+print(gcf, '-dpdf', sprintf('%s/Figures/kernels.pdf', mypath));
 print(gcf, '-depsc', sprintf('%s/Figures/Figure5.eps', mypath));

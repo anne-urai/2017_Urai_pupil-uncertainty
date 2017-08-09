@@ -41,7 +41,7 @@ if strcmp(whichmodulator, 'plain') && strcmp(field, 'response'),
     for sj = 1:27,
         % find which color this is
         colspace =  linspace(-0.5, 0.5, size(colors, 1));
-        colidx   = dsearchn(colspace', dat.(field)(sj, 1));
+        colidx      = dsearchn(colspace', dat.(field)(sj, 1));
         mycolmap(sj, :) = colors(colidx, :);
     end
     save(sprintf('%s/Data/GrandAverage/sjcolormap.mat', mypath), 'mycolmap');
@@ -56,24 +56,33 @@ hold on;
 for sj = 1:27,
     plot(dat.(field)(sj, :)', 'color', mycolmap(sj, :), 'linewidth', 0.5);
 end
-scatter(ones(1, 27), dat.(field)(:, 1), 10, mycolmap, 'filled');
+s = scatter(ones(1, 27), dat.(field)(:, 1), 10, mycolmap, 'filled', 'linewidth', 0.1, 'markeredgecolor', 'w');
 
-if strcmp(whichmodulator, 'plain') && strcmp(field, 'response'),
+if strcmp(whichmodulator, 'plain') ,
     
     % add the group
-    [ax, p1, p2] = plotyy(1:7, nanmean(dat.(field)),  ...
-        1:7, mean(abs(dat.(field))));
+    %     [ax, p1, p2] = plotyy(1:7, nanmean(dat.(field)),  ...
+    %         1:7, mean(abs(dat.(field))));
+    p1 = plot(1:7, nanmean(dat.(field)));
     
-    set(ax(1), 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.4 0 0.4], 'ylim', [-.45 .4], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
-    set(ax(2), 'ycolor', [0.4 0.4 0.4], 'xtick', 1:7, 'ytick', [0 0.2], 'ylim', [0 .4], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
+    set(gca, 'ycolor', 'k', 'xtick', 1:7, 'ytick', [-0.4 0 0.4], 'ylim', [-.45 .4], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
+    % set(ax(2), 'ycolor', [0.4 0.4 0.4], 'xtick', 1:7, 'ytick', [0 0.2], 'ylim', [0 .4], 'xlim', [0.5 7.5], 'box', 'off', 'xminortick', 'off');
     
     set(p1, 'color', 'k', 'linewidth', 1);
-    set(p2, 'color', [0.4 0.4 0.4], 'linewidth', 1);
-    axis(ax(1), 'square'); axis(ax(2), 'square');
+    % set(p2, 'color', [0.4 0.4 0.4], 'linewidth', 1);
+    axis square; %axis(ax(2), 'square');
     
-    ylabel(ax(1),'Choice weight') % label left y-axis
-    ylabel(ax(2),'|Choice weight|') % label right y-axis
-    
+    if strcmp(field, 'response'),
+        
+        ylabel(gca,'Choice weight') % label left y-axis
+      %  ylabel(ax(2),'|Choice weight|') % label right y-axis
+        
+    elseif strcmp(field, 'stimulus'),
+          ylabel(gca,'Stimulus weight') % label left y-axis
+     %   ylabel(ax(2),'|Stimulus weight|') % label right y-axis
+        
+    end
+
 elseif strcmp(field, 'response_pupil'),
     
     % indicate significance for each lag
@@ -86,4 +95,6 @@ elseif strcmp(field, 'response_pupil'),
     
 end
 xlabel('Lags');
+offsetAxes;
+
 end

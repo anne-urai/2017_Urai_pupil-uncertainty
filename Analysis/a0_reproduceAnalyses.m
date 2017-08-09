@@ -128,11 +128,12 @@ if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data
 % this is easiest to run from the terminal. With Python 2.7 installed, go
 % to the folder mypath/Code/serial-dependencies
 cd(sprintf('%s/Code/serial-dependencies', mypath));
+cd('~/Data/testBitBucket/serial_decision/');
 
 mods = {'plain', 'plainCoh', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
 for m = 1:length(mods),
-    system([sprintf('for sj in {1..27}; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+    system([sprintf('for sj in {1..1}; do filename=$(printf "/Users/anne/Data/pupilUncertainty_FigShare/Code/serial-dependencies/data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
+        sprintf('echo $filename; python2.7 analysis.py -fmr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 
 mods2 = {'pupil+rt'};
