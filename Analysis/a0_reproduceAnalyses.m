@@ -130,16 +130,10 @@ if ~exist(sprintf('%s/Data/serialmodel', mypath), 'dir'), mkdir(sprintf('%s/Data
 cd(sprintf('%s/Code/serial-dependencies', mypath));
 cd('~/Data/testBitBucket/serial_decision/');
 
-mods = {'plain', 'plainCoh', 'fbpupil', 'fb+decpupil', 'pupil', 'rt'};
+mods = {'plain', 'pupil+rt', 'rt'}; %, 'plainCoh', 'fbpupil', 'fb+decpupil', 'pupil', 'rt', };
 for m = 1:length(mods),
-    system([sprintf('for sj in {1..1}; do filename=$(printf "/Users/anne/Data/pupilUncertainty_FigShare/Code/serial-dependencies/data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fmr -n10 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
-end
-
-mods2 = {'pupil+rt'};
-for m = 1:length(mods2),
-    system([sprintf('for sj in 13 14 26 27; do filename=$(printf "data/2ifc_%s_sj%%02d.txt" $sj);', mods2{m}), ...
-        sprintf('echo $filename; python2.7 analysis.py -fr -n1000 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
+    system([sprintf('for sj in {1..27}; do filename=$(printf "/Users/anne/Data/pupilUncertainty_FigShare/Code/serial-dependencies/data/2ifc_%s_sj%%02d.txt" $sj);', mods{m}), ...
+        sprintf('echo $filename; python2.7 analysis.py -fmr -n0 -p "%s/Data/serialmodel/" $filename; sleep 5; done', mypath)]);
 end
 
 % important: if you want the quick and dirty version without accurate

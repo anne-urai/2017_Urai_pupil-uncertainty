@@ -39,20 +39,18 @@ for sj = subjects,
     % ============================================ %
     
     try
-    load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
-    load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
+        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat', mypath, whichmodulator, sj));
+        load(sprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtdata.mat', mypath, whichmodulator, sj));
     catch
         fprintf('%s/Data/serialmodel/2ifc_%s_sj%02d.txtresults.mat \n', mypath, whichmodulator, sj);continue;
     end
     
     switch whichmodulator
         case {'plain', 'plainCoh'} % no modulator
-            model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
         case {'plain_session2', 'plain_session3', 'plain_session4', ...
                 'plain_session5', 'plain_session6'}; % by session
-            model_h_mod = model_w_hist;
             weights1 = {'response', 'stimulus'};
             weights2 = {''};
         case {'fbpupil', 'pupil', 'rt'}, % single modulator
@@ -67,26 +65,32 @@ for sj = subjects,
     end
     
     % get the fitted weights
-    hf0 = model_h_mod.hf0+1;
-    model_h_mod.w = model_h_mod.w(:);
+    hf0 = model_w_hist.hf0+1;
+    model_w_hist.w = model_w_hist.w(:);
     hlen = size(h, 2);
     
     % for bootstrapped values, also multiply with the bootstrapped slope
-    bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
+    if exist('bootstrap', 'var'),
+        bootstrap_corr(:,1:size(bootstrap,2)-2)  = bsxfun(@times, bootstrap(:, 1:end-2), bootstrap(:, end-1));
+    end
     
     cnt = 0;
     for w = 1:length(weights1),
         
         % project back into lag space
-        thisw       = model_h_mod.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
+        thisw       = model_w_hist.w(hf0+hlen*cnt:hf0+hlen*(cnt+1)-1);
         thisw       = h * thisw;
         dat.(weights1{w})(sj, :) = thisw;
         
         % get errorbars
-        thisboot    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1));
-        alpha       = 1 - 0.68; % should cover 1 std of the distribution
-        thiswci     = prctile(thisboot, [100*alpha/2,100*(1-alpha/2)])';
-        dat.([weights1{w} 'CI'])(sj, :, :) = thiswci;
+        if exist('bootstrap', 'var'),
+            thisboot    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1));
+            alpha       = 1 - 0.68; % should cover 1 std of the distribution
+            thiswci     = prctile(thisboot, [100*alpha/2,100*(1-alpha/2)])';
+            dat.([weights1{w} 'CI'])(sj, :, :) = thiswci;
+        else
+            dat.([weights1{w} 'CI'])(sj, :, :) = nan(numel(sj), 2, nlags);
+        end
         cnt         = cnt  + 1;
     end
     
@@ -102,18 +106,24 @@ for sj = subjects,
         dat.(['incorrect' weights2{w}])(sj, :) = ...
             -dat.(['stimulus' weights2{w}])(sj, :) + dat.(['response' weights2{w}])(sj, :);
         
-        % make correct and error CIs by recoding each bootstrap
-        boot_choice    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 1;
-        boot_stim      = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 2;
-        
-        % combine them
-        boot_correct   = boot_choice + boot_stim;
-        boot_incorrect = boot_choice - boot_stim;
-        
-        % CIs in absolute bound values
-        dat.(['correct' weights2{w} 'CI'])(sj, :, :) = prctile(boot_correct, [100*alpha/2,100*(1-alpha/2)])';
-        dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = prctile(boot_incorrect, [100*alpha/2,100*(1-alpha/2)])';
-        
+        if exist('bootstrap', 'var'),
+            
+            % make correct and error CIs by recoding each bootstrap
+            boot_choice    = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 1;
+            boot_stim      = bootstrap_corr(:, nlags*cnt+1:nlags*(cnt+1)); cnt = cnt + 2;
+            
+            % combine them
+            boot_correct   = boot_choice + boot_stim;
+            boot_incorrect = boot_choice - boot_stim;
+            
+            % CIs in absolute bound values
+            dat.(['correct' weights2{w} 'CI'])(sj, :, :) = prctile(boot_correct, [100*alpha/2,100*(1-alpha/2)])';
+            dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = prctile(boot_incorrect, [100*alpha/2,100*(1-alpha/2)])';
+        else
+            dat.(['correct' weights2{w} 'CI'])(sj, :, :) = nan(numel(sj), 2, nlags);
+            dat.(['incorrect' weights2{w} 'CI'])(sj, :, :) = nan(numel(sj), 2, nlags);
+            
+        end
     end
     
     try
@@ -139,4 +149,5 @@ end
 % save for group plots
 savefast(sprintf('%s/Data/GrandAverage/historyweights_%s.mat', mypath, whichmodulator), 'dat');
 close all;
+
 end
