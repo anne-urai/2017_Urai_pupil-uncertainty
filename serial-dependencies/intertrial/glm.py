@@ -38,7 +38,7 @@ def optimize_w ( X, y, q, w, niter=5, stop=1e-5, lm=0.1, verbose=False ):
     """
     w,l_,conv = weighted_glm ( X, y, q, w, niter=niter, stop=stop, lm=lm )
     if verbose:
-        print "Converged" if conv else "Not converged"
+        print("Converged" if conv else "Not converged")
     return np.ravel(np.array(w))
 
 def logistic ( x ):

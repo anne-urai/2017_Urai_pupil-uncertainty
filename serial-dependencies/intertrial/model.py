@@ -144,10 +144,10 @@ class history_model ( object ):
         # w = np.array ( [.01,.8,-.8,.5] )
 
         if self.verbose:
-            print "Starting values:"
-            print "nu:",nu
-            print "w: ",w
-            print "p: ",p
+            print("Starting values:")
+            print("nu:",nu)
+            print("w: ",w)
+            print("p: ",p)
 
         X_ = X.copy ()
         for j in self.applythreshold:
@@ -182,7 +182,7 @@ class history_model ( object ):
             w = glm.optimize_w ( X_, r, q[:,-1], w, niter=self.glmiter, stop=self.glmstop, lm=self.lmprior )
             p = history_model.__optimize_p ( q, self.pprior )
             if np.isnan ( p ).any():
-                print i,p
+                print(i,p)
                 sys.exit ( 1 )
 
             # Expectation
@@ -203,7 +203,7 @@ class history_model ( object ):
                 self.opt.append ( [l_,rel_e,abs_e]+[ pp for pp in p]+[ ww for ww in w ]+[float(nu)] )
 
             if self.verbose:
-                print l_,rel_e,abs_e
+                print(l_,rel_e,abs_e)
             l = l_
         else:
             if self.verbose:

@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.optimize as opt
 import sys,cPickle
-import scipy.weave
+# import scipy.weave
 
 __doc__ = """Definitions for the threshold nonlinearity
 

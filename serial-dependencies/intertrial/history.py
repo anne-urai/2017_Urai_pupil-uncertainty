@@ -68,7 +68,7 @@ class DataSet ( object ):
         if len ( impulse_responses.shape )==1:
             impulse_responses = np.reshape ( impulse_responses, (-1,1) )
         elif len ( impulse_responses.shape ) > 2:
-            raise ValueError, "Don't know how to handle an impulse response matrix of this dimension"
+            raise ValueError("Don't know how to handle an impulse response matrix of this dimension")
         self.h = gram_schmidt ( impulse_responses )
 
         self.__fname = "no file"
@@ -179,7 +179,7 @@ def gram_schmidt ( X ):
     U = [X[:,0]]
     E = [X[:,0]/vector_norm ( X[:,0] )]
 
-    for i in xrange ( 1, X.shape[1] ):
+    for i in range ( 1, X.shape[1] ):
         u_new = X[:,i].copy()
         v = X[:,i]
         for u in U:

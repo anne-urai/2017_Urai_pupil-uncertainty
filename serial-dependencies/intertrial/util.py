@@ -2,9 +2,9 @@
 
 import pylab as pl
 import numpy as np
-import column # Data set specific
-import history,graphics,statistics,model # general
-import sys,cPickle
+import sys #,cPickle
+sys.path.append('/Users/urai/Documents/code/2017_NatCommun_Urai_pupil-uncertainty/serial-dependencies/')
+from intertrial import column, history,graphics,statistics,model # Data set specific
 from threshold import u_v
 import pdb # debugger
 import copy
@@ -144,9 +144,9 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
         Mhmod.X = X
 
         # to check that the sizes work
-        print "X",np.shape(X)
-        print "Mwh",Mwh.w,np.shape(Mwh.X)
-        print "Mhmod",Mhmod.w,np.shape(Mhmod.X)
+        print("X",np.shape(X))
+        print("Mwh",Mwh.w,np.shape(Mwh.X))
+        print("Mhmod",Mhmod.w,np.shape(Mhmod.X))
 
     elif doublemodulation:
         Mhmod = model.history_model ( r, X[:,:hf0],
@@ -164,9 +164,9 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
         Mhmod.X = X
 
         # to check that the sizes work
-        print "X",np.shape(X)
-        print "Mwh",Mwh.w,np.shape(Mwh.X)
-        print "Mhmod",Mhmod.w,np.shape(Mhmod.X)
+        print("X",np.shape(X))
+        print("Mwh",Mwh.w,np.shape(Mwh.X))
+        print("Mhmod",Mhmod.w,np.shape(Mhmod.X))
 
     else:
         Mwh.w = np.concatenate ( (Mwh.w,np.zeros(6,'d')) )
@@ -234,10 +234,10 @@ def search_for_start ( r, X, w0, applythreshold, hf0, pm=(.85,.93,1.,1.07,1.15),
     logging.info ( "Starting values:\n  with history: %d\n  without history: %d\n" % (whind,nhind) )
 
     # NOW, THE HISTORY ONLY MODEL HAS SIZE 22!
-    print "X",np.shape(X)
-    print "Mwh",Mwh.w,np.shape(Mwh.X)
+    print("X",np.shape(X))
+    print("Mwh",Mwh.w,np.shape(Mwh.X))
     if modulation:
-        print "Mhmod",Mhmod.w,np.shape(Mhmod.X)
+        print("Mhmod",Mhmod.w,np.shape(Mhmod.X))
 
     return Mnh,Mwh,Mhmod
 
@@ -300,11 +300,11 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
     logging.info ( "Fitting models" )
 
     # check if we have the right sizes here
-    print "d", np.shape(d.X), np.shape(d.r)
-    print "dnh", np.shape(dnh.X), np.shape(dnh.r)
-    print "dwh", np.shape(dwh.X), np.shape(dwh.r)
+    print("d", np.shape(d.X), np.shape(d.r))
+    print("dnh", np.shape(dnh.X), np.shape(dnh.r))
+    print("dwh", np.shape(dwh.X), np.shape(dwh.r))
     if d.modulation or d.doublemodulation:
-        print "dhmod", np.shape(dhmod.X), np.shape(dhmod.r)
+        print("dhmod", np.shape(dhmod.X), np.shape(dhmod.r))
     # here, the sizes seem OK
 
     Mnh,Mwh,Mhmod = search_for_start ( d.r, d.X, w0, d.th_features, d.hf0, storeopt=True, modulation=d.modulation, doublemodulation=d.doublemodulation)
@@ -314,19 +314,19 @@ def analysis ( d, w0, nsamples=200, perm_collector=statistics.EvaluationCollecto
         logging.info ( "likelihood for modulation + history model: %g" % (Mhmod.loglikelihood,) )
 
     # check the shape of the design matrix
-    print "nh",Mnh.w,Mnh.pi,np.shape(Mnh.X)
-    print "wh",Mwh.w,Mwh.pi,np.shape(Mwh.X)
+    print("nh",Mnh.w,Mnh.pi,np.shape(Mnh.X))
+    print("wh",Mwh.w,Mwh.pi,np.shape(Mwh.X))
     if d.modulation or d.doublemodulation:
-        print "hmod",Mhmod.w,Mhmod.pi,np.shape(Mhmod.X)
+        print("hmod",Mhmod.w,Mhmod.pi,np.shape(Mhmod.X))
 
-    print 'start monte carlo'
+    print('start monte carlo')
     # Monte Carlo testing
     if nsamples>0:
 
         # now, dhmod has too few columns
 
         if d.modulation or d.doublemodulation:
-            print 'permuting with modulation'
+            print('permuting with modulation')
             r_,X_ = dhmod.permutation () # permute the whole thing
         else:
             r_,X_ = dwh.permutation () # permute the whole thing
@@ -429,7 +429,7 @@ def plot ( d, results, infodict ):
     required_infokeys = ['labels','colors','indices','conditions','xmin','xmax']
     for k in required_infokeys:
         if not k in infodict.keys():
-            raise ValueError, "Key %s was not in infodict" % (k,)
+            raise ValueError("Key %s was not in infodict" % (k,))
 
     pmfplot ( d, results, infodict, ax.pmf )
     nonlinearityplot ( d, results, infodict, ax.uv )
@@ -506,11 +506,11 @@ def permutationplot ( d, results, infodict, ax, noaic=False ):
     l_obs = results['model_w_hist'].loglikelihood
     Caic  = results['model_nohist'].loglikelihood+len(results['model_w_hist'].w)-len(results['model_nohist'].w)
     out = [l_obs]
-    print "l_obs=",l_obs
-    print "Caic= ",Caic
+    print("l_obs=",l_obs)
+    print("Caic= ",Caic)
     if not results['permutation_wh'] is None:
         hist, C95 = statistics.historytest ( results['permutation_wh'][:,0] )
-        print "C95=  ",C95
+        print("C95=  ",C95)
         out.append ( C95 )
         out.append ( Caic )
         out.append ( np.mean ( results['permutation_wh'][:,0]<l_obs ) )
@@ -535,10 +535,10 @@ def kernelplot ( d, results, infodict, ax1, ax2, legend='lower right' ):
 
     C = statistics.Kernel_and_Slope_Collector ( d.h, d.hf0, range(1,d.hf0) )
     K = C(M)
-    print 'K', K
-    print d.hf0
+    print('K', K)
+    print(d.hf0)
     nlags = d.h.shape[0]
-    print 'nlags = ', nlags
+    print('nlags = ', nlags)
 
     hr = K[:nlags]
     hz = K[nlags:2*nlags]
@@ -546,16 +546,16 @@ def kernelplot ( d, results, infodict, ax1, ax2, legend='lower right' ):
     hr *= K[-2]
     hz *= K[-2]
 
-    print "h_r[1]",hr[0]
-    print "h_z[1]",hz[0]
+    print("h_r[1]",hr[0])
+    print("h_z[1]",hz[0])
 
     if bootstrap is None:
         kernellen = (bootstrap.shape[1]-2)/2
-        print kernellen
+        print(kernellen)
         al = bootstrap[:,-2]
         al.shape = (-1,1)
         bootstrap[:,:-2] *= al # Like that?
-        print K[-2],pl.prctile(bootstrap[:,-2]),pl.mean(bootstrap[:,-2])
+        print(K[-2],pl.prctile(bootstrap[:,-2]),pl.mean(bootstrap[:,-2]))
 
         hci = statistics.history_kernel_ci (
                 bootstrap[:,kernellen:-2], bootstrap[:,:kernellen],
@@ -589,11 +589,11 @@ def kernelplot_Mod ( d, results, infodict, ax1, ax2, ax3, legend='lower right' )
 
     C = statistics.Kernel_and_Slope_Collector ( d.h, d.hf0, range(1,d.hf0) )
     K = C(M)
-    print 'K', K
-    print d.hf0
-    print 'd.h.shape[0]', d.h.shape[0]
+    print('K', K)
+    print(d.hf0)
+    print('d.h.shape[0]', d.h.shape[0])
 
-    print 'adding modulation kernels'
+    print('adding modulation kernels')
     hr = K[:d.h.shape[0]]
     hz = K[d.h.shape[0]:2*d.h.shape[0]]
     hr_pupil = K[2*d.h.shape[0]:3*d.h.shape[0]]
@@ -603,11 +603,11 @@ def kernelplot_Mod ( d, results, infodict, ax1, ax2, ax3, legend='lower right' )
 
     if bootstrap is None:
         kernellen = (bootstrap.shape[1]-2)/2
-        print kernellen
+        print(kernellen)
         al = bootstrap[:,-2]
         al.shape = (-1,1)
         bootstrap[:,:-2] *= al # Like that?
-        print K[-2],pl.prctile(bootstrap[:,-2]),pl.mean(bootstrap[:,-2])
+        print(K[-2],pl.prctile(bootstrap[:,-2]),pl.mean(bootstrap[:,-2]))
 
         hci = statistics.history_kernel_ci (
                 bootstrap[:,kernellen:-2], bootstrap[:,:kernellen],

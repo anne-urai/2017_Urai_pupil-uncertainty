@@ -165,7 +165,7 @@ def montecarlo_test ( observed_value, hist, C95, Caic=None, ax=None, labeling="l
         yrange = (np.min([observed_value,Caic])-1,np.max([observed_value,Caic])+1)
 
     if not labeling in ["likelihood","slope","other"]:
-        raise ValueError, "labeling should be either 'likelihood' or 'slope'"
+        raise ValueError("labeling should be either 'likelihood' or 'slope'")
 
     if observed_value>C95:
         ax.plot ( [observed_value]*2, (yrange[0],yrange[0]+0.85*(yrange[1]-yrange[0])),
@@ -243,7 +243,7 @@ def history_kernels ( estimated_stimulus_kernel, estimated_response_kernel, ci_k
                     -ground_truth['stimulus_kernel']+\
                     ground_truth['response_kernel']
     else:
-        raise ValueError, "presentation should be either 'left/right' or 'correct/incorrect'"
+        raise ValueError("presentation should be either 'left/right' or 'correct/incorrect'")
 
     if CI is None:
         CI = np.array([[kernels[0],kernels[0]],[kernels[1],kernels[1]]])
