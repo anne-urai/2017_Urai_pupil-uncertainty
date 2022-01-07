@@ -239,7 +239,7 @@ class ColumnData ( history.DataSet ):
                 rt_r = np.zeros ( z.shape )
 
             # loop over the nr of lags
-            for i in range ( len(z) ):
+            for i in xrange ( len(z) ):
                 z_[i] = history.get_code ( z[i], [-1,1], codes_z )
                 r_[i] = history.get_code ( r[i], [-1,1], codes_r )
 

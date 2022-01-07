@@ -179,7 +179,7 @@ def gram_schmidt ( X ):
     U = [X[:,0]]
     E = [X[:,0]/vector_norm ( X[:,0] )]
 
-    for i in range ( 1, X.shape[1] ):
+    for i in xrange ( 1, X.shape[1] ):
         u_new = X[:,i].copy()
         v = X[:,i]
         for u in U:
